@@ -5,3 +5,5 @@ omit =
     */distutils/*
     tests/*
     patchmentation/utils/validator.py
+
+disable_warnings = couldnt-parse
