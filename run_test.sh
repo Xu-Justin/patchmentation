@@ -1,3 +1,3 @@
 #!/bin/bash
-coverage run -m pytest
+coverage run -m pytest -v
 coverage html -i
