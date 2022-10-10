@@ -27,6 +27,14 @@ def test_save_load_image_array_2():
     validator.validate_image_array(reloaded_image_array)
     assert (reloaded_image_array == image_array).all()
 
+def test_save_load_image_array_3():
+    image_array = helper.generate_image_array()
+    image = loader.save_image_array_temporary(image_array)
+    reloaded_image = loader.load_image(image.path)
+    reloaded_image_array = loader.load_image_array(reloaded_image)
+    validator.validate_image_array(reloaded_image_array)
+    assert (reloaded_image_array == image_array).all()
+
 def test_load_patch_array():
     image_array = np.array([
         [[1, 2, 3], [2, 3, 4], [3, 4, 5]],

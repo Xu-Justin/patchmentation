@@ -6,7 +6,6 @@ import string
 import sys
 import numpy as np
 from typing import List, Tuple
-from copy import deepcopy
 
 DEFAULT_MIN_WIDTH = 20
 DEFAULT_MIN_HEIGHT = 20
@@ -144,9 +143,10 @@ def compare_float(float_1: float, float_2: float, epsilon: float = DEFAULT_EPSIL
 
 def compare_unordered_list_equal(list_1: list, list_2: list) -> bool:
     if len(list_1) != len(list_2): return False
-    list_1 = deepcopy(list_1)
-    list_2 = deepcopy(list_2)
+    list_1 = list_1.copy()
+    list_2 = list_2.copy()
     for item in list_1:
+        print(item, list_1, list_2)
         if item not in list_2: return False
         list_2.remove(item)
     if len(list_2) == 0: return True

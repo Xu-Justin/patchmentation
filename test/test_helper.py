@@ -40,3 +40,61 @@ def test_generate_imagePatch():
 def test_generate_dataset():
     dataset = helper.generate_dataset()
     validator.validate_Dataset(dataset)
+
+def test_compare_float_equal_1():
+    float_1 = 0.1 + 0.2
+    float_2 = 0.3
+    assert helper.compare_float_equal(float_1, float_2)
+
+def test_compare_float_equal_2():
+    float_1 = 0.1 + 0.2
+    float_2 = 0.30001
+    assert not helper.compare_float_equal(float_1, float_2)
+
+def test_compare_float_1():
+    float_1 = 0.1 + 0.2
+    float_2 = 0.3
+    assert helper.compare_float(float_1, float_2) == 0
+
+def test_compare_float_2():
+    float_1 = 0.1 + 0.2
+    float_2 = 0.30001
+    assert helper.compare_float(float_1, float_2) == -1
+
+def test_compare_float_3():
+    float_1 = 0.1 + 0.2
+    float_2 = 0.29999
+    assert helper.compare_float(float_1, float_2) == 1
+
+def test_compare_unordered_list_equal_1():
+    obj_1 = object()
+    obj_2 = object()
+    obj_3 = object()
+    list_1 = [obj_1, obj_2, obj_3, obj_1]
+    list_2 = [obj_3, obj_1, obj_1, obj_2]
+    assert helper.compare_unordered_list_equal(list_1, list_2)
+    assert list_1 == [obj_1, obj_2, obj_3, obj_1]
+    assert list_2 == [obj_3, obj_1, obj_1, obj_2]
+
+def test_compare_unordered_list_equal_2():
+    obj_1 = object()
+    obj_2 = object()
+    obj_3 = object()
+    list_1 = [obj_1, obj_2, obj_3, obj_1]
+    list_2 = [obj_3, obj_1, obj_2, obj_2]
+    assert not helper.compare_unordered_list_equal(list_1, list_2)
+    assert list_1 == [obj_1, obj_2, obj_3, obj_1]
+    assert list_2 == [obj_3, obj_1, obj_2, obj_2]
+
+def test_compare_unordered_list_equal_3():
+    obj_1 = object()
+    obj_2 = object()
+    obj_3 = object()
+    list_1 = [obj_1, obj_2, obj_3]
+    list_2 = [obj_3, obj_1, obj_3, obj_2]
+    assert not helper.compare_unordered_list_equal(list_1, list_2)
+    assert list_1 == [obj_1, obj_2, obj_3]
+    assert list_2 == [obj_3, obj_1, obj_3, obj_2]
+
+if __name__ == '__main__':
+    test_compare_unordered_list_equal_1()

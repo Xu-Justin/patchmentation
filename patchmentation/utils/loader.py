@@ -9,17 +9,20 @@ from typing import List, Union
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
 
-def load_image_array(path: Union[str, Image]) -> np.array:
+def load_image_array(path: Union[str, Image]) -> np.ndarray:
     if isinstance(path, Image):
         path = path.path
     image_array = cv2.imread(path)
     return image_array
 
-def load_patch_array(image: Image, bbox: BBox) -> np.array:
+def load_patch_array(image: Image, bbox: BBox) -> np.ndarray:
     image_array = load_image_array(image)
     xmin, ymin, xmax, ymax = bbox
     patch_array = image_array[ymin:ymax, xmin:xmax]
     return patch_array
+
+def load_image(path: str) -> Image:
+    return Image(path)
 
 def save_image_array(image_array: np.array, path: str) -> Image:
     cv2.imwrite(path, image_array)

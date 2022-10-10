@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Image, Patch, ImagePatch
+from patchmentation.collections import BBox, Patch
 
 import numpy as np
 import cv2
@@ -96,17 +96,22 @@ def visibility_suppression(
             ymin = max(0, ymin)
             xmax = min(xmax, grid_width)
             ymax = min(ymax, grid_height)
+            if xmin >= grid_width or ymin >= grid_height or xmax < 0 or ymax < 0 : continue
             grid[ymin:ymax, xmin:xmax] = EMPTY_CELL
     
     for i in range(grid_height):
         for j in range(grid_width):
-            if grid[i][j] is not EMPTY_CELL:
+            if grid[i][j] != EMPTY_CELL:
                 visible_area[grid[i][j]] += 1
+
+    visibility = [0] * len(patches)
+    for i in range(len(patches)):
+        if total_area[i] != 0:
+            visibility[i] = visible_area[i] / total_area[i]
 
     result_patches = []
     for i, patch in enumerate(patches):
-        visibility = visible_area[i] / total_area[i]
-        if visibility > visibility_threshold:
+        if visibility[i] > visibility_threshold:
             result_patches.append(patch)
     
     return result_patches
@@ -137,7 +142,7 @@ def place_image_array(patch_array: np.ndarray, image_array: np.ndarray, bbox: BB
     image_array[image_ymin:image_ymax, image_xmin: image_xmax] = patch_array[patch_ymin:patch_ymax, patch_xmin:patch_xmax]
     return BBox(image_xmin, image_ymin, image_xmax, image_ymax)
 
-def display_image_array(image_array: np.ndarray) -> None:
+def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
     image_array = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
     plt.imshow(image_array)
-    plt.show()
+    plt.show(block=block)
