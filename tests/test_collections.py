@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
-from test import helper
+from tests import helper
 
 def test_bbox():
     xmin, xmax = helper.generate_x()
@@ -18,12 +18,18 @@ def test_bbox():
     # __iter__
     assert (xmin, ymin, xmax, ymax) == tuple(bbox)
 
+    # summary
+    bbox.summary()
+
 def test_image():
     path = helper.generate_filename('.jpg')
     image = Image(path)
     
     # attribute
     assert image.path == path
+
+    # summary
+    image.summary()
 
 def test_patch():
     image = helper.generate_image()
@@ -39,6 +45,9 @@ def test_patch():
     # __iter__
     assert (image, bbox, class_name) == tuple(patch)
 
+    # summary
+    patch.summary()
+
 def test_imagePatch():
     image = helper.generate_image()
     patches = helper.generate_patches(image)
@@ -51,6 +60,9 @@ def test_imagePatch():
     # __iter__
     assert (image, patches) == tuple(imagePatch)
 
+    # summary
+    imagePatch.summary()
+
 def test_dataset():
     classes = helper.generate_classes()
     imagePatches = helper.generate_imagePatches(classes=classes)
@@ -62,3 +74,6 @@ def test_dataset():
 
     # __iter__
     assert (imagePatches, classes) == tuple(dataset)
+
+    # summary
+    dataset.summary()

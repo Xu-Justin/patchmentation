@@ -1,7 +1,7 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from test import helper
+from tests import helper
 from patchmentation.utils import loader
 from patchmentation.utils import validator
 from patchmentation.collections import BBox

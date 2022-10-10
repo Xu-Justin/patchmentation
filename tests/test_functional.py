@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from patchmentation.utils import functional as F
 from patchmentation.utils import validator
 from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
-from test import helper
+from tests import helper
 
 import numpy as np
 import pytest

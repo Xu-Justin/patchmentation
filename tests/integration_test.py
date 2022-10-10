@@ -5,8 +5,6 @@ from patchmentation.utils import validator
 from patchmentation.utils import loader
 from patchmentation import patch_augmentation
 
-import pytest
-
 SAMPLE_PATCHMENTATION_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
 SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
 SAMPLE_PATCHMENTATION_FILE_NAMES = 'dataset/sample_patchmentation/source/obj.names'
