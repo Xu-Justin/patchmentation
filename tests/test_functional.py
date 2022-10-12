@@ -507,3 +507,6 @@ def test_place_image_array_3():
 def test_display_image_array():
     image_array = helper.generate_image_array(10, 20)
     F.display_image_array(image_array, block=False)
+
+def test_dummy():
+    assert 1 == 2
