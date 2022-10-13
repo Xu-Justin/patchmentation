@@ -507,3 +507,15 @@ def test_place_image_array_3():
 def test_display_image_array():
     image_array = helper.generate_image_array(10, 20)
     F.display_image_array(image_array, block=False)
+
+def test_convert_BGR2RGB():
+    image_array = np.array([
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        [[10, 11, 12], [13, 14, 15], [16, 17, 18]] 
+    ], 'uint8')
+    actual_image_array = F.convert_BGR2RGB(image_array)
+    expected_imagea_array = np.array([
+        [[3, 2, 1], [6, 5, 4], [9, 8, 7]],
+        [[12, 11, 10], [15, 14, 13], [18, 17, 16]] 
+    ], 'uint8')
+    assert (actual_image_array == expected_imagea_array).all()

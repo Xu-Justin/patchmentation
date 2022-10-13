@@ -143,6 +143,9 @@ def place_image_array(patch_array: np.ndarray, image_array: np.ndarray, bbox: BB
     return BBox(image_xmin, image_ymin, image_xmax, image_ymax)
 
 def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
-    image_array = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
+    image_array = convert_BGR2RGB(image_array)
     plt.imshow(image_array)
     plt.show(block=block)
+
+def convert_BGR2RGB(image_array: np.ndarray) -> np.ndarray:
+    return cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
