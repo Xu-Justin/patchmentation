@@ -1,11 +1,12 @@
 from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
-from patchmentation.utils.loader import save_image_array_temporary, load_image_array
+from patchmentation.utils import loader
 
 import random
 import string
 import sys
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Callable
+from inspect import signature
 
 DEFAULT_MIN_WIDTH = 20
 DEFAULT_MIN_HEIGHT = 20
@@ -16,7 +17,7 @@ DEFAULT_MIN_NUMBER_OF_CLASS = 2
 DEFAULT_MAX_NUMBER_OF_CLASS = 5
 DEFAULT_FILENAME_LENGTH = 8
 DEFAULT_IMAGE_EXT = '.jpg'
-DEFAULT_MIN_NUMBER_OF_PATCH = 1
+DEFAULT_MIN_NUMBER_OF_PATCH = 0
 DEFAULT_MAX_NUMBER_OF_PATCH = 5
 DEFAULT_MIN_NUMBER_OF_IMAGE = 2
 DEFAULT_MAX_NUMBER_OF_IMAGE = 5
@@ -25,6 +26,9 @@ DEFAULT_EPSILON = 1e-6
 FLOAT_MIN = sys.float_info.min
 FLOAT_MAX = sys.float_info.max
 
+def _kwargs(kwargs, func: Callable, var: str):
+    return kwargs.get(var, signature(func).parameters[var].default)
+    
 def generate_width() -> int:
     return random.randint(DEFAULT_MIN_WIDTH, DEFAULT_MAX_WIDTH)
 
@@ -37,8 +41,9 @@ def generate_class_name(length: int = DEFAULT_CLASS_NAME_LENGTH) -> str:
 def generate_number_of_class() -> int:
     return random.randint(DEFAULT_MIN_NUMBER_OF_CLASS, DEFAULT_MAX_NUMBER_OF_CLASS)
 
-def generate_classes(length: int = DEFAULT_CLASS_NAME_LENGTH, number_of_class: int = None) -> List[str]:
+def generate_classes(number_of_class: int = None, **kwargs) -> List[str]:
     if number_of_class is None: number_of_class = generate_number_of_class()
+    length = _kwargs(kwargs, generate_class_name, 'length')
     return [generate_class_name(length) for _ in range(number_of_class)]
 
 def generate_filename(ext: str, length: int = DEFAULT_FILENAME_LENGTH) -> str:
@@ -62,13 +67,6 @@ def generate_y(height: int = None) -> Tuple[int, int]:
     ymax = random.randint(ymin, height)
     return ymin, ymax
 
-def generate_bbox(width: int = None, height: int = None) -> BBox:
-    if width is None: width = generate_width()
-    if height is None: height = generate_height()
-    xmin, xmax = generate_x(width)
-    ymin, ymax = generate_y(height)
-    return BBox(xmin, ymin, xmax, ymax)
-
 def generate_image_array(width: int = None, height: int = None) -> np.ndarray:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
@@ -77,51 +75,57 @@ def generate_image_array(width: int = None, height: int = None) -> np.ndarray:
     image_array = (image_array * 255).astype('uint8')
     return image_array
 
-def generate_image(width: int = None, height: int = None) -> Image:
+def generate_BBox(width: int = None, height: int = None) -> BBox:
+    if width is None: width = generate_width()
+    if height is None: height = generate_height()
+    xmin, xmax = generate_x(width)
+    ymin, ymax = generate_y(height)
+    return BBox(xmin, ymin, xmax, ymax)
+
+def generate_Image(width: int = None, height: int = None) -> Image:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
     image_array = generate_image_array(width, height)
-    return save_image_array_temporary(image_array)
+    return loader.save_image_array_temporary(image_array)
     
-def generate_patch(image: Image, width: int = None, height: int = None, classes: List[str] = None) -> Patch:
-    if width is None and height is None:
-        height, width, _ = load_image_array(image).shape
-    assert width is not None
-    assert height is not None
+def generate_Patch(image: Image, classes: List[str] = None, **kwargs) -> Patch:
     if classes is None: classes = generate_classes(number_of_class=1)
-    bbox = generate_bbox(width, height)
+    shape = kwargs.get('shape', image.shape())
+    height = shape[0]
+    width = shape[1]
+    bbox = generate_BBox(width, height)
     class_name = random.choice(classes)
     return Patch(image, bbox, class_name)
 
-def generate_patches(image: Image, number_of_patch: int = None, width: int = None, height: int = None, classes: List[str] = None) -> List[Patch]:
+def generate_patches(image: Image, number_of_patch: int = None, classes: List[str] = None, **kwargs) -> List[Patch]:
     if number_of_patch is None: number_of_patch = generate_number_of_patch()
-    if width is None and height is None:
-        height, width, _ = load_image_array(image).shape
-    assert width is not None
-    assert height is not None
     if classes is None: classes = generate_classes()
-    return [generate_patch(image, width, height, classes) for _ in range(number_of_patch)]
+    shape = kwargs.get('shape', image.shape())
+    kwargs['shape'] = shape
+    return [generate_Patch(image, classes, **kwargs) for _ in range(number_of_patch)]
 
-def generate_imagePatch(number_of_patch: int = None, width: int = None, height: int = None, classes: List[str] = None) -> ImagePatch:
-    if number_of_patch is None: number_of_patch = generate_number_of_patch()
-    if width is None: width = generate_width()
-    if height is None: height = generate_height()
+def generate_ImagePatch(classes: List[str] = None, **kwargs) -> ImagePatch:
     if classes is None: classes = generate_classes()
-    image = generate_image(width, height)
-    patches = generate_patches(image, number_of_patch, width, height, classes)
+    number_of_patch = kwargs.get('number_of_patch', generate_number_of_patch())
+    width = kwargs.get('width', generate_width())
+    height = kwargs.get('height', generate_height())
+    kwargs['shape'] = (height, width)
+    image = generate_Image(width, height)
+    patches = generate_patches(image, number_of_patch, classes, **kwargs)
     return ImagePatch(image, patches)
 
-def generate_imagePatches(number_of_image: int = None, classes: List[str] = None) -> List[ImagePatch]:
+def generate_image_patches(number_of_image: int = None, classes: List[str] = None, **kwargs) -> List[ImagePatch]:
     if number_of_image is None: number_of_image = generate_number_of_image()
-    if classes is None: classes = generate_classes()
-    return [generate_imagePatch() for _ in range(number_of_image)]
+    number_of_class = _kwargs(kwargs, generate_classes, 'number_of_class')
+    if classes is None: classes = generate_classes(number_of_class, **kwargs)
+    return [generate_ImagePatch(classes, **kwargs) for _ in range(number_of_image)]
 
-def generate_dataset(number_of_image = None, number_of_class: int = None) -> Dataset:
+def generate_Dataset(number_of_image: int = None, number_of_class: int = None, **kwargs) -> Dataset:
     if number_of_image is None: number_of_image = generate_number_of_image()
     if number_of_class is None: number_of_class = generate_number_of_class()
-    classes = generate_classes(number_of_class=number_of_class)
-    imagePatches = generate_imagePatches(number_of_image, classes)
-    return Dataset(imagePatches, classes)
+    classes = generate_classes(number_of_class, **kwargs)
+    image_patches = generate_image_patches(number_of_image, classes, **kwargs)
+    return Dataset(image_patches, classes)
 
 # source: https://floating-point-gui.de/errors/comparison/
 def compare_float_equal(float_1: float, float_2: float, epsilon: float = DEFAULT_EPSILON) -> bool:

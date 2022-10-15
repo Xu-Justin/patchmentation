@@ -7,38 +7,38 @@ from patchmentation.utils import validator
 def test_generate_bbox_1():
     width = 20
     height = 1000
-    bbox = helper.generate_bbox(width, height)
-    validator.validate_BBox(bbox, width, height)
+    bbox = helper.generate_BBox(width, height)
+    validator.validate_BBox(bbox, width=width, height=height)
 
 def test_generate_bbox_2():
     width = 1000
     height = 20
-    bbox = helper.generate_bbox(width, height)
-    validator.validate_BBox(bbox, width, height)
+    bbox = helper.generate_BBox(width, height)
+    validator.validate_BBox(bbox, width=width, height=height)
 
 def test_generate_image_1():
     width = 100
     height = 20
-    image = helper.generate_image(width, height)
+    image = helper.generate_Image(width, height)
     validator.validate_Image(image, expected_width=width, expected_height=height)
 
 def test_generate_image_2():
     width = 20
     height = 100
-    image = helper.generate_image(width, height)
+    image = helper.generate_Image(width, height)
     validator.validate_Image(image, expected_width=width, expected_height=height)
 
 def test_generate_patch():
-    image = helper.generate_image()
-    patch = helper.generate_patch(image)
+    image = helper.generate_Image()
+    patch = helper.generate_Patch(image)
     validator.validate_Patch(patch)
 
 def test_generate_imagePatch():
-    imagePatch = helper.generate_imagePatch()
+    imagePatch = helper.generate_ImagePatch()
     validator.validate_ImagePatch(imagePatch)
 
 def test_generate_dataset():
-    dataset = helper.generate_dataset()
+    dataset = helper.generate_Dataset()
     validator.validate_Dataset(dataset)
 
 def test_compare_float_equal_1():

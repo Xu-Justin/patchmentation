@@ -16,8 +16,8 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
     ATTR_TARGET_BBOX = 'target_bbox'
 
     for patch in patches:
-        width = F.calculate_width(patch.bbox)
-        height = F.calculate_height(patch.bbox)
+        width = patch.bbox.width()
+        height = patch.bbox.height()
         xmin = random.randint(0, background_image_width - 1)
         ymin = random.randint(0, background_image_height - 1)
         xmax = xmin + width
@@ -31,16 +31,15 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
         scaled_bbox = F.scale_bbox(bbox, scale)
         setattr(patch, ATTR_TARGET_BBOX, scaled_bbox)
     
-
     INF = float('inf')
-    result_patches = F.visibility_suppression(
+    patches = F.visibility_suppression(
         patches=patches,
         visibility_threshold=visibility_threshold,
         non_removal_patches=[
             Patch(None, BBox(-INF, -INF, 0, INF), None),
             Patch(None, BBox(-INF, -INF, INF, 0), None),
-            Patch(None, BBox(width + 1, -INF, INF, INF), None),
-            Patch(None, BBox(-INF, height + 1, INF, INF), None),
+            Patch(None, BBox(background_image_width + 1, -INF, INF, INF), None),
+            Patch(None, BBox(-INF, background_image_height + 1, INF, INF), None),
         ],
         attr_bbox=ATTR_TARGET_BBOX,
         attr_non_removal_patches_bbox='bbox'
@@ -50,10 +49,10 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
     result_patches: List[Patch] = []
     for patch in patches:
         target_bbox = getattr(patch, ATTR_TARGET_BBOX)
-        width = F.calculate_width(target_bbox)
-        height = F.calculate_height(target_bbox)
+        width = target_bbox.width()
+        height = target_bbox.height()
         
-        patch_array = loader.load_patch_array(patch.image, patch.bbox)
+        patch_array = patch.image_array()
         patch_array = F.resize_image_array(patch_array, width, height)
 
         result_bbox = F.place_image_array(patch_array, result_image_array, target_bbox)

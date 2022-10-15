@@ -9,62 +9,6 @@ from tests import helper
 import numpy as np
 import pytest
 
-def test_calculcate_width_1():
-    xmin, xmax = 1, 5
-    ymin, ymax = None, None
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    width = F.calculate_width(bbox)
-    assert width == 4
-
-def test_calculcate_width_2():
-    xmin, xmax = 1, 1
-    ymin, ymax = None, None
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    width = F.calculate_width(bbox)
-    assert width == 0
-
-def test_calculate_height_1():
-    xmin, xmax = None, None
-    ymin, ymax = 1, 5
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    height = F.calculate_height(bbox)
-    assert height == 4
-
-def test_calculate_height_2():
-    xmin, xmax = None, None
-    ymin, ymax = 1, 1
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    height = F.calculate_height(bbox)
-    assert height == 0
-
-def test_calculate_area_1():
-    xmin, xmax = 1, 5
-    ymin, ymax = 6, 8
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    area = F.calculate_area(bbox)
-    assert area == 8
-
-def test_calculate_area_2():
-    xmin, xmax = 1, 1
-    ymin, ymax = 6, 8
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    area = F.calculate_area(bbox)
-    assert area == 0
-
-def test_calculate_area_3():
-    xmin, xmax = 1, 5
-    ymin, ymax = 6, 6
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    area = F.calculate_area(bbox)
-    assert area == 0
-
-def test_calculate_area_4():
-    xmin, xmax = 5, 5
-    ymin, ymax = 6, 6
-    bbox = BBox(xmin, ymin, xmax, ymax)
-    area = F.calculate_area(bbox)
-    assert area == 0
-
 def test_intersection_1():
     bbox_1 = BBox(1, 0, 6, 3)
     bbox_2 = BBox(3, 1, 7, 6)
@@ -270,7 +214,7 @@ def test_visibility_suppression_1():
     non_removal_patches = None
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = None
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_1, patch_3]
     assert actual_patches == expected_patches
 
@@ -283,7 +227,7 @@ def test_visibility_suppression_2():
     non_removal_patches = None
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = None
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_1, patch_2]
     assert actual_patches == expected_patches
 
@@ -296,7 +240,7 @@ def test_visibility_suppression_3():
     non_removal_patches = None
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = None
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_3]
     assert actual_patches == expected_patches
 
@@ -309,7 +253,7 @@ def test_visibility_suppression_4():
     non_removal_patches = None
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = None
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_1, patch_2, patch_3]
     assert actual_patches == expected_patches
 
@@ -325,7 +269,7 @@ def test_visibility_suppression_5():
     setattr(patch_2, attr_bbox, BBox(0, 0, 5, 9))
     setattr(patch_3, attr_bbox, BBox(0, 0, 5, 5))
     attr_non_removal_patches_bbox = None
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_1, patch_3]
     assert actual_patches == expected_patches
 
@@ -339,7 +283,7 @@ def test_visibility_suppression_6():
     non_removal_patches = [patch_4]
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = 'bbox'
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_1, patch_2]
     assert actual_patches == expected_patches
 
@@ -355,7 +299,7 @@ def test_visibility_suppression_7():
     non_removal_patches = [patch_4, patch_5]
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = 'bbox'
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_1]
     assert actual_patches == expected_patches
 
@@ -371,7 +315,7 @@ def test_visibility_suppression_8():
     non_removal_patches = [patch_4, patch_5]
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = 'bbox'
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = []
     assert actual_patches == expected_patches
 
@@ -392,7 +336,7 @@ def test_visibility_suppression_9():
     attr_non_removal_patches_bbox = 'attr_non_removal_patches_bbox'
     setattr(patch_4, attr_non_removal_patches_bbox, BBox(-INF, -INF, INF, 0))
     setattr(patch_5, attr_non_removal_patches_bbox, BBox(-INF, 5, INF, INF))
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_3]
     assert actual_patches == expected_patches
 
@@ -409,7 +353,7 @@ def test_visibility_suppression_10():
     non_removal_patches = [patch_4, patch_5, patch_6]
     attr_bbox = 'bbox'
     attr_non_removal_patches_bbox = 'bbox'
-    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox, attr_non_removal_patches_bbox)
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
     expected_patches = [patch_2, patch_3]
     assert actual_patches == expected_patches
 
@@ -519,3 +463,33 @@ def test_convert_BGR2RGB():
         [[12, 11, 10], [15, 14, 13], [18, 17, 16]] 
     ], 'uint8')
     assert (actual_image_array == expected_imagea_array).all()
+
+def test_crop_image_array_1():
+    image_array = np.array([
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+        [[19, 20, 21], [22, 23, 24], [25, 26, 27]],
+        [[28, 29, 30], [31, 32, 33], [34, 35, 36]]
+    ])
+    bbox = BBox(0, 1, 2, 2)
+    actual_image_array = F.crop_image_array(image_array, bbox)
+    expected_image_array = np.array([
+        [[10, 11, 12], [13, 14, 15]]
+    ])
+    assert (actual_image_array == expected_image_array).all()
+
+def test_crop_image_array_2():
+    image_array = np.array([
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+        [[19, 20, 21], [22, 23, 24], [25, 26, 27]],
+        [[28, 29, 30], [31, 32, 33], [34, 35, 36]]
+    ])
+    bbox = BBox(1, 0, 2, 3)
+    actual_image_array = F.crop_image_array(image_array, bbox)
+    expected_image_array = np.array([
+        [[4, 5, 6]],
+        [[13, 14, 15]],
+        [[22, 23, 24]]
+    ])
+    assert (actual_image_array == expected_image_array).all()
