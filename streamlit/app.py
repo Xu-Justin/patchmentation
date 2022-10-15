@@ -7,6 +7,7 @@ from patchmentation import patch_augmentation
 
 import os
 import streamlit as st
+import extra_streamlit_components as stx
 
 SAMPLE_PATCHMENTATION = 'dataset/sample_patchmentation/'
 SAMPLE_PATCHMENTATION_BACKGROUND = os.path.join(SAMPLE_PATCHMENTATION, 'background/background_1.jpg')
@@ -20,21 +21,26 @@ DATASET_FORMAT_PASCAL_VOC = 'Pascal VOC'
 
 def section_dataset():
     st.subheader('Dataset')
-    dataset_format = st.selectbox('Dataset Format', (DATASET_FORMAT_YOLO, DATASET_FORMAT_COCO, DATASET_FORMAT_PASCAL_VOC))
-    
-    if dataset_format == DATASET_FORMAT_YOLO:
+
+    tab = stx.tab_bar(data=[
+        stx.TabBarItemData(id=DATASET_FORMAT_YOLO, title=DATASET_FORMAT_YOLO, description=None),
+        stx.TabBarItemData(id=DATASET_FORMAT_COCO, title=DATASET_FORMAT_COCO, description=None),
+        stx.TabBarItemData(id=DATASET_FORMAT_PASCAL_VOC, title=DATASET_FORMAT_PASCAL_VOC, description=None)
+    ])
+
+    if tab == DATASET_FORMAT_YOLO:
         folder_images = st.text_input('Path to YOLO Images', SAMPLE_PATCHMENTATION_YOLO_IMAGES)
         folder_annotations = st.text_input('Path to YOLO Annotations', SAMPLE_PATCHMENTATION_YOLO_ANNOTATIONS)
         file_names = st.text_input('Path to YOLO Names', SAMPLE_PATCHMENTATION_YOLO_NAMES)
         return loader.load_yolo_dataset(folder_images, folder_annotations, file_names)
-    
-    if dataset_format == DATASET_FORMAT_COCO:
+
+    if tab == DATASET_FORMAT_COCO:
         st.write('Not implemented yet.')
-        return None
     
-    if dataset_format == DATASET_FORMAT_PASCAL_VOC:
+    if tab == DATASET_FORMAT_PASCAL_VOC:
         st.write('Not implemented yet.')
-        return None
+
+    return None
 
 def section_background_image():
     st.subheader('Background Image')
@@ -62,7 +68,7 @@ def section_display_result(result):
     image = loader.load_image_array(image)
     image = F.convert_BGR2RGB(image)
     st.image(image, use_column_width='always')
-
+    
 def main():
     dataset = section_dataset()
     background_image = section_background_image()
