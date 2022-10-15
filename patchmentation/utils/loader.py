@@ -1,5 +1,4 @@
 from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
-from patchmentation.utils.functional import draw_patch
 
 import os
 import cv2
@@ -10,32 +9,21 @@ from typing import List, Union
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
 
-def load_image_array(path: Union[str, Image]) -> np.ndarray:
-    if isinstance(path, Image):
-        path = path.path
-    image_array = cv2.imread(path)
-    return image_array
+def load_image_array(image: Union[str, Image, ImagePatch]) -> np.ndarray:
+    if isinstance(image, str):
+        return Image(image).image_array()
+    if isinstance(image, (Image, ImagePatch)):
+        return image.image_array()
+    raise TypeError
 
-def load_patch_array(image: Image, bbox: BBox) -> np.ndarray:
-    image_array = load_image_array(image)
-    xmin, ymin, xmax, ymax = bbox
-    patch_array = image_array[ymin:ymax, xmin:xmax]
-    return patch_array
-
-def load_imagePatch_array(imagePatch: ImagePatch) -> np.ndarray:
-    image_array = load_image_array(imagePatch.image)
-    for patch in imagePatch.patches:
-        image_array = draw_patch(image_array, patch.bbox, patch.class_name)
-    return image_array
-    
 def load_image(path: str) -> Image:
     return Image(path)
 
-def save_image_array(image_array: np.array, path: str) -> Image:
+def save_image_array(image_array: np.ndarray, path: str) -> Image:
     cv2.imwrite(path, image_array)
     return Image(path)
 
-def save_image_array_temporary(image_array: np.array) -> Image:
+def save_image_array_temporary(image_array: np.ndarray) -> Image:
     temporary_file = tempfile.NamedTemporaryFile(suffix='.png', dir=temporary_folder.name)
     path = temporary_file.name
     image = save_image_array(image_array, path)
@@ -44,8 +32,8 @@ def save_image_array_temporary(image_array: np.array) -> Image:
 
 def load_yolo_dataset(folder_images: str, folder_annotations: str, file_names: str) -> Dataset:
     classes = load_yolo_names(file_names)
-    imagePatches = load_yolo_imagePatches(folder_images, folder_annotations, classes)
-    dataset = Dataset(imagePatches, classes)
+    image_patches = load_yolo_image_patches(folder_images, folder_annotations, classes)
+    dataset = Dataset(image_patches, classes)
     return dataset
 
 def load_yolo_names(file_names: str) -> List[str]:
@@ -59,8 +47,8 @@ def load_yolo_names(file_names: str) -> List[str]:
             classes.append(class_name)
     return classes
 
-def load_yolo_imagePatches(folder_images: str, folder_annotations: str, classes: List[str]) -> List[ImagePatch]:
-    imagePatches = []
+def load_yolo_image_patches(folder_images: str, folder_annotations: str, classes: List[str]) -> List[ImagePatch]:
+    image_patches = []
     for file_name in os.listdir(folder_images):
         if file_name.startswith('.'): continue
         if not(file_name.endswith(('.jpg', '.png'))): continue
@@ -68,12 +56,12 @@ def load_yolo_imagePatches(folder_images: str, folder_annotations: str, classes:
         file_annotation = os.path.join(folder_annotations, file_name[:-4] + '.txt')
         image = Image(file_image)
         patches = load_yolo_patches(image, file_annotation, classes)
-        imagePatch = ImagePatch(image, patches)
-        imagePatches.append(imagePatch)
-    return imagePatches
+        image_patch = ImagePatch(image, patches)
+        image_patches.append(image_patch)
+    return image_patches
     
 def load_yolo_patches(image: Image, file_annotation: str, classes: List[str]) -> List[ImagePatch]:
-    image_height, image_width, _ = load_image_array(image).shape
+    image_height, image_width, _ = image.image_array().shape
     patches = []
     with open(file_annotation, 'r') as f:
         lines = f.readlines()

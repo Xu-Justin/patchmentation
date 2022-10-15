@@ -5,15 +5,6 @@ import cv2
 import matplotlib.pyplot as plt
 from typing import List, Tuple
 
-def calculate_width(bbox: BBox) -> int:
-    return bbox.xmax - bbox.xmin
-
-def calculate_height(bbox: BBox) -> int:
-    return bbox.ymax - bbox.ymin
-
-def calculate_area(bbox: BBox) -> int:
-    return calculate_width(bbox) * calculate_height(bbox)
-
 def intersection(bbox_1: BBox, bbox_2: BBox) -> BBox:
     xmin = max(bbox_1.xmin, bbox_2.xmin)
     ymin = max(bbox_1.ymin, bbox_2.ymin)
@@ -22,13 +13,12 @@ def intersection(bbox_1: BBox, bbox_2: BBox) -> BBox:
     
     if xmin > xmax or ymin > ymax:
         return BBox(0, 0, 0, 0)
-    
     return BBox(xmin, ymin, xmax, ymax)
 
 def intersection_over_union(bbox_1: BBox, bbox_2: BBox) -> float:
     bbox_intersection = intersection(bbox_1, bbox_2)
-    intersection_area = calculate_area(bbox_intersection)
-    union_area = calculate_area(bbox_1) + calculate_area(bbox_2) - intersection_area
+    intersection_area = bbox_intersection.area()
+    union_area = bbox_1.area() + bbox_2.area() - intersection_area
     if union_area == 0 and intersection_area == 0:
         return 0
     return intersection_area / union_area
@@ -44,21 +34,17 @@ def scale_dimension(width: int, height: int, scale: float) -> Tuple[int, int]:
     return scaled_width, scaled_height
 
 def scale_bbox(bbox: BBox, scale: float) -> BBox:
-    width = calculate_width(bbox)
-    height = calculate_height(bbox)
+    width = bbox.width()
+    height = bbox.height()
     scaled_width, scaled_height = scale_dimension(width, height, scale)
     xmin, ymin, _, _ = bbox
     xmax = xmin + scaled_width
     ymax = ymin + scaled_height
     return BBox(xmin, ymin, xmax, ymax)
 
-def visibility_suppression(
-        patches: List[Patch],
-        visibility_threshold: float,
-        non_removal_patches: List[Patch] = None,
-        attr_bbox: str = 'bbox',
-        attr_non_removal_patches_bbox: str = 'bbox'
-    ) -> List[Patch]:
+def visibility_suppression(patches: List[Patch], visibility_threshold: float, non_removal_patches: List[Patch] = None, **kwargs) -> List[Patch]:
+    attr_bbox = kwargs.get('attr_bbox', 'bbox')
+    attr_non_removal_patches_bbox = kwargs.get('attr_non_removal_patches_bbox', 'bbox')
     
     min_x, min_y, max_x, max_y = getattr(patches[0], attr_bbox)
     for patch in patches:
@@ -83,7 +69,7 @@ def visibility_suppression(
         ymin -= min_y
         ymax -= min_y
         grid[ymin:ymax, xmin:xmax] = i
-        total_area[i] = calculate_area(getattr(patch, attr_bbox))
+        total_area[i] = getattr(patch, attr_bbox).area()
     
     if non_removal_patches is not None:
         for patch in non_removal_patches:
@@ -150,8 +136,6 @@ def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
 def convert_BGR2RGB(image_array: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
 
-def draw_patch(image_array: np.ndarray, bbox: BBox, class_name: str = None, color: Tuple[int, int, int] = (255, 0, 0), thickness: int = 1, fontScale: int = 1, ) -> np.ndarray:
+def crop_image_array(image_array: np.ndarray, bbox: BBox) -> np.ndarray:
     xmin, ymin, xmax, ymax = bbox
-    image_array = cv2.rectangle(image_array, (xmin, ymin), (xmax, ymax), color, thickness)
-    image_array = cv2.putText(image_array, class_name, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness)
-    return image_array
+    return image_array[ymin:ymax, xmin:xmax]
