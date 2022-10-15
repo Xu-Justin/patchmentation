@@ -6,3 +6,7 @@ typing-extensions>=4.3.0
 # testing tools
 pytest>=7.1.3
 coverage>=6.5.0
+
+# streamlit tools
+streamlit==1.13.0
+extra-streamlit-components==0.1.56
