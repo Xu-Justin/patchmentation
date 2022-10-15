@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Patch
+from patchmentation.collections import BBox, Image, Patch, ImagePatch
 
 import numpy as np
 import cv2
@@ -149,3 +149,9 @@ def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
 
 def convert_BGR2RGB(image_array: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
+
+def draw_patch(image_array: np.ndarray, bbox: BBox, class_name: str = None, color: Tuple[int, int, int] = (255, 0, 0), thickness: int = 1, fontScale: int = 1, ) -> np.ndarray:
+    xmin, ymin, xmax, ymax = bbox
+    image_array = cv2.rectangle(image_array, (xmin, ymin), (xmax, ymax), color, thickness)
+    image_array = cv2.putText(image_array, class_name, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness)
+    return image_array

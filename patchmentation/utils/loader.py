@@ -1,4 +1,5 @@
 from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
+from patchmentation.utils.functional import draw_patch
 
 import os
 import cv2
@@ -21,6 +22,12 @@ def load_patch_array(image: Image, bbox: BBox) -> np.ndarray:
     patch_array = image_array[ymin:ymax, xmin:xmax]
     return patch_array
 
+def load_imagePatch_array(imagePatch: ImagePatch) -> np.ndarray:
+    image_array = load_image_array(imagePatch.image)
+    for patch in imagePatch.patches:
+        image_array = draw_patch(image_array, patch.bbox, patch.class_name)
+    return image_array
+    
 def load_image(path: str) -> Image:
     return Image(path)
 

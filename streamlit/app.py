@@ -64,11 +64,10 @@ def section_patch_augmentation(dataset, background_image):
     
 def section_display_result(result):
     st.subheader('Result')
-    image = result.image
-    image = loader.load_image_array(image)
+    image = loader.load_imagePatch_array(result)
     image = F.convert_BGR2RGB(image)
     st.image(image, use_column_width='always')
-    
+
 def main():
     dataset = section_dataset()
     background_image = section_background_image()
