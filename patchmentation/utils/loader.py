@@ -88,8 +88,8 @@ def convert_yolo_bbox(x_center: float, y_center: float, yolo_width: float, yolo_
     bbox = BBox(xmin, ymin, xmax, ymax)
     return bbox
 
-def load_coco_dataset() -> Dataset:
+def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
     pass
 
-def load_pascal_voc_dataset() -> Dataset:
+def load_pascal_voc_dataset(folder_images: str, folder_annotations: str, file_imagesets: str, file_classes: str) -> Dataset:
     pass
