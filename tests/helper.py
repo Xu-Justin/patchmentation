@@ -154,3 +154,13 @@ def compare_unordered_list_equal(list_1: list, list_2: list) -> bool:
         list_2.remove(item)
     if len(list_2) == 0: return True
     else: return False
+
+def check_grayscale(image_array: np.ndarray) -> bool:
+    height, width, _ = image_array.shape
+    for i in range(height):
+        for j in range(width):
+            pixel = image_array[i][j]
+            b, g, r = pixel
+            if b != g or b != r:
+                return False
+    return True
