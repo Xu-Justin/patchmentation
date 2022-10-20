@@ -95,6 +95,3 @@ def test_compare_unordered_list_equal_3():
     assert not helper.compare_unordered_list_equal(list_1, list_2)
     assert list_1 == [obj_1, obj_2, obj_3]
     assert list_2 == [obj_3, obj_1, obj_3, obj_2]
-
-if __name__ == '__main__':
-    test_compare_unordered_list_equal_1()

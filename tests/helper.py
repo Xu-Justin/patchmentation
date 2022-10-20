@@ -150,7 +150,6 @@ def compare_unordered_list_equal(list_1: list, list_2: list) -> bool:
     list_1 = list_1.copy()
     list_2 = list_2.copy()
     for item in list_1:
-        print(item, list_1, list_2)
         if item not in list_2: return False
         list_2.remove(item)
     if len(list_2) == 0: return True
