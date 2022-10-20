@@ -5,9 +5,11 @@ import numpy as np
 import random
 from typing import Tuple, Union
 
+from patchmentation.utils import functional as F
+
 class Transform(ABC):
     def __call__(self, image_array: np.ndarray) -> np.ndarray:
-        self.transform(image_array)
+        return self.transform(image_array)
 
     @abstractmethod
     def transform(self, image_array: np.ndarray) -> np.ndarray:
@@ -30,7 +32,7 @@ class Resize(Transform):
 
     @staticmethod
     def resize(image_array: np.ndarray, width: int, height: int) -> np.ndarray:
-        return cv2.resize(image_array, (width, height), interpolation = cv2.INTER_AREA)
+        return F.resize_image_array(image_array, width, height)
 
     @staticmethod
     def _generate_width_height(width: int, height: int, image_width: int, image_height: int, aspect_ratio: Union[Tuple[int, int], str]) -> Tuple[int, int]:
@@ -54,7 +56,7 @@ class Resize(Transform):
                 ratio = aspect_ratio[0] / aspect_ratio[1]
                 height = width / ratio
         
-        return width, height
+        return int(width), int(height)
 
 class RandomResize(Transform):
     def __init__(self, width_range: Tuple[float, float] = None, height_range: Tuple[float, float] = None, aspect_ratio: Union[Tuple[int, int], str] = None):
@@ -79,8 +81,10 @@ class Scale(Transform):
     
     def transform(self, image_array: np.ndarray) -> np.ndarray:
         image_height, image_width, _ = image_array.shape
-        scale_width, scale_height = Resize._generate_width_height(self.scale_width, self.scale_height, image_width, image_height, self.aspect_ratio)
+        scale_width, scale_height = Scale._generate_scale_width_height(self.scale_width, self.scale_height, image_width, image_height, self.aspect_ratio)
         return Scale.scale(image_array, scale_width, scale_height)
+
+    AUTO_ASPECT_RATIO = 'auto'
 
     @staticmethod
     def scale_length(length: int, scale: float) -> int:
@@ -92,6 +96,28 @@ class Scale(Transform):
         scaled_image_width = Scale.scale_length(image_width, scale_width)
         scaled_image_height = Scale.scale_length(image_height, scale_height)
         return Resize.resize(image_array, scaled_image_width, scaled_image_height)
+
+    @staticmethod
+    def _generate_scale_width_height(scale_width: int, scale_height: int, image_width: int, image_height: int, aspect_ratio: Union[Tuple[int, int], str]) -> Tuple[float, float]:
+        if scale_width is None:
+            if aspect_ratio is None:
+                scale_width = 1
+            elif aspect_ratio == Scale.AUTO_ASPECT_RATIO:
+                scale_width = scale_height
+            else:
+                width, _ = Resize._generate_width_height(None, image_height * scale_height, image_width, image_height, aspect_ratio)
+                scale_width = width / image_width
+
+        if scale_height is None:
+            if aspect_ratio is None:
+                scale_height = 1
+            elif aspect_ratio == Resize.AUTO_ASPECT_RATIO:
+                scale_height = scale_width
+            else:
+                _, height = Resize._generate_width_height(image_width * scale_width, None, image_width, image_height, aspect_ratio)
+                scale_height = height / image_height
+        
+        return float(scale_width), float(scale_height)
     
 class RandomScale(Transform):
     def __init__(self, scale_width_range: Tuple[float, float] = None, scale_height_range: Tuple[float, float] = None, aspect_ratio: Union[Tuple[int, int], str] = None):

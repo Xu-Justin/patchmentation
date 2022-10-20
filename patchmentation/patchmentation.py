@@ -1,17 +1,38 @@
 from patchmentation.collections import BBox, Image, Patch, ImagePatch
 from patchmentation.utils import loader
 from patchmentation.utils import functional as F
+from patchmentation.utils.transform import Transform
+from patchmentation.utils.filter import Filter
 
 import random
 from typing import List, Tuple, Union
 
 
-def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], visibility_threshold: float = 0.5, scale_range: Tuple[int, int] = (0.5, 1.0)) -> ImagePatch:
+def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], visibility_threshold: float = 0.5, actions: List[Union[Transform, Filter]] = None) -> ImagePatch:
     if isinstance(image, ImagePatch):
         image = image.image
     
     background_image_array = loader.load_image_array(image)
     background_image_height, background_image_width, _ = background_image_array.shape
+
+    list_image_array = []
+    for patch in patches:
+        image_array = patch.image_array()
+        list_image_array.append(image_array)
+        
+    if actions is not None:
+        for action in actions:
+            if isinstance(action, Transform):
+                list_image_array = [action.transform(image_array) for image_array in list_image_array]
+            if isinstance(action, Filter):
+                list_image_array = action.filter(list_image_array)
+
+    patches = []
+    for image_array in list_image_array:
+        image = loader.save_image_array_temporary(image_array)
+        height, width, _ = image_array.shape
+        patch = Patch(image, BBox(0, 0, width, height))
+        patches.append(patch)
 
     ATTR_TARGET_BBOX = 'target_bbox'
 
@@ -24,13 +45,7 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
         ymax = ymin + height
         target_bbox = BBox(xmin, ymin, xmax, ymax)
         setattr(patch, ATTR_TARGET_BBOX, target_bbox)
-        
-    for patch in patches:
-        scale = random.uniform(scale_range[0], scale_range[1])
-        bbox = getattr(patch, ATTR_TARGET_BBOX)
-        scaled_bbox = F.scale_bbox(bbox, scale)
-        setattr(patch, ATTR_TARGET_BBOX, scaled_bbox)
-    
+            
     INF = float('inf')
     patches = F.visibility_suppression(
         patches=patches,

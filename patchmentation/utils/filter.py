@@ -1,4 +1,4 @@
-from patchmentation.utils import Comparator
+from patchmentation.utils.comparator import Comparator
 
 from abc import ABC, abstractmethod
 
@@ -7,7 +7,7 @@ from typing import List
 
 class Filter(ABC):
     def __call__(self, list_image_array: List[np.ndarray]) -> List[np.ndarray]:
-        self.filter(list_image_array)
+        return self.filter(list_image_array)
 
     @abstractmethod
     def filter(self, list_image_array: List[np.ndarray]) -> List[np.ndarray]:
