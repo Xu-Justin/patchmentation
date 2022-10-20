@@ -4,6 +4,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from patchmentation.utils import loader
 from patchmentation.utils import functional as F
 from patchmentation import patch_augmentation
+from patchmentation.utils import transform, filter, Comparator
 
 import os
 import streamlit as st
@@ -61,15 +62,16 @@ def section_patch_augmentation(dataset, background_image):
     cols = st.columns([2, 1, 1])
     with cols[0]:
         visibility_threshold = st.number_input('Visibility Threshold', min_value=0.0, max_value=1.0, value=0.5, step=0.05)
-    with cols[1]:
-        min_scale_range = st.number_input('Min. Scale Range', min_value=0.0, max_value=1.0, value=0.5, step=0.05)
-    with cols[2]:
-        max_scale_range = st.number_input('Max. Scale Range', min_value=0.0, max_value=1.0, value=1.0, step=0.05)
-
+    
     patches = []
     for image_patch in dataset.image_patches:
         patches += image_patch.patches
-    return patch_augmentation(patches, background_image, visibility_threshold, scale_range=(min_scale_range, max_scale_range))
+    actions = [
+        transform.Resize(width=50, aspect_ratio='auto'),
+        transform.RandomScale([0.8, 1.2], [0.9, 1.1]),
+        filter.FilterHeight(400, Comparator.LessEqual)
+    ]
+    return patch_augmentation(patches, background_image, visibility_threshold, actions=actions)
     
 def section_display_result(result):
     st.subheader('Result')

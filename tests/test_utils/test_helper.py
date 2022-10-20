@@ -4,6 +4,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from tests import helper
 from patchmentation.utils import validator
 
+import numpy as np
+
 def test_generate_bbox_1():
     width = 20
     height = 1000
@@ -96,5 +98,17 @@ def test_compare_unordered_list_equal_3():
     assert list_1 == [obj_1, obj_2, obj_3]
     assert list_2 == [obj_3, obj_1, obj_3, obj_2]
 
-if __name__ == '__main__':
-    test_compare_unordered_list_equal_1()
+def test_check_grayscale_1():
+    image_array = np.array([
+        [[1, 1, 1], [2, 2, 2], [3, 3, 3]],
+        [[4, 4, 4], [5, 5, 5], [6, 6, 6]]
+    ])
+    assert helper.check_grayscale(image_array)
+
+def test_check_grayscale_2():
+    image_array = np.array([
+        [[1, 1, 1], [2, 2, 2], [3, 3, 3]],
+        [[4, 4, 4], [5, 4, 5], [6, 6, 6]]
+    ])
+    assert not helper.check_grayscale(image_array)
+
