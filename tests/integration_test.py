@@ -4,6 +4,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from patchmentation.collections import Image
 from patchmentation.utils import validator
 from patchmentation.utils import loader
+from patchmentation.utils import filter
+from patchmentation.utils import transform
+from patchmentation.utils import Comparator
 from patchmentation import patch_augmentation
 
 SAMPLE_PATCHMENTATION_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
@@ -34,4 +37,18 @@ def test_patch_augmentation_2():
     patches = dataset.image_patches[2].patches
     imagePatch = patch_augmentation(patches, background_image)
 
+    validator.validate_ImagePatch(imagePatch)
+
+def test_patch_augmentation_3():
+    actions = [
+        transform.Resize(width=200, aspect_ratio='auto'),
+        transform.RandomScale([0.8, 1.2], [0.9, 1.1]),
+        filter.FilterHeight(400, Comparator.LessEqual)
+    ]
+    
+    dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
+    background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1)
+    
+    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches
+    imagePatch = patch_augmentation(patches, background_image, actions=actions)
     validator.validate_ImagePatch(imagePatch)
