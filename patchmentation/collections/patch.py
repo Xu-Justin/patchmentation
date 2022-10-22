@@ -26,3 +26,15 @@ class Patch:
         array = self.image.image_array()
         array = F.crop_image_array(array, self.bbox)
         return array
+
+    def shape(self) -> Tuple[int, int, int]:
+        return self.image_array().shape
+
+    def width(self):
+        return self.shape()[1]
+    
+    def height(self):
+        return self.shape()[0]
+    
+    def channel(self):
+        return self.shape()[2]
