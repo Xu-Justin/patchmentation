@@ -20,7 +20,7 @@ class ImagePatch:
             f'Number of patches: {len(self.patches)}\n'
         )
     
-    def image_array(self, **kwargs) -> np.ndarray:
+    def image_array(self, classes: List[str] = None, **kwargs) -> np.ndarray:
         rectangle_color = kwargs.get('rectangle_color', (255, 0, 0))
         rectangle_thickness = kwargs.get('rectangle_thickness', 1)
         font = kwargs.get('font', cv2.FONT_HERSHEY_SIMPLEX)
@@ -31,6 +31,7 @@ class ImagePatch:
         
         array = self.image.image_array()
         for patch in self.patches:
+            if classes is not None and patch.class_name not in classes: continue
             xmin, ymin, xmax, ymax = patch.bbox
             class_name = patch.class_name
             array = cv2.rectangle(array, (xmin, ymin), (xmax, ymax), rectangle_color, rectangle_thickness)

@@ -43,6 +43,8 @@ def scale_bbox(bbox: BBox, scale: float) -> BBox:
     return BBox(xmin, ymin, xmax, ymax)
 
 def visibility_suppression(patches: List[Patch], visibility_threshold: float, non_removal_patches: List[Patch] = None, **kwargs) -> List[Patch]:
+    if len(patches) == 0: return []
+
     attr_bbox = kwargs.get('attr_bbox', 'bbox')
     attr_non_removal_patches_bbox = kwargs.get('attr_non_removal_patches_bbox', 'bbox')
     
