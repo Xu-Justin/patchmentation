@@ -3,7 +3,7 @@ from patchmentation.utils import loader
 from patchmentation.utils import functional as F
 from patchmentation.utils.transform import Transform
 from patchmentation.utils.filter import Filter
-
+from patchmentation.utils import converter
 import random
 from typing import List, Tuple, Union
 
@@ -15,24 +15,12 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
     background_image_array = loader.load_image_array(image)
     background_image_height, background_image_width, _ = background_image_array.shape
 
-    list_image_array = []
-    for patch in patches:
-        image_array = patch.image_array()
-        list_image_array.append(image_array)
-        
     if actions is not None:
         for action in actions:
             if isinstance(action, Transform):
-                list_image_array = [action.transform(image_array) for image_array in list_image_array]
+                patches = [converter.array2patch(action.transform(patch.image_array()), patch.class_name) for patch in patches]
             if isinstance(action, Filter):
-                list_image_array = action.filter(list_image_array)
-
-    patches = []
-    for image_array in list_image_array:
-        image = loader.save_image_array_temporary(image_array)
-        height, width, _ = image_array.shape
-        patch = Patch(image, BBox(0, 0, width, height))
-        patches.append(patch)
+                patches = action.filter(patches)
 
     ATTR_TARGET_BBOX = 'target_bbox'
 

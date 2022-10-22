@@ -357,6 +357,40 @@ def test_visibility_suppression_10():
     expected_patches = [patch_2, patch_3]
     assert actual_patches == expected_patches
 
+def test_visibility_suppression_11():
+    INF = float('inf')
+    patch_1 = Patch(None, BBox(0, 0, 5, 5), None)
+    patch_2 = Patch(None, BBox(5, 5, 10, 10), None)
+    patch_3 = Patch(None, BBox(0, 5, 5, 15), None)
+    patch_4 = Patch(None, BBox(-5, -10, 5, 10), None)
+    patch_5 = Patch(None, BBox(-INF, 3, INF, 5), None)
+    patch_6 = Patch(None, BBox(INF, 0, INF, INF), None)
+    patches = []
+    visibility_threshold = 0.4
+    non_removal_patches = [patch_4, patch_5, patch_6]
+    attr_bbox = 'bbox'
+    attr_non_removal_patches_bbox = 'bbox'
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
+    expected_patches = []
+    assert actual_patches == expected_patches
+
+def test_visibility_suppression_12():
+    INF = float('inf')
+    patch_1 = Patch(None, BBox(0, 0, 5, 5), None)
+    patch_2 = Patch(None, BBox(5, 5, 10, 10), None)
+    patch_3 = Patch(None, BBox(0, 5, 5, 15), None)
+    patch_4 = Patch(None, BBox(-5, -10, 5, 10), None)
+    patch_5 = Patch(None, BBox(-INF, 3, INF, 5), None)
+    patch_6 = Patch(None, BBox(INF, 0, INF, INF), None)
+    patches = [patch_1, patch_2, patch_3]
+    visibility_threshold = 0.4
+    non_removal_patches = []
+    attr_bbox = 'bbox'
+    attr_non_removal_patches_bbox = 'bbox'
+    actual_patches = F.visibility_suppression(patches, visibility_threshold, non_removal_patches, attr_bbox=attr_bbox, attr_non_removal_patches_bbox=attr_non_removal_patches_bbox)
+    expected_patches = [patch_1, patch_2, patch_3]
+    assert actual_patches == expected_patches
+
 def test_resize_image_array_1():
     width = 10
     height = 20

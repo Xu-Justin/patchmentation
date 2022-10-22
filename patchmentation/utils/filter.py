@@ -5,12 +5,14 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import List
 
+from patchmentation.collections import Patch
+
 class Filter(ABC):
-    def __call__(self, list_image_array: List[np.ndarray]) -> List[np.ndarray]:
-        return self.filter(list_image_array)
+    def __call__(self, patches: List[Patch]) -> List[Patch]:
+        return self.filter(patches)
 
     @abstractmethod
-    def filter(self, list_image_array: List[np.ndarray]) -> List[np.ndarray]:
+    def filter(self, patches: List[Patch]) -> List[Patch]:
         pass
 
 class FilterWidth(Filter):
@@ -18,12 +20,12 @@ class FilterWidth(Filter):
         self.width = width
         self.comparator = comparator
     
-    def filter(self, list_image_array: List[np.ndarray]) -> List[np.ndarray]:
+    def filter(self, patches: List[Patch]) -> List[Patch]:
         result = []
-        for image_array in list_image_array:
-            _, width, _ = image_array.shape
+        for patch in patches:
+            width = patch.width()
             if self.comparator(width, self.width):
-                result.append(image_array)
+                result.append(patch)
         return result
     
 class FilterHeight(Filter):
@@ -31,11 +33,10 @@ class FilterHeight(Filter):
         self.height = height
         self.comparator = comparator
     
-    def filter(self, list_image_array: List[np.ndarray]) -> List[np.ndarray]:
+    def filter(self, patches: List[Patch]) -> List[Patch]:
         result = []
-        for image_array in list_image_array:
-            height, _, _ = image_array.shape
+        for patch in patches:
+            height = patch.height()
             if self.comparator(height, self.height):
-                result.append(image_array)
+                result.append(patch)
         return result
-
