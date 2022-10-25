@@ -52,7 +52,8 @@ def validate_Patch(patch: Patch, check_image_bbox: bool = True, **kwargs):
     if check_image_bbox:
         kwargs['height'], kwargs['width'], _ = image.shape()
     validate_BBox(bbox, **kwargs)
-    validate_class_name(class_name)
+    classes = _kwargs(kwargs, validate_class_name, 'classes')
+    validate_class_name(class_name, classes)
 
 def validate_ImagePatch(image_patch: ImagePatch, **kwargs):
     image, patches = image_patch
@@ -65,6 +66,7 @@ def validate_ImagePatch(image_patch: ImagePatch, **kwargs):
 
 def validate_Dataset(dataset: Dataset, **kwargs):
     image_patches, classes = dataset
+    kwargs['classes'] = classes
     validate_image_patches(image_patches, **kwargs)
     validate_classes(classes)
 
@@ -103,10 +105,13 @@ def validate_image_array_value(image_array: np.ndarray):
                 pixel = image_array[i, j, k]
                 assert pixel >= 0 and pixel <= 255, f'Expected pixel >= 0 and pixel <= 255, but got pixel {pixel} at {(i, j, k)}'
 
-def validate_class_name(class_name: str):
+def validate_class_name(class_name: str, classes: List[str] = None):
     assert class_name != '', f'Expected class_name is not empty string, but got class_name {class_name}'
+    if classes is not None:
+        assert class_name in classes, f'Expected class_name is in classes, but got class_name {class_name} classes {classes}'
 
-def validate_classes(classes: List[str]):
+def validate_classes(classes: List[str], **kwargs):
+    assert len(list(classes)) == len(set(classes)), f'Expected classes contains unique class_name. but got classes {classes}'
     for class_name in classes:
         validate_class_name(class_name)
 
