@@ -6,9 +6,12 @@ import numpy as np
 from typing import List, Tuple, Union, Callable
 from inspect import signature
 
-def _kwargs(kwargs, func: Callable, var: str):
-    return kwargs.get(var, signature(func).parameters[var].default)
-    
+def _kwargs(kwargs, func: Callable, var: str, delete: bool = True):
+    value = kwargs.get(var, signature(func).parameters[var].default)
+    if delete:
+        del kwargs[var]
+    return value
+
 def validate(collection: Union[np.ndarray, BBox, Image, Patch, ImagePatch, Dataset]):
     if isinstance(collection, BBox):
         validate_BBox(collection)
