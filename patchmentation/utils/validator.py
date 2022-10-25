@@ -8,7 +8,7 @@ from inspect import signature
 
 def _kwargs(kwargs, func: Callable, var: str, delete: bool = True):
     value = kwargs.get(var, signature(func).parameters[var].default)
-    if delete:
+    if var in kwargs.keys() and delete:
         del kwargs[var]
     return value
 
