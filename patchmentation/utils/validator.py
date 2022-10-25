@@ -6,20 +6,23 @@ import numpy as np
 from typing import List, Tuple, Union, Callable
 from inspect import signature
 
-def _kwargs(kwargs, func: Callable, var: str):
-    return kwargs.get(var, signature(func).parameters[var].default)
-    
-def validate(collection: Union[np.ndarray, BBox, Image, Patch, ImagePatch, Dataset]):
+def _kwargs(kwargs, func: Callable, var: str, delete: bool = True):
+    value = kwargs.get(var, signature(func).parameters[var].default)
+    if var in kwargs.keys() and delete:
+        del kwargs[var]
+    return value
+
+def validate(collection: Union[np.ndarray, BBox, Image, Patch, ImagePatch, Dataset], **kwargs):
     if isinstance(collection, BBox):
-        validate_BBox(collection)
+        validate_BBox(collection, **kwargs)
     elif isinstance(collection, Image):
-        validate_Image(collection)
+        validate_Image(collection, **kwargs)
     elif isinstance(collection, Patch):
-        validate_Patch(collection)
+        validate_Patch(collection, **kwargs)
     elif isinstance(collection, ImagePatch):
-        validate_ImagePatch(collection)
+        validate_ImagePatch(collection, **kwargs)
     elif isinstance(collection, Dataset):
-        validate_Dataset(collection)
+        validate_Dataset(collection, **kwargs)
     else:
         raise TypeError
 
@@ -52,7 +55,8 @@ def validate_Patch(patch: Patch, check_image_bbox: bool = True, **kwargs):
     if check_image_bbox:
         kwargs['height'], kwargs['width'], _ = image.shape()
     validate_BBox(bbox, **kwargs)
-    validate_class_name(class_name)
+    classes = _kwargs(kwargs, validate_class_name, 'classes')
+    validate_class_name(class_name, classes)
 
 def validate_ImagePatch(image_patch: ImagePatch, **kwargs):
     image, patches = image_patch
@@ -65,6 +69,7 @@ def validate_ImagePatch(image_patch: ImagePatch, **kwargs):
 
 def validate_Dataset(dataset: Dataset, **kwargs):
     image_patches, classes = dataset
+    kwargs['classes'] = classes
     validate_image_patches(image_patches, **kwargs)
     validate_classes(classes)
 
@@ -103,10 +108,13 @@ def validate_image_array_value(image_array: np.ndarray):
                 pixel = image_array[i, j, k]
                 assert pixel >= 0 and pixel <= 255, f'Expected pixel >= 0 and pixel <= 255, but got pixel {pixel} at {(i, j, k)}'
 
-def validate_class_name(class_name: str):
+def validate_class_name(class_name: str, classes: List[str] = None):
     assert class_name != '', f'Expected class_name is not empty string, but got class_name {class_name}'
+    if classes is not None:
+        assert class_name in classes, f'Expected class_name is in classes, but got class_name {class_name} classes {classes}'
 
-def validate_classes(classes: List[str]):
+def validate_classes(classes: List[str], **kwargs):
+    assert len(list(classes)) == len(set(classes)), f'Expected classes contains unique class_name. but got classes {classes}'
     for class_name in classes:
         validate_class_name(class_name)
 
