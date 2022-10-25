@@ -12,17 +12,17 @@ def _kwargs(kwargs, func: Callable, var: str, delete: bool = True):
         del kwargs[var]
     return value
 
-def validate(collection: Union[np.ndarray, BBox, Image, Patch, ImagePatch, Dataset]):
+def validate(collection: Union[np.ndarray, BBox, Image, Patch, ImagePatch, Dataset], **kwargs):
     if isinstance(collection, BBox):
-        validate_BBox(collection)
+        validate_BBox(collection, **kwargs)
     elif isinstance(collection, Image):
-        validate_Image(collection)
+        validate_Image(collection, **kwargs)
     elif isinstance(collection, Patch):
-        validate_Patch(collection)
+        validate_Patch(collection, **kwargs)
     elif isinstance(collection, ImagePatch):
-        validate_ImagePatch(collection)
+        validate_ImagePatch(collection, **kwargs)
     elif isinstance(collection, Dataset):
-        validate_Dataset(collection)
+        validate_Dataset(collection, **kwargs)
     else:
         raise TypeError
 
