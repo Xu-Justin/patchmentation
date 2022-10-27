@@ -1,10 +1,12 @@
-from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
+from __future__ import annotations
+from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset, bbox, image_patch
 
 import os
 import cv2
 import numpy as np
 import tempfile
-from typing import List, Union
+import json
+from typing import Dict, List, Union, Any
 
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
@@ -89,7 +91,47 @@ def convert_yolo_bbox(x_center: float, y_center: float, yolo_width: float, yolo_
     return bbox
 
 def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
-    pass
+    with open(file_annotations, 'r') as file_coco: 
+        data = json.load(file_coco)
+        classes = load_coco_categories(data)
+        images_patches = load_coco_image_patches(data, folder_images)
+        
 
+def load_coco_categories(data_json: dict) -> List[str]:
+    coco_classes = data_json['categories']
+    classes = []
+    for coco_class in coco_classes:
+        class_name = coco_class['name']
+        classes.append(class_name)
+    return classes
+
+def load_coco_image_patches(data_json: dict, folder_images: str) -> List[ImagePatch]:
+    images = load_coco_images(data_json['images'], folder_images)
+    print(images)
+
+def load_coco_images(coco_images: List, folder_images: str) -> Dict[int, Dict[str, Any]]:
+    images = {}
+    for coco_image in coco_images:
+        id = coco_image['id']
+        file_name = coco_image['file_name']
+        path = os.path.join(folder_images, file_name)
+        image = Image(path)
+        width = coco_image['width']
+        height = coco_image['height']
+        images[id] = dict()
+        images[id]['image'] = image
+        images[id]['width'] = width
+        images[id]['height'] = height
+        #bbox = convert_coco_bbox(x,y,images[id]['width'],images[id]['height'])
+    return images
+
+def convert_coco_bbox(x = float,y = float,width = float,height = float) -> BBox:
+    x = float(x)
+    y = float(y)
+    width = float(x + width)
+    height = float(y + height)
+    bbox = BBox(x, y, width, height)
+    return bbox
+    
 def load_pascal_voc_dataset(folder_images: str, folder_annotations: str, file_imagesets: str, file_classes: str) -> Dataset:
     pass
