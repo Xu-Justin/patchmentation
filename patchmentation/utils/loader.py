@@ -94,7 +94,7 @@ def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
     with open(file_annotations, 'r') as file_coco: 
         data = json.load(file_coco)
     classes = load_coco_categories(data)
-    images_patches = load_coco_image_patches(data, folder_images, classes)
+    image_patches = load_coco_image_patches(data, folder_images, classes)
     dataset = Dataset(image_patches, classes)
     return dataset
 
