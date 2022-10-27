@@ -93,9 +93,10 @@ def convert_yolo_bbox(x_center: float, y_center: float, yolo_width: float, yolo_
 def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
     with open(file_annotations, 'r') as file_coco: 
         data = json.load(file_coco)
-        classes = load_coco_categories(data)
-        images_patches = load_coco_image_patches(data, folder_images)
-        
+    classes = load_coco_categories(data)
+    images_patches = load_coco_image_patches(data, folder_images, classes)
+    dataset = Dataset(image_patches, classes)
+    return dataset
 
 def load_coco_categories(data_json: dict) -> List[str]:
     coco_classes = data_json['categories']
@@ -105,32 +106,49 @@ def load_coco_categories(data_json: dict) -> List[str]:
         classes.append(class_name)
     return classes
 
-def load_coco_image_patches(data_json: dict, folder_images: str) -> List[ImagePatch]:
+def load_coco_image_patches(data_json: dict, folder_images: str, classes: List[str]) -> List[ImagePatch]:
     images = load_coco_images(data_json['images'], folder_images)
-    print(images)
+    annotations = load_coco_annotations(data_json['annotations'], classes)
+    image_patches = []
+    for image_id in images.keys():
+        image = images[image_id]
+        patches = []
+        for bbox, class_name in annotations[image_id]:
+            patch = Patch(image,, bbox, class_name)
+            patches.append(patch)
+        image_patch = ImagePatch(image, patches)
+        image_patches.append(image_patch)
+    return image_patches
 
-def load_coco_images(coco_images: List, folder_images: str) -> Dict[int, Dict[str, Any]]:
+def load_coco_images(coco_images: List, folder_images: str) -> Dict[int, Image]:
     images = {}
     for coco_image in coco_images:
         id = coco_image['id']
         file_name = coco_image['file_name']
         path = os.path.join(folder_images, file_name)
         image = Image(path)
-        width = coco_image['width']
-        height = coco_image['height']
-        images[id] = dict()
-        images[id]['image'] = image
-        images[id]['width'] = width
-        images[id]['height'] = height
-        #bbox = convert_coco_bbox(x,y,images[id]['width'],images[id]['height'])
+        images[id] = image
     return images
 
-def convert_coco_bbox(x = float,y = float,width = float,height = float) -> BBox:
-    x = float(x)
-    y = float(y)
-    width = float(x + width)
-    height = float(y + height)
-    bbox = BBox(x, y, width, height)
+def load_coco_annotations(coco_annotations: List, classes: List[str]) -> Dict[int, List[Tuple[BBox, str]]]:
+    annotations = {}
+    for coco_annotation in coco_annotations:
+        image_id = coco_annotation['image_id']
+        category_id = coco_annotation['category_id']
+        coco_bbox = coco_annotation['bbox']
+        class_name = classes[category_id - 1]
+        bbox = convert_coco_bbox(coco_bbox[0], coco_bbox[1], coco_bbox[2], coco_bbox[3])
+        if image_id not in annotations.keys():
+            annotations[image_id] = []
+        annotations[image_id].append((bbox, class_name))
+    return annotations
+
+def convert_coco_bbox(x: int, y: int, width: int, height: int) -> BBox:
+    xmin = int(x)
+    ymin = int(y)
+    xmax = int(x + width)
+    ymax = int(y + height)
+    bbox = BBox(xmin, ymin, xmax, ymax)
     return bbox
     
 def load_pascal_voc_dataset(folder_images: str, folder_annotations: str, file_imagesets: str, file_classes: str) -> Dataset:
