@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import tempfile
 import json
-from typing import Dict, List, Union, Any
+from typing import Dict, List, Union, Any, Tuple
 
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
