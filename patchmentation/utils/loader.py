@@ -114,7 +114,7 @@ def load_coco_image_patches(data_json: dict, folder_images: str, classes: List[s
         image = images[image_id]
         patches = []
         for bbox, class_name in annotations[image_id]:
-            patch = Patch(image,, bbox, class_name)
+            patch = Patch(image, bbox, class_name)
             patches.append(patch)
         image_patch = ImagePatch(image, patches)
         image_patches.append(image_patch)
