@@ -1,4 +1,3 @@
-from __future__ import annotations
 from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset, bbox, image_patch
 
 import os
