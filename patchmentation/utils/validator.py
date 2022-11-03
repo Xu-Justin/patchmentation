@@ -140,7 +140,7 @@ def validate_image_array_value(image_array: np.ndarray):
         raise TypeError(f'Received unexpected type {type(image_array)}')    
     
 def validate_pixel(pixel: int):
-    assert pixel >= 0 and pixel <= 255, f'Expected pixel >= 0 and pixel <= 255, but got pixel {pixel} at {(i, j, k)}'
+    assert pixel >= 0 and pixel <= 255, f'Expected pixel >= 0 and pixel <= 255, but got pixel {pixel}'
 
 def validate_class_name(class_name: str, classes: List[str] = None):
     assert class_name != '', f'Expected class_name is not empty string, but got class_name {class_name}'
