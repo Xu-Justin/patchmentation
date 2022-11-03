@@ -131,12 +131,25 @@ def place_image_array(patch_array: np.ndarray, image_array: np.ndarray, bbox: BB
     return BBox(image_xmin, image_ymin, image_xmax, image_ymax)
 
 def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
-    image_array = convert_BGR2RGB(image_array)
-    plt.imshow(image_array)
-    plt.show(block=block)
+    if len(image_array.shape) == 2:
+        plt.imshow(image_array, cmap='gray')
+        plt.show(block=block)
+    elif image_array.shape[2] == 3:
+        image_array = convert_BGR2RGB(image_array)
+        plt.imshow(image_array)
+        plt.show(block=block)
+    elif image_array.shape[2] == 4:
+        image_array = convert_BGRA2RGBA(image_array)
+        plt.imshow(image_array)
+        plt.show(block=block)
+    else:
+        raise TypeError(f'Received unexpected image_array with shape {image_array.shape}')
 
 def convert_BGR2RGB(image_array: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
+
+def convert_BGRA2RGBA(image_array: np.ndarray) -> np.ndarray:
+    return cv2.cvtColor(image_array, cv2.COLOR_BGRA2RGBA)
 
 def crop_image_array(image_array: np.ndarray, bbox: BBox) -> np.ndarray:
     xmin, ymin, xmax, ymax = bbox

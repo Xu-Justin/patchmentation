@@ -21,7 +21,7 @@ class ImagePatch:
         )
     
     def image_array(self, classes: List[str] = None, **kwargs) -> np.ndarray:
-        rectangle_color = kwargs.get('rectangle_color', (255, 0, 0))
+        rectangle_color = kwargs.get('rectangle_color', (255, 0, 0, 255))
         rectangle_thickness = kwargs.get('rectangle_thickness', 1)
         font = kwargs.get('font', cv2.FONT_HERSHEY_SIMPLEX)
         font_scale = kwargs.get('font_scale', 0.5)

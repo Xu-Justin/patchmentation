@@ -17,4 +17,9 @@ def test_image_patch():
 def test_image_patch_image_array():
     image_patch = helper.generate_ImagePatch()
     image_array = image_patch.image_array()
-    validator.validate_image_array(image_array, check_shape=True)
+    validator.validate_image_array(image_array, check_shape=True, expected_channel=3)
+
+def test_image_patch_image_array_with_mask():
+    image_patch = helper.generate_ImagePatch(with_mask=True)
+    image_array = image_patch.image_array()
+    validator.validate_image_array(image_array, check_shape=True, expected_channel=4)

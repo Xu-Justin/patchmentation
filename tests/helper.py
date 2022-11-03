@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
+from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch, Dataset
 from patchmentation.utils import loader
 
 import random
@@ -67,10 +67,16 @@ def generate_y(height: int = None) -> Tuple[int, int]:
     ymax = random.randint(ymin, height)
     return ymin, ymax
 
-def generate_image_array(width: int = None, height: int = None) -> np.ndarray:
+def generate_mask_image_array(width: int = None, height: int = None) -> np.ndarray:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
-    channel = 3
+    image_array = np.random.rand(height, width)
+    image_array = (image_array * 255).astype('uint8')
+    return image_array
+
+def generate_image_array(width: int = None, height: int = None, channel: int = 3) -> np.ndarray:
+    if width is None: width = generate_width()
+    if height is None: height = generate_height()
     image_array = np.random.rand(height, width, channel)
     image_array = (image_array * 255).astype('uint8')
     return image_array
@@ -82,11 +88,19 @@ def generate_BBox(width: int = None, height: int = None) -> BBox:
     ymin, ymax = generate_y(height)
     return BBox(xmin, ymin, xmax, ymax)
 
-def generate_Image(width: int = None, height: int = None) -> Image:
+def generate_Mask(width: int = None, height: int = None) -> Mask:
+    if width is None: width = generate_width()
+    if height is None: height = generate_height()
+    image_array = generate_mask_image_array(width, height)
+    return loader.save_mask_image_array_temporary(image_array)
+
+def generate_Image(width: int = None, height: int = None, mask: Mask = None) -> Image:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
     image_array = generate_image_array(width, height)
-    return loader.save_image_array_temporary(image_array)
+    image = loader.save_image_array_temporary(image_array)
+    image.mask = mask
+    return image
     
 def generate_Patch(image: Image, classes: List[str] = None, **kwargs) -> Patch:
     if classes is None: classes = generate_classes(number_of_class=1)
@@ -110,7 +124,9 @@ def generate_ImagePatch(classes: List[str] = None, **kwargs) -> ImagePatch:
     width = kwargs.get('width', generate_width())
     height = kwargs.get('height', generate_height())
     kwargs['shape'] = (height, width)
-    image = generate_Image(width, height)
+    with_mask = kwargs.get('with_mask', False)
+    mask = generate_Mask(width, height) if with_mask else None
+    image = generate_Image(width, height, mask)
     patches = generate_patches(image, number_of_patch, classes, **kwargs)
     return ImagePatch(image, patches)
 

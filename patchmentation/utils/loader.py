@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset, bbox, image_patch
+from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch, Dataset
 
 import os
 import cv2
@@ -13,16 +13,40 @@ ATTR_TEMPORARY_FILE = 'temporary_file'
 def load_image_array(image: Union[str, Image, ImagePatch]) -> np.ndarray:
     if isinstance(image, str):
         return Image(image).image_array()
-    if isinstance(image, (Image, ImagePatch)):
+    if isinstance(image, (Mask, Image, ImagePatch)):
         return image.image_array()
     raise TypeError
 
 def load_image(path: str) -> Image:
     return Image(path)
 
-def save_image_array(image_array: np.ndarray, path: str) -> Image:
+def _save_image_array(image_array: np.ndarray, path: str) -> None:
     cv2.imwrite(path, image_array)
-    return Image(path)
+    
+def save_mask_image_array(mask_image_array: np.ndarray, path: str) -> Mask:
+    _save_image_array(mask_image_array, path)
+    return Mask(path)
+
+def save_image_array(image_array: np.ndarray, path: str) -> Image:
+    channel = image_array.shape[2]
+    if channel == 3:
+        _save_image_array(image_array, path)
+        return Image(path)
+    elif channel == 4:
+        array = image_array[:, :, :3]
+        _save_image_array(array, path)
+        alpha = image_array[:, :, 3]
+        mask = save_mask_image_array(alpha, os.path.splitext(path)[0] + '_mask.png')
+        return Image(path, mask)
+    else:
+        raise TypeError(f'Received unexpected image array with channel {channel}')
+
+def save_mask_image_array_temporary(mask_image_array: np.ndarray) -> Mask:
+    temporary_file = tempfile.NamedTemporaryFile(suffix='.png', dir=temporary_folder.name)
+    path = temporary_file.name
+    mask = save_mask_image_array(mask_image_array, path)
+    setattr(mask, ATTR_TEMPORARY_FILE, temporary_file)
+    return mask
 
 def save_image_array_temporary(image_array: np.ndarray) -> Image:
     temporary_file = tempfile.NamedTemporaryFile(suffix='.png', dir=temporary_folder.name)

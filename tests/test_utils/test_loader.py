@@ -43,6 +43,20 @@ def test_save_load_image_array_3():
     validator.validate_image_array(reloaded_image_array)
     assert (reloaded_image_array == image_array).all()
 
+def test_save_load_mask_image_array_1():
+    image_array = helper.generate_mask_image_array()
+    mask = loader.save_mask_image_array_temporary(image_array)
+    reloaded_image_array = loader.load_image_array(mask)
+    validator.validate_mask_image_array(reloaded_image_array)
+    assert (reloaded_image_array == image_array).all()
+
+def test_save_load_mask_image_array_2():
+    image_array = helper.generate_image_array(channel=4)
+    image = loader.save_image_array_temporary(image_array)
+    reloaded_image_array = loader.load_image_array(image)
+    validator.validate_image_array(reloaded_image_array)
+    assert (reloaded_image_array == image_array).all()
+
 def test_loader_yolo():
     dataset = loader.load_yolo_dataset(YOLO_FOLDER_IMAGES, YOLO_FOLDER_ANNOTATIONS, YOLO_FILE_NAMES)
     validator.validate_Dataset(dataset, check_image_bbox=True)
