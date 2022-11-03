@@ -24,5 +24,23 @@ def test_patch_image_array():
     image = helper.generate_Image(width, height)
     bbox = BBox(1, 2, 5, 7)
     patch = Patch(image, bbox, None)
+    assert patch.shape() == (bbox.height(), bbox.width(), 3)
+    assert patch.width() == bbox.width()
+    assert patch.height() == bbox.height()
+    assert patch.channel() == 3
     image_array = patch.image_array()
-    validator.validate_image_array(image_array, check_shape=True, expected_width=4, expected_height=5, expected_channel=3)
+    validator.validate_image_array(image_array, check_shape=True, expected_width=bbox.width(), expected_height=bbox.height(), expected_channel=3)
+
+def test_patch_mask_image_array():
+    width = 20
+    height = 10
+    mask = helper.generate_Mask(width, height)
+    image = helper.generate_Image(width, height, mask)
+    bbox = BBox(3, 2, 5, 8)
+    patch = Patch(image, bbox, None)
+    assert patch.shape() == (bbox.height(), bbox.width(), 4)
+    assert patch.width() == bbox.width()
+    assert patch.height() == bbox.height()
+    assert patch.channel() == 4
+    image_array = patch.image_array()
+    validator.validate_image_array(image_array, check_shape=True, expected_width=bbox.width(), expected_height=bbox.height(), expected_channel=4)

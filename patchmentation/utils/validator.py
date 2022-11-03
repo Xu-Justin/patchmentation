@@ -1,5 +1,4 @@
-from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
-from patchmentation.utils.loader import load_image_array
+from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch, Dataset
 
 import os
 import numpy as np
@@ -39,9 +38,21 @@ def validate_BBox(bbox: BBox, **kwargs):
     if height is not None:
         assert ymax <= height, f'Expected ymax <= height, but got ymax {ymax} height {height}'
 
+def validate_Mask(mask: Mask, check_image_array: bool = True, **kwargs):
+    path = mask.path
+    validate_image_path(path)
+    if check_image_array:
+        mask_image_array = mask.image_array()
+        check_value = _kwargs(kwargs, validate_image_array, 'check_value')
+        check_shape = _kwargs(kwargs, validate_image_array, 'check_shape')
+        validate_mask_image_array(mask_image_array, check_shape, check_value, **kwargs)
+
 def validate_Image(image: Image, check_image_array: bool = True, **kwargs):
     path = image.path
     validate_image_path(path)
+    mask = image.mask
+    if mask is not None:
+        validate_Mask(mask, check_image_array=False, **kwargs)
     if check_image_array:
         image_array = image.image_array()
         check_value = _kwargs(kwargs, validate_image_array, 'check_value')
@@ -77,19 +88,38 @@ def validate_image_path(path: str):
     assert path.endswith(('.jpg', '.png')), f'Expected image path ends with .jpg or .png, but got path {path}'
     assert os.path.exists(path), f'Expected path exists, but got path {path} not exists'
 
+def validate_mask_image_array(mask_image_array: np.ndarray, check_shape: bool = True, check_value: bool = False, **kwargs):
+    assert mask_image_array.dtype == np.uint8, f'Expected mask_image_array.dtype == np.uint8, but got mask_image_array.dtype {mask_image_array.dtype}'
+    if check_shape:
+        shape = mask_image_array.shape
+        validate_mask_image_array_shape(shape, **kwargs)
+    if check_value:
+        validate_image_array_value(mask_image_array)
+
 def validate_image_array(image_array: np.ndarray, check_shape: bool = True, check_value: bool = False, **kwargs):
-    assert image_array.dtype == 'uint8', f'Expected image_array.dtype == uint8, but got image_array.dtype {image_array.dtype}'
+    assert image_array.dtype == np.uint8, f'Expected image_array.dtype == np.uint8, but got image_array.dtype {image_array.dtype}'
     if check_shape:
         shape = image_array.shape
         validate_image_array_shape(shape, **kwargs)
     if check_value:
         validate_image_array_value(image_array)
 
+def validate_mask_image_array_shape(shape: Tuple[int, int], **kwargs):
+    height, width = shape
+    assert height >= 0, f'Expected height >= 0, but got height {height}'
+    assert width >= 0, f'Expected width >= 0, but got width {width}'
+    expected_width = kwargs.get('expected_width', None)
+    if expected_width is not None:
+        assert width == expected_width, f'Expected width is {expected_width}, but got height {width}'
+    expected_height = kwargs.get('expected_height', None)
+    if expected_height is not None:
+        assert height == expected_height, f'Expected height is {expected_height}, but got height {height}'
+    
 def validate_image_array_shape(shape: Tuple[int, int, int], **kwargs):
     height, width, channel = shape
     assert height >= 0, f'Expected height >= 0, but got height {height}'
     assert width >= 0, f'Expected width >= 0, but got width {width}'
-    assert channel == 3, f'Expected channel == 3, but got channel {channel}{" [Grayscale image (channel == 1) is not supported, please convert to 3 channels]"if channel == 1 else ""}'
+    assert channel == 3 or channel == 4, f'Expected channel == 3 or channel == 4, but got channel {channel}{" [Grayscale image (channel == 1) is not supported, please convert to 3 channels]"if channel == 1 else ""}'
     expected_width = kwargs.get('expected_width', None)
     if expected_width is not None:
         assert width == expected_width, f'Expected width is {expected_width}, but got height {width}'
@@ -101,12 +131,16 @@ def validate_image_array_shape(shape: Tuple[int, int, int], **kwargs):
         assert channel == expected_channel, f'Expected channel is {expected_channel}, but got channel {channel}'
 
 def validate_image_array_value(image_array: np.ndarray):
-    height, width, channel = image_array.shape
-    for i in range(height):
-        for j in range(width):
-            for k in range(channel):
-                pixel = image_array[i, j, k]
-                assert pixel >= 0 and pixel <= 255, f'Expected pixel >= 0 and pixel <= 255, but got pixel {pixel} at {(i, j, k)}'
+    if isinstance(image_array, np.uint8):
+        validate_pixel(image_array)
+    elif isinstance(image_array, np.ndarray):
+        for array in image_array:
+            validate_image_array(array)
+    else:
+        raise TypeError(f'Received unexpected type {type(image_array)}')    
+    
+def validate_pixel(pixel: int):
+    assert pixel >= 0 and pixel <= 255, f'Expected pixel >= 0 and pixel <= 255, but got pixel {pixel}'
 
 def validate_class_name(class_name: str, classes: List[str] = None):
     assert class_name != '', f'Expected class_name is not empty string, but got class_name {class_name}'

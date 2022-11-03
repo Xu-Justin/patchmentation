@@ -18,6 +18,18 @@ def test_generate_bbox_2():
     bbox = helper.generate_BBox(width, height)
     validator.validate_BBox(bbox, width=width, height=height)
 
+def test_generate_mask_1():
+    width = 100
+    height = 20
+    image = helper.generate_Mask(width, height)
+    validator.validate_Mask(image, expected_width=width, expected_height=height)
+
+def test_generate_mask_2():
+    width = 20
+    height = 100
+    image = helper.generate_Mask(width, height)
+    validator.validate_Mask(image, expected_width=width, expected_height=height)
+
 def test_generate_image_1():
     width = 100
     height = 20
@@ -28,6 +40,13 @@ def test_generate_image_2():
     width = 20
     height = 100
     image = helper.generate_Image(width, height)
+    validator.validate_Image(image, expected_width=width, expected_height=height)
+
+def test_generate_image_3():
+    width = 20
+    height = 100
+    mask = helper.generate_Mask(width, height)
+    image = helper.generate_Image(width, height, mask)
     validator.validate_Image(image, expected_width=width, expected_height=height)
 
 def test_generate_patch():

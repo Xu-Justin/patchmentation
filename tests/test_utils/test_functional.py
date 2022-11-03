@@ -482,8 +482,21 @@ def test_place_image_array_3():
     assert actual_bbox == expected_bbox
 
 @pytest.mark.filterwarnings('error')
-def test_display_image_array():
-    image_array = helper.generate_image_array(10, 20)
+def test_display_image_array_Grayscale():
+    image_array = helper.generate_mask_image_array(10, 20)
+    assert len(image_array.shape) == 2
+    F.display_image_array(image_array, block=False)
+
+@pytest.mark.filterwarnings('error')
+def test_display_image_array_BGR():
+    image_array = helper.generate_image_array(10, 20, channel=3)
+    assert image_array.shape[2] == 3
+    F.display_image_array(image_array, block=False)
+
+@pytest.mark.filterwarnings('error')
+def test_display_image_array_BGRA():
+    image_array = helper.generate_image_array(10, 20, channel=4)
+    assert image_array.shape[2] == 4
     F.display_image_array(image_array, block=False)
 
 def test_convert_BGR2RGB():
