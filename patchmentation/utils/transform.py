@@ -5,14 +5,16 @@ import numpy as np
 import random
 from typing import Tuple, Union
 
+from patchmentation.collections import Image
 from patchmentation.utils import functional as F
+from patchmentation.utils import loader
 
 class Transform(ABC):
-    def __call__(self, image_array: np.ndarray) -> np.ndarray:
-        return self.transform(image_array)
+    def __call__(self, image: Image) -> Image:
+        return self.transform(image)
 
     @abstractmethod
-    def transform(self, image_array: np.ndarray) -> np.ndarray:
+    def transform(self, image: Image) -> Image:
         pass
         
 class Resize(Transform):
@@ -23,17 +25,21 @@ class Resize(Transform):
         self.height = height
         self.aspect_ratio = aspect_ratio
     
-    def transform(self, image_array: np.ndarray) -> np.ndarray:
-        image_height, image_width, _ = image_array.shape
+    def transform(self, image: Image) -> Image:
+        image_height = image.height()
+        image_width = image.width()
         width, height = Resize._generate_width_height(self.width, self.height, image_width, image_height, self.aspect_ratio)
-        return Resize.resize(image_array, width, height)
+        return Resize.resize(image, width, height)
 
     AUTO_ASPECT_RATIO = 'auto'
 
     @staticmethod
-    def resize(image_array: np.ndarray, width: int, height: int) -> np.ndarray:
-        return F.resize_image_array(image_array, width, height)
-
+    def resize(image: Image, width: int, height: int) -> Image:
+        image_array = image.image_array()
+        resized_image_array = F.resize_image_array(image_array, width, height)
+        resized_image = loader.save_image_array_temporary(resized_image_array)
+        return resized_image
+    
     @staticmethod
     def _generate_width_height(width: int, height: int, image_width: int, image_height: int, aspect_ratio: Union[Tuple[int, int], str]) -> Tuple[int, int]:
         if width is None:
@@ -66,10 +72,10 @@ class RandomResize(Transform):
         self.height_range = height_range
         self.aspect_ratio = aspect_ratio
 
-    def transform(self, image_array: np.ndarray) -> np.ndarray:
+    def transform(self, image: Image) -> Image:
         width = None if self.width_range is None else random.randint(self.width_range[0], self.width_range[1])
         height = None if self.height_range is None else random.randint(self.height_range[0], self.height_range[1])
-        return Resize(width, height, self.aspect_ratio).transform(image_array)
+        return Resize(width, height, self.aspect_ratio).transform(image)
 
 class Scale(Transform):
     def __init__(self, scale_width: float = None, scale_height: float = None, aspect_ratio: Union[Tuple[int, int], str] = None):
@@ -79,10 +85,11 @@ class Scale(Transform):
         self.scale_height = scale_height
         self.aspect_ratio = aspect_ratio
     
-    def transform(self, image_array: np.ndarray) -> np.ndarray:
-        image_height, image_width, _ = image_array.shape
+    def transform(self, image: Image) -> Image:
+        image_height = image.height()
+        image_width = image.width()
         scale_width, scale_height = Scale._generate_scale_width_height(self.scale_width, self.scale_height, image_width, image_height, self.aspect_ratio)
-        return Scale.scale(image_array, scale_width, scale_height)
+        return Scale.scale(image, scale_width, scale_height)
 
     AUTO_ASPECT_RATIO = 'auto'
 
@@ -91,11 +98,12 @@ class Scale(Transform):
         return int(length * scale)
 
     @staticmethod
-    def scale(image_array: np.ndarray, scale_width: float, scale_height: float) -> np.ndarray:
-        image_height, image_width, _ = image_array.shape
+    def scale(image: Image, scale_width: float, scale_height: float) -> Image:
+        image_height = image.height()
+        image_width = image.width()
         scaled_image_width = Scale.scale_length(image_width, scale_width)
         scaled_image_height = Scale.scale_length(image_height, scale_height)
-        return Resize.resize(image_array, scaled_image_width, scaled_image_height)
+        return Resize.resize(image, scaled_image_width, scaled_image_height)
 
     @staticmethod
     def _generate_scale_width_height(scale_width: int, scale_height: int, image_width: int, image_height: int, aspect_ratio: Union[Tuple[int, int], str]) -> Tuple[float, float]:
@@ -127,28 +135,37 @@ class RandomScale(Transform):
         self.scale_height_range = scale_height_range
         self.aspect_ratio = aspect_ratio
 
-    def transform(self, image_array: np.ndarray) -> np.ndarray:
+    def transform(self, image: Image) -> Image:
         scale_width = None if self.scale_width_range is None else random.uniform(self.scale_width_range[0], self.scale_width_range[1])
         scale_height = None if self.scale_height_range is None else random.uniform(self.scale_height_range[0], self.scale_height_range[1])
-        return Scale(scale_width, scale_height, self.aspect_ratio).transform(image_array)
+        return Scale(scale_width, scale_height, self.aspect_ratio).transform(image)
 
 class Grayscale(Transform):
     def __init__(self):
         pass
     
-    def transform(self, image_array: np.ndarray) -> np.ndarray:
-        return Grayscale.grayscale(image_array)
+    def transform(self, image: Image) -> Image:
+        return Grayscale.grayscale(image)
         
     @staticmethod
-    def grayscale(image_array: np.ndarray) -> np.ndarray:
-        return cv2.cvtColor(cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+    def grayscale(image: Image) -> Image:
+        image_array = image.image_array()
+        channel = image.channel()
+        if channel == 3:
+            grayscale_image_array = F.convert_BGR2Grayscale(image_array)
+        elif channel == 4:
+            grayscale_image_array = F.convert_BGRA2Grayscale(image_array)
+        else:
+            raise TypeError(f'Received unexpected image channel {channel}')
+        grayscale = loader.save_image_array_temporary(grayscale_image_array)
+        return grayscale
 
 class RandomGrayscale(Transform):
     def __init__(self, p: float = 0.5):
         self.probability = p
     
-    def transform(self, image_array: np.ndarray) -> np.ndarray:
+    def transform(self, image: Image) -> Image:
         if random.random() < self.probability:
-            return Grayscale().transform(image_array)
+            return Grayscale().transform(image)
         else:
-            return image_array
+            return image
