@@ -13,3 +13,7 @@ def image2patch(image: Image, class_name: str = None) -> Patch:
 def array2patch(image_array: np.ndarray, class_name: str = None) -> Patch:
     image = array2image(image_array)
     return image2patch(image, class_name)
+
+def patch2image(patch: Patch) -> Image:
+    image_array = patch.image_array()
+    return array2image(image_array)

@@ -34,20 +34,27 @@ def test_generate_image_1():
     width = 100
     height = 20
     image = helper.generate_Image(width, height)
-    validator.validate_Image(image, expected_width=width, expected_height=height)
+    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=3)
 
 def test_generate_image_2():
     width = 20
     height = 100
     image = helper.generate_Image(width, height)
-    validator.validate_Image(image, expected_width=width, expected_height=height)
+    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=3)
 
 def test_generate_image_3():
     width = 20
     height = 100
     mask = helper.generate_Mask(width, height)
     image = helper.generate_Image(width, height, mask)
-    validator.validate_Image(image, expected_width=width, expected_height=height)
+    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=4)
+
+def test_generate_image_4():
+    width = 20
+    height = 100
+    mask = True
+    image = helper.generate_Image(width, height, mask)
+    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=4)
 
 def test_generate_patch():
     image = helper.generate_Image()

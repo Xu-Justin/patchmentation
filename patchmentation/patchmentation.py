@@ -18,7 +18,12 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
     if actions is not None:
         for action in actions:
             if isinstance(action, Transform):
-                patches = [converter.array2patch(action.transform(patch.image_array()), patch.class_name) for patch in patches]
+                transformed_patches = []
+                for patch in patches:
+                    transformed_image = action.transform(converter.patch2image(patch))
+                    transformed_patch = converter.image2patch(transformed_image, patch.class_name)
+                    transformed_patches.append(transformed_patch)
+                patches = transformed_patches
             if isinstance(action, Filter):
                 patches = action.filter(patches)
 

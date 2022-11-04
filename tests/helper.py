@@ -5,7 +5,7 @@ import random
 import string
 import sys
 import numpy as np
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Union
 from inspect import signature
 
 DEFAULT_MIN_WIDTH = 20
@@ -94,12 +94,22 @@ def generate_Mask(width: int = None, height: int = None) -> Mask:
     image_array = generate_mask_image_array(width, height)
     return loader.save_mask_image_array_temporary(image_array)
 
-def generate_Image(width: int = None, height: int = None, mask: Mask = None) -> Image:
+def generate_Image(width: int = None, height: int = None, mask: Union[Mask, bool] = None) -> Image:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
     image_array = generate_image_array(width, height)
     image = loader.save_image_array_temporary(image_array)
-    image.mask = mask
+    if mask is not None:
+        image_width = image.width()
+        image_height = image.height()
+        if mask is True:
+            mask = generate_Mask(image_width, image_height)
+        if isinstance(mask, Mask):
+            assert image_width == mask.width()
+            assert image_height == mask.height()
+            image.mask = mask
+        else:
+            raise TypeError(f'Received unexpected mask {mask}')
     return image
     
 def generate_Patch(image: Image, classes: List[str] = None, **kwargs) -> Patch:
@@ -171,12 +181,16 @@ def compare_unordered_list_equal(list_1: list, list_2: list) -> bool:
     if len(list_2) == 0: return True
     else: return False
 
-def check_grayscale(image_array: np.ndarray) -> bool:
-    height, width, _ = image_array.shape
+def check_grayscale(image: Union[np.ndarray, Image]) -> bool:
+    if isinstance(image, Image):
+        image = image.image_array()
+    height, width, _ = image.shape
     for i in range(height):
         for j in range(width):
-            pixel = image_array[i][j]
-            b, g, r = pixel
+            pixel = image[i][j]
+            b = pixel[0]
+            g = pixel[1]
+            r = pixel[2]
             if b != g or b != r:
                 return False
     return True
