@@ -151,6 +151,15 @@ def convert_BGR2RGB(image_array: np.ndarray) -> np.ndarray:
 def convert_BGRA2RGBA(image_array: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(image_array, cv2.COLOR_BGRA2RGBA)
 
+def convert_BGRA2Grayscale(image_array: np.ndarray) -> np.ndarray:
+    alpha = image_array[:,:,3]
+    bgr = image_array[:,:,:3]
+    grayscale = convert_BGR2Grayscale(bgr)
+    return np.dstack((grayscale, alpha))
+
+def convert_BGR2Grayscale(image_array: np.ndarray) -> np.ndarray:
+    return cv2.cvtColor(cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+
 def crop_image_array(image_array: np.ndarray, bbox: BBox) -> np.ndarray:
     xmin, ymin, xmax, ymax = bbox
     return image_array[ymin:ymax, xmin:xmax]

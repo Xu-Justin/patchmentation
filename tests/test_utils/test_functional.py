@@ -511,6 +511,41 @@ def test_convert_BGR2RGB():
     ], 'uint8')
     assert (actual_image_array == expected_imagea_array).all()
 
+def test_convert_BGRA2RGBA():
+    image_array = np.array([
+        [[1, 2, 3, 50], [4, 5, 6, 52], [7, 8, 9, 54]],
+        [[10, 11, 12, 51], [13, 14, 15, 53], [16, 17, 18, 55]] 
+    ], 'uint8')
+    actual_image_array = F.convert_BGRA2RGBA(image_array)
+    expected_imagea_array = np.array([
+        [[3, 2, 1, 50], [6, 5, 4, 52], [9, 8, 7, 54]],
+        [[12, 11, 10, 51], [15, 14, 13, 53], [18, 17, 16, 55]] 
+    ], 'uint8')
+    assert (actual_image_array == expected_imagea_array).all()
+
+def test_convert_BGR2Grayscale():
+    image_array = np.array([
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        [[10, 11, 12], [13, 14, 15], [16, 17, 18]] 
+    ], 'uint8')
+    actual_image_array = F.convert_BGR2RGB(image_array)
+    helper.check_grayscale(actual_image_array)
+
+def test_convert_BGRA2Grayscale():
+    image_array = np.array([
+        [[1, 2, 3, 50], [4, 5, 6, 52], [7, 8, 9, 54]],
+        [[10, 11, 12, 51], [13, 14, 15, 53], [16, 17, 18, 55]] 
+    ], 'uint8')
+    actual_image_array = F.convert_BGRA2RGBA(image_array)
+    grayscale = actual_image_array[:,:,:3]
+    alpha = actual_image_array[:,:,3]
+    expected_alpha = np.array([
+        [50, 52, 54],
+        [51, 53, 55] 
+    ], 'uint8')
+    helper.check_grayscale(grayscale)
+    assert (alpha == expected_alpha).all()
+
 def test_crop_image_array_1():
     image_array = np.array([
         [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
