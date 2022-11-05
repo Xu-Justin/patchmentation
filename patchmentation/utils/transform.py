@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import random
 from typing import Tuple, Union
+from scipy.signal import convolve2d
 
 from patchmentation.collections import Image
 from patchmentation.utils import functional as F
@@ -169,3 +170,27 @@ class RandomGrayscale(Transform):
             return Grayscale().transform(image)
         else:
             return image
+
+class SoftEdge(Transform):
+    def __init__(self, kernel_size: int, sigma: float = 1.0):
+        self.kernel_size = kernel_size
+        self.sigma = sigma
+        self.kernel = F.gaussian_kernel_2d(self.kernel_size, self.sigma)
+    
+    def transform(self, image: Image) -> Image:
+        return SoftEdge.softedge(image, self.kernel)
+        
+    @staticmethod
+    def softedge(image: Image, kernel: np.ndarray) -> Image:
+        kernel_height, kernel_width = kernel.shape
+        assert kernel_height % 2 == 1, f'Expected kernel_height is odd, but received kernel_height {kernel_height}'
+        assert kernel_width % 2 == 1, f'Expected kernel_width is odd, but received kernel_width {kernel_width}'
+        mask_image_array = image.get_mask().image_array()
+        mask_height, mask_width = mask_image_array.shape
+        pad_up = pad_down = int((kernel_height - 1) / 2)
+        pad_left = pad_right = int((kernel_width - 1) / 2)
+        mask_image_array = F.resize_image_array(mask_image_array, mask_width - pad_left - pad_right, mask_height - pad_up - pad_down)
+        mask_image_array = np.pad(mask_image_array, ((pad_up, pad_down), (pad_left, pad_right)))
+        mask_image_array = convolve2d(mask_image_array, kernel, mode='same').astype(np.uint8)
+        mask = loader.save_mask_image_array_temporary(mask_image_array)
+        return Image(image.path, mask)
