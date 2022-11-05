@@ -575,3 +575,27 @@ def test_crop_image_array_2():
         [[22, 23, 24]]
     ])
     assert (actual_image_array == expected_image_array).all()
+
+def test_gaussian_kernel_2d_1():
+    kernel_size = 5
+    sigma = 1.0
+    expected_kernel = np.array([
+        [0.00296902, 0.01330621, 0.02193823, 0.01330621, 0.00296902],
+        [0.01330621, 0.0596343 , 0.09832033, 0.0596343 , 0.01330621],
+        [0.02193823, 0.09832033, 0.16210282, 0.09832033, 0.02193823],
+        [0.01330621, 0.0596343 , 0.09832033, 0.0596343 , 0.01330621],
+        [0.00296902, 0.01330621, 0.02193823, 0.01330621, 0.00296902]
+    ])
+    actual_kernel = F.gaussian_kernel_2d(kernel_size, sigma)
+    assert np.allclose(expected_kernel, actual_kernel)
+
+def test_gaussian_kernel_2d_2():
+    kernel_size = 3
+    sigma = 0.5
+    expected_kernel = np.array([
+        [0.01134374, 0.08381951, 0.01134374],
+        [0.08381951, 0.61934703, 0.08381951],
+        [0.01134374, 0.08381951, 0.01134374]
+    ])
+    actual_kernel = F.gaussian_kernel_2d(kernel_size, sigma)
+    assert np.allclose(expected_kernel, actual_kernel)

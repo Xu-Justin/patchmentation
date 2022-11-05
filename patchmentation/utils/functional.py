@@ -132,15 +132,15 @@ def place_image_array(patch_array: np.ndarray, image_array: np.ndarray, bbox: BB
 
 def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
     if len(image_array.shape) == 2:
-        plt.imshow(image_array, cmap='gray')
+        plt.imshow(image_array, cmap='gray', vmin=0, vmax=255)
         plt.show(block=block)
     elif image_array.shape[2] == 3:
         image_array = convert_BGR2RGB(image_array)
-        plt.imshow(image_array)
+        plt.imshow(image_array, vmin=0, vmax=255)
         plt.show(block=block)
     elif image_array.shape[2] == 4:
         image_array = convert_BGRA2RGBA(image_array)
-        plt.imshow(image_array)
+        plt.imshow(image_array, vmin=0, vmax=255)
         plt.show(block=block)
     else:
         raise TypeError(f'Received unexpected image_array with shape {image_array.shape}')
@@ -163,3 +163,8 @@ def convert_BGR2Grayscale(image_array: np.ndarray) -> np.ndarray:
 def crop_image_array(image_array: np.ndarray, bbox: BBox) -> np.ndarray:
     xmin, ymin, xmax, ymax = bbox
     return image_array[ymin:ymax, xmin:xmax]
+
+def gaussian_kernel_2d(kernel_size: int, sigma: float = 1.0) -> np.ndarray:
+    xdir_gauss = cv2.getGaussianKernel(kernel_size, sigma)
+    kernel = np.multiply(xdir_gauss.T, xdir_gauss)
+    return kernel
