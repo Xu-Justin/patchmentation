@@ -194,3 +194,11 @@ class SoftEdge(Transform):
         mask_image_array = convolve2d(mask_image_array, kernel, mode='same').astype(np.uint8)
         mask = loader.save_mask_image_array_temporary(mask_image_array)
         return Image(image.path, mask)
+
+class HardEdge(Transform):
+    def __init__(self):
+        pass
+
+    def transform(self, image: Image) -> Image:
+        mask = loader.save_mask_image_array_temporary(np.full((image.height(), image.width()), 255, np.uint8))
+        return Image(image.path, mask)

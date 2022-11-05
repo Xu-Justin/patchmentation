@@ -740,3 +740,17 @@ def test_softedge_2():
     ])
     assert softedge_image.path == image.path
     assert (softedge_image.get_mask().image_array() == expected_softedge_mask_image_array).all()
+
+def test_hardedge():
+    width = 5
+    height = 3
+    image = helper.generate_Image(width, height)
+    hardedge = transform.HardEdge()
+    hardedge_image = hardedge.transform(image)
+    expected_hardedge_mask_image_array = np.array([
+        [255, 255, 255, 255, 255],
+        [255, 255, 255, 255, 255],
+        [255, 255, 255, 255, 255]
+    ])
+    assert hardedge_image.path == image.path
+    assert (hardedge_image.get_mask().image_array() == expected_hardedge_mask_image_array).all()
