@@ -447,10 +447,10 @@ def input_filter_aspect_ratio(key: str) -> filter.FilterAspectRatio:
     col = st.columns([3, 3, 2])
     
     with col[0]:
-        width = st.number_input('Width', min_value=0, value=0, step=1, key=f'{key}-width')
+        width = st.number_input('Width', min_value=0, value=1, step=1, key=f'{key}-width')
     
     with col[1]:
-        height = st.number_input('Height', min_value=0, value=0, step=1, key=f'{key}-height')
+        height = st.number_input('Height', min_value=0, value=1, step=1, key=f'{key}-height')
     
     with col[2]:
         comparator = input_comparator(key=f'{key}-comparator')
