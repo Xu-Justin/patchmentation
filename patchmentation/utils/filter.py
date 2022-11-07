@@ -40,3 +40,18 @@ class FilterHeight(Filter):
             if self.comparator(height, self.height):
                 result.append(patch)
         return result
+
+class FilterAspectRatio(Filter):
+    def __init__(self, width: int, height: int, comparator: Comparator):
+        self.width = width
+        self.height = height
+        self.comparator = comparator
+
+    def filter(self, patches: List[Patch]) -> List[Patch]:
+        threshold_aspect_ratio = self.width / self.height
+        result = []
+        for patch in patches:
+            aspect_ratio = patch.width() / patch.height()
+            if self.comparator(aspect_ratio, threshold_aspect_ratio):
+                result.append(patch)
+        return result
