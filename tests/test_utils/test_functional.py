@@ -2,6 +2,7 @@ import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from patchmentation.utils import functional as F
+from patchmentation.utils import loader
 from patchmentation.utils import validator
 from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
 from tests import helper
@@ -599,3 +600,99 @@ def test_gaussian_kernel_2d_2():
     ])
     actual_kernel = F.gaussian_kernel_2d(kernel_size, sigma)
     assert np.allclose(expected_kernel, actual_kernel)
+
+def test_overlay_image_1():
+    image_a_image_array = np.array([
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+        [[19, 20, 21], [22, 23, 24], [25, 26, 27]],
+        [[28, 29, 30], [31, 32, 33], [34, 35, 36]]
+    ])
+    image_b_image_array = np.array([
+        [[101, 102, 103], [104, 105, 106]],
+        [[107, 108, 109], [110, 111, 112]],
+        [[113, 114, 115], [116, 117, 118]]
+    ])
+    bbox = BBox(1, 0, 3, 3)
+    image_a = loader.save_image_array_temporary(image_a_image_array)
+    image_b = loader.save_image_array_temporary(image_b_image_array)
+    expected_image_array = np.array([
+        [[1, 2, 3, 255], [101, 102, 103, 255], [104, 105, 106, 255]],
+        [[10, 11, 12, 255], [107, 108, 109, 255], [110, 111, 112, 255]],
+        [[19, 20, 21, 255], [113, 114, 115, 255], [116, 117, 118, 255]],
+        [[28, 29, 30, 255], [31, 32, 33, 255], [34, 35, 36, 255]]
+    ])
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    assert (expected_image_array == actual_image_array).all()
+
+def test_overlay_image_2():
+    image_a_image_array = np.array([
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+        [[19, 20, 21], [22, 23, 24], [25, 26, 27]],
+        [[28, 29, 30], [31, 32, 33], [34, 35, 36]]
+    ])
+    image_b_image_array = np.array([
+        [[101, 102, 103], [104, 105, 106]],
+        [[107, 108, 109], [110, 111, 112]],
+        [[113, 114, 115], [116, 117, 118]]
+    ])
+    bbox = BBox(0, 1, 2, 4)
+    image_a = loader.save_image_array_temporary(image_a_image_array)
+    image_b = loader.save_image_array_temporary(image_b_image_array)
+    expected_image_array = np.array([
+        [[1, 2, 3, 255], [4, 5, 6, 255], [7, 8, 9, 255]],
+        [[101, 102, 103, 255], [104, 105, 106, 255], [16, 17, 18, 255]],
+        [[107, 108, 109, 255], [110, 111, 112, 255], [25, 26, 27, 255]],
+        [[113, 114, 115, 255], [116, 117, 118, 255], [34, 35, 36, 255]]
+    ])
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    assert (expected_image_array == actual_image_array).all()
+
+def test_overlay_image_3():
+    image_a_image_array = np.array([
+        [[1, 2, 3, 255], [4, 5, 6, 255], [7, 8, 9, 255]],
+        [[10, 11, 12, 255], [13, 14, 15, 255], [16, 17, 18, 255]],
+        [[19, 20, 21, 255], [22, 23, 24, 255], [25, 26, 27, 255]],
+        [[28, 29, 30, 255], [31, 32, 33, 255], [34, 35, 36, 255]]
+    ])
+    image_b_image_array = np.array([
+        [[101, 102, 103, 0], [104, 105, 106, 50]],
+        [[107, 108, 109, 100], [110, 111, 112, 150]],
+        [[113, 114, 115, 200], [116, 117, 118, 255]]
+    ])
+    bbox = BBox(1, 1, 3, 4)
+    image_a = loader.save_image_array_temporary(image_a_image_array)
+    image_b = loader.save_image_array_temporary(image_b_image_array)
+    expected_image_array = np.array([
+        [[1, 2, 3, 255], [4, 5, 6, 255], [7, 8, 9, 255]],
+        [[10, 11, 12, 255], [13, 14, 15, 255], [33, 34, 35, 255]],
+        [[19, 20, 21, 255], [55, 56, 57, 255], [75, 76, 77, 255]],
+        [[28, 29, 30, 255], [95, 96, 97, 255], [116, 117, 118, 255]]
+    ])
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    assert (expected_image_array == actual_image_array).all()
+
+def test_overlay_image_4():
+    image_a_image_array = np.array([
+        [[1, 2, 3, 0], [4, 5, 6, 0], [7, 8, 9, 0]],
+        [[10, 11, 12, 50], [13, 14, 15, 50], [16, 17, 18, 50]],
+        [[19, 20, 21, 100], [22, 23, 24, 100], [25, 26, 27, 100]],
+        [[28, 29, 30, 150], [31, 32, 33, 150], [34, 35, 36, 150]]
+    ])
+    image_b_image_array = np.array([
+        [[101, 102, 103, 0], [104, 105, 106, 50]],
+        [[107, 108, 109, 100], [110, 111, 112, 150]],
+        [[113, 114, 115, 200], [116, 117, 118, 255]]
+    ])
+    bbox = BBox(0, 0, 2, 3)
+    image_a = loader.save_image_array_temporary(image_a_image_array)
+    image_b = loader.save_image_array_temporary(image_b_image_array)
+    expected_image_array = np.array([
+        [[0, 0, 0, 0], [20, 20, 20, 50], [7, 8, 9, 0]],
+        [[43, 43, 44, 130], [65, 66, 67, 170], [16, 17, 18, 50]],
+        [[90, 91, 91, 221], [116, 117, 118, 255], [25, 26, 27, 100]],
+        [[28, 29, 30, 150], [31, 32, 33, 150], [34, 35, 36, 150]]
+    ])
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    assert (expected_image_array == actual_image_array).all()

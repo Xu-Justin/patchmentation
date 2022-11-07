@@ -1,4 +1,5 @@
 from patchmentation.collections import BBox, Image, Patch, ImagePatch
+from patchmentation.utils import loader
 
 import numpy as np
 import cv2
@@ -129,6 +130,33 @@ def place_image_array(patch_array: np.ndarray, image_array: np.ndarray, bbox: BB
 
     image_array[image_ymin:image_ymax, image_xmin: image_xmax] = patch_array[patch_ymin:patch_ymax, patch_xmin:patch_xmax]
     return BBox(image_xmin, image_ymin, image_xmax, image_ymax)
+
+def overlay_image(image_a: Image, image_b: Image, bbox: BBox) -> Image:
+    assert bbox.width() == image_b.width()
+    assert bbox.height() == image_b.height()
+
+    background_image_array = image_a.image_array()[:,:,:3]
+    background_mask_image_array = image_a.get_mask().image_array()
+
+    overlay_image_array = image_b.image_array()[:,:,:3]
+    overlay_mask_image_array = image_b.get_mask().image_array()
+
+    background_color = background_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax, :] / 255.0
+    background_alpha = background_mask_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax] / 255.0
+    background_alpha = np.dstack((background_alpha, background_alpha, background_alpha))
+    overlay_color = overlay_image_array / 255.0
+    overlay_alpha = overlay_mask_image_array / 255.0
+    overlay_alpha = np.dstack((overlay_alpha, overlay_alpha, overlay_alpha))
+
+    composite_alpha = overlay_alpha + background_alpha * (1 - overlay_alpha)
+    composite_color = overlay_color * overlay_alpha + background_color * background_alpha * (1 - overlay_alpha)
+    composite_alpha = (composite_alpha[:,:,0] * 255).astype(np.uint8)
+    composite_color = (composite_color * 255).astype(np.uint8)
+
+    background_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax, :] = composite_color
+    background_mask_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax] = composite_alpha
+    image_array = np.dstack((background_image_array, background_mask_image_array))
+    return loader.save_image_array_temporary(image_array)
 
 def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
     if len(image_array.shape) == 2:
