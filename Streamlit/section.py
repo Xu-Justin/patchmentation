@@ -41,6 +41,8 @@ TRANSFORM_SCALE = 'Scale'
 TRANSFORM_RANDOM_SCALE = 'Random Scale'
 TRANSFORM_GRAYSCALE = 'Grayscale'
 TRANSFORM_RANDOM_GRAYSCALE = 'Random Grayscale'
+TRANSFORM_SOFTEDGE = 'Soft Edge'
+TRANSFORM_HARDEDGE = 'Hard Edge'
 FILTER_WIDTH = 'Filter by Width'
 FILTER_HEIGHT = 'Filter by Height'
 
@@ -189,6 +191,7 @@ def input_action(key: str) -> Union[transform.Transform, filter.Filter]:
         TRANSFORM_RESIZE, TRANSFORM_RANDOM_RESIZE,
         TRANSFORM_SCALE, TRANSFORM_RANDOM_SCALE,
         TRANSFORM_GRAYSCALE, TRANSFORM_RANDOM_GRAYSCALE,
+        TRANSFORM_SOFTEDGE, TRANSFORM_HARDEDGE,
         FILTER_WIDTH, FILTER_HEIGHT
     ]
     action = st.selectbox('Action', options, key=f'{key}-selectbox-action')
@@ -216,6 +219,12 @@ def input_action(key: str) -> Union[transform.Transform, filter.Filter]:
 
     if action == FILTER_HEIGHT:
         return input_filter_height(key=f'{key}-filter-height')
+
+    if action == TRANSFORM_SOFTEDGE:
+        return input_transform_softedge(key=f'{key}-transform-softedge')
+    
+    if action == TRANSFORM_HARDEDGE:
+        return input_transform_hardedge(key=f'{key}-transform-hardedge')
 
     return None
 
@@ -392,6 +401,20 @@ def input_transform_random_grayscale(key: str) -> transform.RandomGrayscale:
     p = st.number_input('Probability', min_value=0.0, max_value=1.0, value=0.5, step=0.05, key=f'{key}-p')
     return transform.RandomGrayscale(p)
 
+def input_transform_softedge(key: str) -> transform.SoftEdge:
+    col = st.columns([1, 1])
+    
+    with col[0]:
+        kernel_size = st.number_input('Kernel Size', min_value=1, value=5, step=2, key=f'{key}-kernel-size')
+    
+    with col[1]:
+        sigma = st.number_input('Sigma', min_value=0.0, value=1.0, step=0.1, key=f'{key}-sigma')
+    
+    return transform.SoftEdge(kernel_size, sigma)
+
+def input_transform_hardedge(key: str) -> transform.HardEdge:
+    return transform.HardEdge()
+
 def input_filter_width(key: str) -> filter.FilterWidth:
     col = st.columns([3, 1])
     
@@ -413,7 +436,6 @@ def input_filter_height(key: str) -> filter.FilterHeight:
         comparator = input_comparator(key=f'{key}-comparator')
     
     return filter.FilterHeight(height, comparator)
-
 
 def _number_input(number: int, key: str = 'number') -> Union[int, None]:
     if number == 'None' or number == '':
@@ -488,3 +510,6 @@ def patchmentation_configuration(key: str):
     visibility_threshold = st.number_input('Visibility Threshold', min_value=0.0, max_value=1.0, value=0.5, step=0.05, key=f'{key}-visibility-threshold')
     conf['visibility_threshold'] = visibility_threshold
     return conf
+
+def refresh_button(key: str):
+    st.button('Refresh', key=f'{key}-refresh-button')
