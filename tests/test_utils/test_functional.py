@@ -696,3 +696,142 @@ def test_overlay_image_4():
     ])
     actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
     assert (expected_image_array == actual_image_array).all()
+
+def test_visibility_thresholding_1():
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 9)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.5
+    list_non_removal_patch_bbox = None
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_1, patch_bbox_3]
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_2():
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 9)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_3, patch_bbox_2]
+    visibility_threshold = 0.5
+    list_non_removal_patch_bbox = None
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_1, patch_bbox_2]
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_3():
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.5
+    list_non_removal_patch_bbox = None
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_3]
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_4():
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.4
+    list_non_removal_patch_bbox = None
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_5():
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_4 = helper.generate_Patch(image), BBox(0, 0, 5, 4)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.4
+    list_non_removal_patch_bbox = [patch_bbox_4]
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_1, patch_bbox_2]
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_6():
+    INF = float('inf')
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_4 = helper.generate_Patch(image), BBox(0, 0, 5, 4)
+    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 5, INF, 6)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.4
+    list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5]
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_1]
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_7():
+    INF = float('inf')
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_4 = helper.generate_Patch(image), BBox(0, 0, 5, 4)
+    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 5, INF, INF)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.4
+    list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5]
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = []
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_8():
+    INF = float('inf')
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(5, 5, 10, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 5, 5, 15)
+    patch_bbox_4 = helper.generate_Patch(image), BBox(-5, -10, 5, 10)
+    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 3, INF, 5)
+    patch_bbox_6 = helper.generate_Patch(image), BBox(INF, 0, INF, INF)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.4
+    list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5, patch_bbox_6]
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_2, patch_bbox_3]
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_9():
+    INF = float('inf')
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(5, 5, 10, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 5, 5, 15)
+    patch_bbox_4 = helper.generate_Patch(image), BBox(-5, -10, 5, 10)
+    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 3, INF, 5)
+    patch_bbox_6 = helper.generate_Patch(image), BBox(INF, 0, INF, INF)
+    list_patch_bbox = []
+    visibility_threshold = 0.4
+    list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5, patch_bbox_6]
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = []
+    assert actual_list_patch_bbox == expected_list_patch_bbox
+
+def test_visibility_thresholding_10():
+    INF = float('inf')
+    image = helper.generate_Image()
+    patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
+    patch_bbox_2 = helper.generate_Patch(image), BBox(5, 5, 10, 10)
+    patch_bbox_3 = helper.generate_Patch(image), BBox(0, 5, 5, 15)
+    patch_bbox_4 = helper.generate_Patch(image), BBox(-5, -10, 5, 10)
+    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 3, INF, 5)
+    patch_bbox_6 = helper.generate_Patch(image), BBox(INF, 0, INF, INF)
+    list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    visibility_threshold = 0.4
+    list_non_removal_patch_bbox = []
+    actual_list_patch_bbox = F.visibility_thresholding(list_patch_bbox, visibility_threshold, list_non_removal_patch_bbox)
+    expected_list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
+    assert actual_list_patch_bbox == expected_list_patch_bbox

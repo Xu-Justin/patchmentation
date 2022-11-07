@@ -105,6 +105,61 @@ def visibility_suppression(patches: List[Patch], visibility_threshold: float, no
     
     return result_patches
 
+def visibility_thresholding(list_patch_bbox: List[Tuple[Patch, BBox]], visibility_threshold: float, list_non_removal_patch_bbox: List[Tuple[Patch, BBox]] = None) -> List[Tuple[Patch, BBox]]:
+    if len(list_patch_bbox) == 0: return []
+    
+    min_x, min_y, max_x, max_y = list_patch_bbox[0][1]
+    for _, bbox in list_patch_bbox:
+        xmin, ymin, xmax, ymax = bbox
+        min_x = min(min_x, xmin)
+        min_y = min(min_y, ymin)
+        max_x = max(max_x, xmax)
+        max_y = max(max_y, ymax)
+
+    EMPTY_CELL = -1
+    grid_width = max_x - min_x
+    grid_height = max_y - min_y
+    grid = np.full((grid_height, grid_width), EMPTY_CELL)
+    
+    total_area = [0] * len(list_patch_bbox)
+
+    for i, (_, bbox) in enumerate(list_patch_bbox):
+        xmin, ymin, xmax, ymax = bbox
+        xmin -= min_x
+        xmax -= min_x
+        ymin -= min_y
+        ymax -= min_y
+        grid[ymin:ymax, xmin:xmax] = i
+        total_area[i] = bbox.area()
+    
+    if list_non_removal_patch_bbox is not None:
+        for _, bbox in list_non_removal_patch_bbox:
+            xmin, ymin, xmax, ymax = bbox
+            xmin -= min_x
+            xmax -= min_x
+            ymin -= min_y
+            ymax -= min_y
+            xmin = max(0, xmin)
+            ymin = max(0, ymin)
+            xmax = min(xmax, grid_width)
+            ymax = min(ymax, grid_height)
+            if xmin >= grid_width or ymin >= grid_height or xmax < 0 or ymax < 0 : continue
+            grid[ymin:ymax, xmin:xmax] = EMPTY_CELL
+    
+    visible_area = dict(zip(*np.unique(grid, return_counts=True)))
+
+    visibility = [0] * len(list_patch_bbox)
+    for i in range(len(list_patch_bbox)):
+        if total_area[i] != 0 and i in visible_area:
+            visibility[i] = visible_area[i] / total_area[i]
+
+    result_patch_bbox = []
+    for i, patch_bbox in enumerate(list_patch_bbox):
+        if visibility[i] > visibility_threshold:
+            result_patch_bbox.append(patch_bbox)
+    
+    return result_patch_bbox
+
 def resize_image_array(image_array: np.ndarray, width: int, height: int) -> np.ndarray:
     return cv2.resize(image_array, (width, height), interpolation = cv2.INTER_AREA)
 
