@@ -3,6 +3,7 @@ from patchmentation.utils import loader
 
 import numpy as np
 import cv2
+import random
 import matplotlib.pyplot as plt
 from typing import List, Tuple
 
@@ -166,3 +167,23 @@ def gaussian_kernel_2d(kernel_size: int, sigma: float = 1.0) -> np.ndarray:
     xdir_gauss = cv2.getGaussianKernel(kernel_size, sigma)
     kernel = np.multiply(xdir_gauss.T, xdir_gauss)
     return kernel
+
+NEGATIVE_PATCH_CLASS_NAME = 'NEGATIVE_PATCH'
+def get_negative_patch(image_patch: ImagePatch, iou_threshold: float) -> Patch:
+    image = image_patch.image
+    image_width = image.width()
+    image_height = image.height()
+    while True:
+        xmin = random.randint(0, image_width)
+        ymin = random.randint(0, image_height)
+        xmax = random.randint(xmin, image_width)
+        ymax = random.randint(ymin, image_height)
+        bbox = BBox(xmin, ymin, xmax, ymax)
+        valid = True
+        for positive_patch in image_patch.patches:
+            if intersection_over_union(bbox, positive_patch.bbox) >= iou_threshold:
+                valid = False
+                break
+        if valid:
+            return Patch(image, bbox, NEGATIVE_PATCH_CLASS_NAME)
+    
