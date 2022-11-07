@@ -155,7 +155,7 @@ def visibility_thresholding(list_patch_bbox: List[Tuple[Patch, BBox]], visibilit
 
     result_patch_bbox = []
     for i, patch_bbox in enumerate(list_patch_bbox):
-        if visibility[i] > visibility_threshold:
+        if visibility[i] >= visibility_threshold:
             result_patch_bbox.append(patch_bbox)
     
     return result_patch_bbox
