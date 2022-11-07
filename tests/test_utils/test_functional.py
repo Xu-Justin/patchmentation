@@ -602,3 +602,12 @@ def test_visibility_thresholding_12():
     expected_list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
     assert actual_list_patch_bbox == expected_list_patch_bbox
 
+def test_get_negative_patch():
+    image_patch = helper.generate_ImagePatch()
+    iou_threshold = 0.5
+    negative_patch = F.get_negative_patch(image_patch, iou_threshold)
+    for patch in image_patch.patches:
+        assert F.intersection_over_union(patch.bbox, negative_patch.bbox) < iou_threshold
+    assert negative_patch.class_name == F.NEGATIVE_PATCH_CLASS_NAME
+    assert negative_patch.width() > 0
+    assert negative_patch.height() > 0

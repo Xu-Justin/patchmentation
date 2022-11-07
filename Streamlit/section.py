@@ -1,16 +1,18 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from patchmentation.collections import Image, Dataset, ImagePatch
+from patchmentation.collections import Image, Dataset, ImagePatch, Patch
 from patchmentation.utils import loader
 from patchmentation.utils import transform
 from patchmentation.utils import filter
 from patchmentation.utils import Comparator
+from patchmentation.utils import functional as F
 
 import streamlit as st
 import extra_streamlit_components as stx
 import numpy as np
-from typing import List, Tuple, Union
+import random
+from typing import List, Tuple, Union, Dict, Any
 
 SAMPLE_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
 SAMPLE_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
@@ -45,6 +47,7 @@ TRANSFORM_SOFTEDGE = 'Soft Edge'
 TRANSFORM_HARDEDGE = 'Hard Edge'
 FILTER_WIDTH = 'Filter by Width'
 FILTER_HEIGHT = 'Filter by Height'
+FILTER_ASPECT_RATIO = 'Filter by Aspect Ratio'
 
 ASPECT_RATIO_NONE = None
 ASPECT_RATIO_AUTO = 'auto'
@@ -192,7 +195,7 @@ def input_action(key: str) -> Union[transform.Transform, filter.Filter]:
         TRANSFORM_SCALE, TRANSFORM_RANDOM_SCALE,
         TRANSFORM_GRAYSCALE, TRANSFORM_RANDOM_GRAYSCALE,
         TRANSFORM_SOFTEDGE, TRANSFORM_HARDEDGE,
-        FILTER_WIDTH, FILTER_HEIGHT
+        FILTER_WIDTH, FILTER_HEIGHT, FILTER_ASPECT_RATIO
     ]
     action = st.selectbox('Action', options, key=f'{key}-selectbox-action')
     
@@ -219,6 +222,9 @@ def input_action(key: str) -> Union[transform.Transform, filter.Filter]:
 
     if action == FILTER_HEIGHT:
         return input_filter_height(key=f'{key}-filter-height')
+
+    if action == FILTER_ASPECT_RATIO:
+        return input_filter_aspect_ratio(key=f'{key}-filter-aspect-ratio')
 
     if action == TRANSFORM_SOFTEDGE:
         return input_transform_softedge(key=f'{key}-transform-softedge')
@@ -437,6 +443,20 @@ def input_filter_height(key: str) -> filter.FilterHeight:
     
     return filter.FilterHeight(height, comparator)
 
+def input_filter_aspect_ratio(key: str) -> filter.FilterAspectRatio:
+    col = st.columns([3, 3, 2])
+    
+    with col[0]:
+        width = st.number_input('Width', min_value=0, value=1, step=1, key=f'{key}-width')
+    
+    with col[1]:
+        height = st.number_input('Height', min_value=0, value=1, step=1, key=f'{key}-height')
+    
+    with col[2]:
+        comparator = input_comparator(key=f'{key}-comparator')
+    
+    return filter.FilterAspectRatio(width, height, comparator)
+
 def _number_input(number: int, key: str = 'number') -> Union[int, None]:
     if number == 'None' or number == '':
             return None
@@ -504,12 +524,36 @@ def input_comparator(key: str) -> Comparator:
 
     raise RuntimeError(f'Unexpected comparator {comparator}')
 
-def patchmentation_configuration(key: str):
+def patchmentation_configuration(key: str) -> Dict[str, Any]:
     st.subheader('Configuration')
     conf = dict()
     visibility_threshold = st.number_input('Visibility Threshold', min_value=0.0, max_value=1.0, value=0.5, step=0.05, key=f'{key}-visibility-threshold')
     conf['visibility_threshold'] = visibility_threshold
     return conf
 
-def refresh_button(key: str):
+def refresh_button(key: str) -> None:
     st.button('Refresh', key=f'{key}-refresh-button')
+
+def negative_patch(dataset: Dataset, key: str) -> List[Patch]:
+    use_negative_patch = st.checkbox('Negative Patch', key=f'{key}-negative-patch-checkbox')
+    negative_patches = []
+    if not use_negative_patch:
+        return negative_patches
+
+    col = st.columns([1, 1])
+    
+    with col[0]:
+        n_negative_patch = st.number_input('Number of Negative Patch', min_value=0, step=1, key=f'{key}-number-of-negative-patch')
+    
+    with col[1]:
+        iou_threshold = st.number_input('IOU Threshold', min_value=0.0, max_value=1.0, value=0.5, step=0.05, key=f'{key}-iou-threshold')
+        
+    for _ in range(n_negative_patch):
+        image_patch = random.choice(dataset.image_patches)
+        patch = F.get_negative_patch(image_patch, iou_threshold)
+        negative_patches.append(patch)
+    
+    return negative_patches
+
+def input_shuffle(key: str) -> bool:
+    return st.checkbox('Shuffle', value=True, key=f'{key}-shuffle')
