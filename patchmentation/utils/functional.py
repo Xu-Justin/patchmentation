@@ -174,10 +174,10 @@ def get_negative_patch(image_patch: ImagePatch, iou_threshold: float) -> Patch:
     image_width = image.width()
     image_height = image.height()
     while True:
-        xmin = random.randint(0, image_width)
-        ymin = random.randint(0, image_height)
-        xmax = random.randint(xmin, image_width)
-        ymax = random.randint(ymin, image_height)
+        xmin = random.randint(0, image_width - 1)
+        ymin = random.randint(0, image_height - 1)
+        xmax = random.randint(xmin + 1, image_width)
+        ymax = random.randint(ymin + 1, image_height)
         bbox = BBox(xmin, ymin, xmax, ymax)
         valid = True
         for positive_patch in image_patch.patches:
