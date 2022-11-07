@@ -34,3 +34,10 @@ class Image:
     
     def channel(self):
         return self.shape()[2]
+
+    def get_mask(self) -> Mask:
+        if self.mask is None:
+            from patchmentation.utils import loader
+            mask_image_array = np.full((self.height(), self.width()), 255, np.uint8)
+            self.mask = loader.save_mask_image_array_temporary(mask_image_array)
+        return self.mask

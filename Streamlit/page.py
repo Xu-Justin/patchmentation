@@ -27,4 +27,4 @@ def patchmentation(key: str = 'page-patchmentation'):
     
     result_image_patch = patch_augmentation(patches, background_image, conf.get('visibility_threshold', 0.5), actions)
     section.display_image_patch(result_image_patch, key=f'{key}-display_result_image_patch')
-    
+    section.refresh_button(key=f'{key}-refresh')

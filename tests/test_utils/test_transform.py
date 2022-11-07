@@ -5,6 +5,7 @@ from tests import helper
 from patchmentation.utils import transform
 
 import pytest
+import numpy as np
 
 def test_resize_1():
     width = None
@@ -701,3 +702,55 @@ def test_random_grayscale_2():
             break
             
     assert helper.compare_float_equal(actual_p, p, epsilon=0.1)
+
+def test_softedge_1():
+    kernel_size = 3
+    sigma = 1.0
+    softedge = transform.SoftEdge(kernel_size, sigma)
+    image = helper.generate_Image(5, 8)
+    softedge_image = softedge.transform(image)
+    expected_softedge_mask_image_array = np.array([
+        [ 19,  50,  69,  50,  19],
+        [ 50, 134, 185, 134,  50],
+        [ 69, 185, 255, 185,  69],
+        [ 69, 185, 255, 185,  69],
+        [ 69, 185, 255, 185,  69],
+        [ 69, 185, 255, 185,  69],
+        [ 50, 134, 185, 134,  50],
+        [ 19,  50,  69,  50,  19]
+    ])
+    assert softedge_image.path == image.path
+    assert (softedge_image.get_mask().image_array() == expected_softedge_mask_image_array).all()
+
+def test_softedge_2():
+    kernel_size = 5
+    sigma = 0.8
+    softedge = transform.SoftEdge(kernel_size, sigma)
+    image = helper.generate_Image(5, 8)
+    softedge_image = softedge.transform(image)
+    expected_softedge_mask_image_array = np.array([
+        [  0,   1,   2,   1,   0],
+        [  1,  14,  31,  14,   1],
+        [  4,  43,  95,  43,   4],
+        [  5,  56, 124,  56,   5],
+        [  5,  56, 124,  56,   5],
+        [  4,  43,  95,  43,   4],
+        [  1,  14,  31,  14,   1],
+        [  0,   1,   2,   1,   0]
+    ])
+    assert softedge_image.path == image.path
+    assert (softedge_image.get_mask().image_array() == expected_softedge_mask_image_array).all()
+
+def test_hardedge():
+    width = 5
+    height = 3
+    image = helper.generate_Image(width, height)
+    hardedge = transform.HardEdge()
+    hardedge_image = hardedge.transform(image)
+    expected_hardedge_mask_image_array = np.array([
+        [255, 255, 255, 255, 255],
+        [255, 255, 255, 255, 255],
+        [255, 255, 255, 255, 255]
+    ])
+    assert hardedge_image.path == image.path
+    assert (hardedge_image.get_mask().image_array() == expected_hardedge_mask_image_array).all()

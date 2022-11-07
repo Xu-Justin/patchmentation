@@ -12,8 +12,8 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
     if isinstance(image, ImagePatch):
         image = image.image
     
-    background_image_array = loader.load_image_array(image)
-    background_image_height, background_image_width, _ = background_image_array.shape
+    background_image_width = image.width()
+    background_image_height = image.height()
 
     if actions is not None:
         for action in actions:
@@ -27,51 +27,39 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
             if isinstance(action, Filter):
                 patches = action.filter(patches)
 
-    ATTR_TARGET_BBOX = 'target_bbox'
-
+    list_patch_bbox = []
     for patch in patches:
-        width = patch.bbox.width()
-        height = patch.bbox.height()
-        xmin = random.randint(0, background_image_width - 1)
-        ymin = random.randint(0, background_image_height - 1)
+        width = patch.width()
+        height = patch.height()
+        xmin = random.randint(0, background_image_width - width)
+        ymin = random.randint(0, background_image_height - height)
         xmax = xmin + width
         ymax = ymin + height
-        target_bbox = BBox(xmin, ymin, xmax, ymax)
-        setattr(patch, ATTR_TARGET_BBOX, target_bbox)
+        bbox = BBox(xmin, ymin, xmax, ymax)
+        list_patch_bbox.append((patch, bbox))
             
     INF = float('inf')
-    patches = F.visibility_suppression(
-        patches=patches,
-        visibility_threshold=visibility_threshold,
-        non_removal_patches=[
-            Patch(None, BBox(-INF, -INF, 0, INF), None),
-            Patch(None, BBox(-INF, -INF, INF, 0), None),
-            Patch(None, BBox(background_image_width + 1, -INF, INF, INF), None),
-            Patch(None, BBox(-INF, background_image_height + 1, INF, INF), None),
-        ],
-        attr_bbox=ATTR_TARGET_BBOX,
-        attr_non_removal_patches_bbox='bbox'
+    list_patch_bbox = F.visibility_thresholding(
+        list_patch_bbox,
+        visibility_threshold,
+        list_non_removal_patch_bbox=[
+            (None, BBox(-INF, -INF, 0, INF)),
+            (None, BBox(-INF, -INF, INF, 0)),
+            (None, BBox(background_image_width, -INF, INF, INF)),
+            (None, BBox(-INF, background_image_height, INF, INF))
+        ]
     )
 
-    result_image_array = background_image_array
+    result_image: Image = image
     result_patches: List[Patch] = []
-    for patch in patches:
-        target_bbox = getattr(patch, ATTR_TARGET_BBOX)
-        width = target_bbox.width()
-        height = target_bbox.height()
-        
-        patch_array = patch.image_array()
-        patch_array = F.resize_image_array(patch_array, width, height)
-
-        result_bbox = F.place_image_array(patch_array, result_image_array, target_bbox)
-        result_patch = Patch('', result_bbox, patch.class_name)
+    
+    for patch, bbox in list_patch_bbox:
+        patch_image = converter.patch2image(patch)
+        result_image = F.overlay_image(result_image, patch_image, bbox)
+        result_patch = Patch(None, bbox, patch.class_name)
         result_patches.append(result_patch)
-    
-    result_image = loader.save_image_array_temporary(result_image_array)
-    for patch in result_patches:
-        patch.image = result_image
-    
-    for patch in patches:
-        delattr(patch, ATTR_TARGET_BBOX)
 
+    for result_patch in result_patches:
+        result_patch.image = result_image
+    
     return ImagePatch(result_image, result_patches)

@@ -1,4 +1,5 @@
 from patchmentation.collections import BBox, Image, Patch, ImagePatch
+from patchmentation.utils import loader
 
 import numpy as np
 import cv2
@@ -42,40 +43,36 @@ def scale_bbox(bbox: BBox, scale: float) -> BBox:
     ymax = ymin + scaled_height
     return BBox(xmin, ymin, xmax, ymax)
 
-def visibility_suppression(patches: List[Patch], visibility_threshold: float, non_removal_patches: List[Patch] = None, **kwargs) -> List[Patch]:
-    if len(patches) == 0: return []
-
-    attr_bbox = kwargs.get('attr_bbox', 'bbox')
-    attr_non_removal_patches_bbox = kwargs.get('attr_non_removal_patches_bbox', 'bbox')
+def visibility_thresholding(list_patch_bbox: List[Tuple[Patch, BBox]], visibility_threshold: float, list_non_removal_patch_bbox: List[Tuple[Patch, BBox]] = None) -> List[Tuple[Patch, BBox]]:
+    if len(list_patch_bbox) == 0: return []
     
-    min_x, min_y, max_x, max_y = getattr(patches[0], attr_bbox)
-    for patch in patches:
-        xmin, ymin, xmax, ymax = getattr(patch, attr_bbox)
+    min_x, min_y, max_x, max_y = list_patch_bbox[0][1]
+    for _, bbox in list_patch_bbox:
+        xmin, ymin, xmax, ymax = bbox
         min_x = min(min_x, xmin)
         min_y = min(min_y, ymin)
         max_x = max(max_x, xmax)
         max_y = max(max_y, ymax)
-    
+
     EMPTY_CELL = -1
     grid_width = max_x - min_x
     grid_height = max_y - min_y
     grid = np.full((grid_height, grid_width), EMPTY_CELL)
     
-    total_area = [0] * len(patches)
-    visible_area = [0] * len(patches)
+    total_area = [0] * len(list_patch_bbox)
 
-    for i, patch in enumerate(patches):
-        xmin, ymin, xmax, ymax = getattr(patch, attr_bbox)
+    for i, (_, bbox) in enumerate(list_patch_bbox):
+        xmin, ymin, xmax, ymax = bbox
         xmin -= min_x
         xmax -= min_x
         ymin -= min_y
         ymax -= min_y
         grid[ymin:ymax, xmin:xmax] = i
-        total_area[i] = getattr(patch, attr_bbox).area()
+        total_area[i] = bbox.area()
     
-    if non_removal_patches is not None:
-        for patch in non_removal_patches:
-            xmin, ymin, xmax, ymax = getattr(patch, attr_non_removal_patches_bbox)
+    if list_non_removal_patch_bbox is not None:
+        for _, bbox in list_non_removal_patch_bbox:
+            xmin, ymin, xmax, ymax = bbox
             xmin -= min_x
             xmax -= min_x
             ymin -= min_y
@@ -87,60 +84,61 @@ def visibility_suppression(patches: List[Patch], visibility_threshold: float, no
             if xmin >= grid_width or ymin >= grid_height or xmax < 0 or ymax < 0 : continue
             grid[ymin:ymax, xmin:xmax] = EMPTY_CELL
     
-    for i in range(grid_height):
-        for j in range(grid_width):
-            if grid[i][j] != EMPTY_CELL:
-                visible_area[grid[i][j]] += 1
+    visible_area = dict(zip(*np.unique(grid, return_counts=True)))
 
-    visibility = [0] * len(patches)
-    for i in range(len(patches)):
-        if total_area[i] != 0:
+    visibility = [0] * len(list_patch_bbox)
+    for i in range(len(list_patch_bbox)):
+        if total_area[i] != 0 and i in visible_area:
             visibility[i] = visible_area[i] / total_area[i]
 
-    result_patches = []
-    for i, patch in enumerate(patches):
-        if visibility[i] > visibility_threshold:
-            result_patches.append(patch)
+    result_patch_bbox = []
+    for i, patch_bbox in enumerate(list_patch_bbox):
+        if visibility[i] >= visibility_threshold:
+            result_patch_bbox.append(patch_bbox)
     
-    return result_patches
+    return result_patch_bbox
 
 def resize_image_array(image_array: np.ndarray, width: int, height: int) -> np.ndarray:
     return cv2.resize(image_array, (width, height), interpolation = cv2.INTER_AREA)
 
-def place_image_array(patch_array: np.ndarray, image_array: np.ndarray, bbox: BBox) -> BBox:
-    xmin, ymin, xmax, ymax = bbox
-    image_height, image_width, _ = image_array.shape
-    patch_height, patch_width, _ = patch_array.shape
+def overlay_image(image_a: Image, image_b: Image, bbox: BBox) -> Image:
+    assert bbox.width() == image_b.width()
+    assert bbox.height() == image_b.height()
 
-    dif_xmin = max(0, 0 - xmin)
-    dif_ymin = max(0, 0 - ymin)
-    dif_xmax = min(0, image_width - xmax)
-    dif_ymax = min(0, image_height - ymax)
+    background_image_array = image_a.image_array()[:,:,:3]
+    background_mask_image_array = image_a.get_mask().image_array()
 
-    patch_xmin = dif_xmin
-    patch_ymin = dif_ymin
-    patch_xmax = patch_width + dif_xmax
-    patch_ymax = patch_height + dif_ymax
+    overlay_image_array = image_b.image_array()[:,:,:3]
+    overlay_mask_image_array = image_b.get_mask().image_array()
 
-    image_xmin = xmin + dif_xmin
-    image_ymin = ymin + dif_ymin
-    image_xmax = xmax + dif_xmax
-    image_ymax = ymax + dif_ymax
+    background_color = background_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax, :] / 255.0
+    background_alpha = background_mask_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax] / 255.0
+    background_alpha = np.dstack((background_alpha, background_alpha, background_alpha))
+    overlay_color = overlay_image_array / 255.0
+    overlay_alpha = overlay_mask_image_array / 255.0
+    overlay_alpha = np.dstack((overlay_alpha, overlay_alpha, overlay_alpha))
 
-    image_array[image_ymin:image_ymax, image_xmin: image_xmax] = patch_array[patch_ymin:patch_ymax, patch_xmin:patch_xmax]
-    return BBox(image_xmin, image_ymin, image_xmax, image_ymax)
+    composite_alpha = overlay_alpha + background_alpha * (1 - overlay_alpha)
+    composite_color = overlay_color * overlay_alpha + background_color * background_alpha * (1 - overlay_alpha)
+    composite_alpha = (composite_alpha[:,:,0] * 255).astype(np.uint8)
+    composite_color = (composite_color * 255).astype(np.uint8)
+
+    background_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax, :] = composite_color
+    background_mask_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax] = composite_alpha
+    image_array = np.dstack((background_image_array, background_mask_image_array))
+    return loader.save_image_array_temporary(image_array)
 
 def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
     if len(image_array.shape) == 2:
-        plt.imshow(image_array, cmap='gray')
+        plt.imshow(image_array, cmap='gray', vmin=0, vmax=255)
         plt.show(block=block)
     elif image_array.shape[2] == 3:
         image_array = convert_BGR2RGB(image_array)
-        plt.imshow(image_array)
+        plt.imshow(image_array, vmin=0, vmax=255)
         plt.show(block=block)
     elif image_array.shape[2] == 4:
         image_array = convert_BGRA2RGBA(image_array)
-        plt.imshow(image_array)
+        plt.imshow(image_array, vmin=0, vmax=255)
         plt.show(block=block)
     else:
         raise TypeError(f'Received unexpected image_array with shape {image_array.shape}')
@@ -163,3 +161,8 @@ def convert_BGR2Grayscale(image_array: np.ndarray) -> np.ndarray:
 def crop_image_array(image_array: np.ndarray, bbox: BBox) -> np.ndarray:
     xmin, ymin, xmax, ymax = bbox
     return image_array[ymin:ymax, xmin:xmax]
+
+def gaussian_kernel_2d(kernel_size: int, sigma: float = 1.0) -> np.ndarray:
+    xdir_gauss = cv2.getGaussianKernel(kernel_size, sigma)
+    kernel = np.multiply(xdir_gauss.T, xdir_gauss)
+    return kernel
