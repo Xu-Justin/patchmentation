@@ -21,23 +21,23 @@ def test_patch_augmentation_1():
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1)
     
     patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches
-    imagePatch = patch_augmentation(patches, background_image)
-    validator.validate_ImagePatch(imagePatch)
+    image_patch = patch_augmentation(patches, background_image)
+    validator.validate_ImagePatch(image_patch)
 
 def test_patch_augmentation_2():
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_2)
     
     patches = dataset.image_patches[0].patches
-    imagePatch = patch_augmentation(patches, background_image)
+    image_patch = patch_augmentation(patches, background_image)
 
     patches = dataset.image_patches[1].patches
-    imagePatch = patch_augmentation(patches, imagePatch)
+    image_patch = patch_augmentation(patches, image_patch)
 
     patches = dataset.image_patches[2].patches
-    imagePatch = patch_augmentation(patches, background_image)
+    image_patch = patch_augmentation(patches, image_patch)
 
-    validator.validate_ImagePatch(imagePatch)
+    validator.validate_ImagePatch(image_patch)
 
 def test_patch_augmentation_3():
     actions = [
@@ -50,11 +50,9 @@ def test_patch_augmentation_3():
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1)
     
     patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches
-    imagePatch = patch_augmentation(patches, background_image, actions=actions)
-    validator.validate_ImagePatch(imagePatch)
+    image_patch = patch_augmentation(patches, background_image, actions=actions)
+    validator.validate_ImagePatch(image_patch)
 
-# import pytest
-# @pytest.mark.skip
 def test_patch_augmentation_4():
     actions = [
         transform.Resize(height=200, aspect_ratio='auto'),
@@ -66,6 +64,15 @@ def test_patch_augmentation_4():
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_2)
     
-    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches
-    imagePatch = patch_augmentation(patches, background_image, actions=actions)
-    validator.validate_ImagePatch(imagePatch)
+    visibility_threshold = 0.2
+
+    patches = dataset.image_patches[0].patches
+    image_patch = patch_augmentation(patches, background_image, visibility_threshold, actions, True)
+
+    patches = dataset.image_patches[1].patches
+    image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, False)
+
+    patches = dataset.image_patches[2].patches
+    image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, True)
+
+    validator.validate_ImagePatch(image_patch)

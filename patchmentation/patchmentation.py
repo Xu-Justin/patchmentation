@@ -8,8 +8,19 @@ import random
 from typing import List, Tuple, Union
 
 
-def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], visibility_threshold: float = 0.5, actions: List[Union[Transform, Filter]] = None) -> ImagePatch:
+def patch_augmentation(
+        patches: List[Patch],
+        image: Union[Image, ImagePatch],
+        visibility_threshold: float = 0.5,
+        actions: List[Union[Transform, Filter]] = None,
+        preserve_background_patch: bool = True
+    ) -> ImagePatch:
+    
+    background_patches = []
+
     if isinstance(image, ImagePatch):
+        if preserve_background_patch:
+            background_patches = image.patches
         image = image.image
     
     background_image_width = image.width()
@@ -37,17 +48,22 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
         ymax = ymin + height
         bbox = BBox(xmin, ymin, xmax, ymax)
         list_patch_bbox.append((patch, bbox))
+
+    list_background_patch_bbox = []
+    for patch in background_patches:
+        bbox = patch.bbox
+        list_background_patch_bbox.append((patch, bbox))
             
     INF = float('inf')
     list_patch_bbox = F.visibility_thresholding(
         list_patch_bbox,
         visibility_threshold,
-        list_non_removal_patch_bbox=[
+        list_non_removal_patch_bbox = [
             (None, BBox(-INF, -INF, 0, INF)),
             (None, BBox(-INF, -INF, INF, 0)),
             (None, BBox(background_image_width, -INF, INF, INF)),
             (None, BBox(-INF, background_image_height, INF, INF))
-        ]
+        ] + list_background_patch_bbox
     )
 
     result_image: Image = image
@@ -59,6 +75,12 @@ def patch_augmentation(patches: List[Patch], image: Union[Image, ImagePatch], vi
         result_patch = Patch(None, bbox, patch.class_name)
         result_patches.append(result_patch)
 
+    for patch, bbox in list_background_patch_bbox:
+        patch_image = converter.patch2image(patch)
+        result_image = F.overlay_image(result_image, patch_image, bbox)
+        result_patch = Patch(None, bbox, patch.class_name)
+        result_patches.append(result_patch)
+    
     for result_patch in result_patches:
         result_patch.image = result_image
     
