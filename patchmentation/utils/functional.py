@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import random
 import matplotlib.pyplot as plt
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 def intersection(bbox_1: BBox, bbox_2: BBox) -> BBox:
     xmin = max(bbox_1.xmin, bbox_2.xmin)
@@ -187,3 +187,12 @@ def get_negative_patch(image_patch: ImagePatch, iou_threshold: float) -> Patch:
         if valid:
             return Patch(image, bbox, NEGATIVE_PATCH_CLASS_NAME)
     
+def get_weighted_random_2d(weight: np.ndarray, k: int = 1) -> Union[Tuple[int, int], List[Tuple[int, int]]]:
+    height, width = weight.shape
+    indexes = np.arange(0, height * width)
+    flatten_weight = weight.flatten().astype(np.float32)
+    flatten_weight = flatten_weight / flatten_weight.sum()
+    selected_indexes = np.random.choice(indexes, size=k, p=flatten_weight)
+    y = selected_indexes // width
+    x = selected_indexes % width
+    return np.c_[y, x]

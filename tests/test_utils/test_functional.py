@@ -611,3 +611,31 @@ def test_get_negative_patch():
     assert negative_patch.class_name == F.NEGATIVE_PATCH_CLASS_NAME
     assert negative_patch.width() > 0
     assert negative_patch.height() > 0
+
+def test_get_weighted_random_2d_1():
+    weight = np.array([
+        [1, 1, 1],
+        [1, 1, 1]
+    ])
+    k = 10
+    indexes = F.get_weighted_random_2d(weight, k)
+    for y, x in indexes:
+        assert y >= 0 and y < weight.shape[0]
+        assert x >= 0 and x < weight.shape[1]
+
+def test_get_weighted_random_2d_2():
+    weight = np.array([
+        [0, 3, 2],
+        [1, 0, 0]
+    ])
+    k = 100
+    indexes = F.get_weighted_random_2d(weight, k)
+    count = dict()
+    for y, x in indexes:
+        assert y >= 0 and y < weight.shape[0]
+        assert x >= 0 and x < weight.shape[1]
+        assert (y, x) in [(0, 1), (0, 2), (1, 0)]
+        if (y, x) not in count:
+            count[(y, x)] = 0
+        count[(y, x)] += 1
+    assert count[(0, 1)] > count[(0, 2)] and count[(0, 2)] > count[(1, 0)]
