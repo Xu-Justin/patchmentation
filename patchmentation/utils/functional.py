@@ -169,11 +169,13 @@ def gaussian_kernel_2d(kernel_size: int, sigma: float = 1.0) -> np.ndarray:
     return kernel
 
 NEGATIVE_PATCH_CLASS_NAME = 'NEGATIVE_PATCH'
-def get_negative_patch(image_patch: ImagePatch, iou_threshold: float) -> Patch:
+def get_negative_patch(image_patch: Union[Image, ImagePatch], iou_threshold: float, max_iteration: int = 300) -> Patch:
+    if isinstance(image_patch, Image):
+        image_patch = ImagePatch(image_patch, [])
     image = image_patch.image
     image_width = image.width()
     image_height = image.height()
-    while True:
+    for _ in range(max_iteration):
         xmin = random.randint(0, image_width - 1)
         ymin = random.randint(0, image_height - 1)
         xmax = random.randint(xmin + 1, image_width)
@@ -181,11 +183,12 @@ def get_negative_patch(image_patch: ImagePatch, iou_threshold: float) -> Patch:
         bbox = BBox(xmin, ymin, xmax, ymax)
         valid = True
         for positive_patch in image_patch.patches:
-            if intersection_over_union(bbox, positive_patch.bbox) >= iou_threshold:
+            if intersection_over_union(bbox, positive_patch.bbox) > iou_threshold:
                 valid = False
                 break
         if valid:
             return Patch(image, bbox, NEGATIVE_PATCH_CLASS_NAME)
+    return None
     
 def get_weighted_random_2d(weight: np.ndarray, k: int = 1) -> Union[Tuple[int, int], List[Tuple[int, int]]]:
     height, width = weight.shape
