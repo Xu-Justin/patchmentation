@@ -1,19 +1,20 @@
-from patchmentation.collections import BBox, Image, Patch, ImagePatch
-from patchmentation.utils import loader
+from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch
 from patchmentation.utils import functional as F
 from patchmentation.utils.transform import Transform
 from patchmentation.utils.filter import Filter
 from patchmentation.utils import converter
-import random
-from typing import List, Tuple, Union
 
+import numpy as np
+import random
+from typing import List, Union
 
 def patch_augmentation(
         patches: List[Patch],
         image: Union[Image, ImagePatch],
         visibility_threshold: float = 0.5,
         actions: List[Union[Transform, Filter]] = None,
-        preserve_background_patch: bool = True
+        preserve_background_patch: bool = True,
+        patch_distribution: Union[np.ndarray, Mask] = None
     ) -> ImagePatch:
     
     background_patches = []
@@ -38,12 +39,27 @@ def patch_augmentation(
             if isinstance(action, Filter):
                 patches = action.filter(patches)
 
+    if patch_distribution is None:
+        patch_distribution = np.full((background_image_height, background_image_width), 1)
+    
+    if isinstance(patch_distribution, Mask):
+        patch_distribution = patch_distribution.image_array()
+
+    patch_distribution = patch_distribution.astype(np.float32)
+    patch_distribution -= patch_distribution.min()
+    patch_distribution += 1e-6 # smoothing
+    patch_distribution /= patch_distribution.max()
+
     list_patch_bbox = []
     for patch in patches:
         width = patch.width()
         height = patch.height()
-        xmin = random.randint(0, background_image_width - width)
-        ymin = random.randint(0, background_image_height - height)
+        assert width <= background_image_width, f'Expected patch width <= background image width, but got patch width {width} background image width {background_image_width}'
+        assert height <= background_image_height, f'Expected patch height <= background image height, but got patch height {height} background image height {background_image_height}'
+        weight = patch_distribution.copy()
+        weight[background_image_height - height + 1:, :] = 0
+        weight[:, background_image_width - width + 1:] = 0
+        ymin, xmin = F.get_weighted_random_2d(weight, 1)[0]
         xmax = xmin + width
         ymax = ymin + height
         bbox = BBox(xmin, ymin, xmax, ymax)

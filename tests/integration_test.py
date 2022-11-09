@@ -7,7 +7,10 @@ from patchmentation.utils import loader
 from patchmentation.utils import filter
 from patchmentation.utils import transform
 from patchmentation.utils import Comparator
+from patchmentation.utils import functional as F
 from patchmentation import patch_augmentation
+
+import numpy as np
 
 SAMPLE_PATCHMENTATION_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
 SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
@@ -64,15 +67,19 @@ def test_patch_augmentation_4():
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_2)
     
+    patch_distribution = np.full((background_image.height(), background_image.width()), 0)
+    patch_distribution[250:300, :] = 255
+    patch_distribution[:, 400:450] = 255
+
     visibility_threshold = 0.2
 
     patches = dataset.image_patches[0].patches
-    image_patch = patch_augmentation(patches, background_image, visibility_threshold, actions, True)
+    image_patch = patch_augmentation(patches, background_image, visibility_threshold, actions, True, patch_distribution)
 
     patches = dataset.image_patches[1].patches
-    image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, False)
+    image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, False, patch_distribution)
 
     patches = dataset.image_patches[2].patches
-    image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, True)
+    image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, True, loader.save_mask_image_array_temporary(patch_distribution))
 
     validator.validate_ImagePatch(image_patch)
