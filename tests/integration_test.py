@@ -23,7 +23,13 @@ def test_patch_augmentation_1():
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1)
     
-    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches
+    negative_patches = []
+    negative_patches.append(F.get_negative_patch(dataset.image_patches[0], 1.0))
+    negative_patches.append(F.get_negative_patch(dataset.image_patches[1], 0.5))
+    negative_patches.append(F.get_negative_patch(dataset.image_patches[2], 0.0))
+    negative_patches.append(F.get_negative_patch(background_image, 0.5))
+
+    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches + negative_patches
     image_patch = patch_augmentation(patches, background_image)
     validator.validate_ImagePatch(image_patch)
 
