@@ -35,10 +35,15 @@ jobs:
     - name: check results
       run: echo ${{ steps.checkTag.outputs.exists }}
     - name: tag 
-      uses: Klemensas/action-autotag@stable
-      with:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        version: $TAG
+      uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/$TAG',
+              sha: context.sha
+            })
 
 
     
