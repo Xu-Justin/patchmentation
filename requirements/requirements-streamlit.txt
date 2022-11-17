@@ -1,0 +1,3 @@
+streamlit==1.13.0
+extra-streamlit-components==0.1.56
+streamlit-option-menu==0.3.2
