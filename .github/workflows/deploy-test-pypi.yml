@@ -25,7 +25,15 @@ jobs:
     - name: set tag
       run: echo "TAG=v$VERSION" >> $GITHUB_ENV
     - name: read tag
-      run: secho "tag:" $TAG
+      run: echo "tag:" $TAG
+    - name: check tag exists
+      uses: mukunku/tag-exists-action@v1.1.0
+      with:
+        tag: $TAG
+    - name: check results
+      run: echo ${{ steps.checkTag.outputs.exists }}
+
+
     
     
 
