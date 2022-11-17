@@ -1,6 +1,6 @@
 import setuptools
 
-version = '0.0.1'
+version = '0.0.2'
 
 def parse_version(version):
     _version = version.split('.')
@@ -19,7 +19,7 @@ def read(file):
 NAME = 'patchmentation'
 VERSION = parse_version(version)
 
-DESCRIPTION = 'Description of patchmentation (will be updated soon)'
+DESCRIPTION = 'A python library to perform patch augmentation'
 LONG_DESCRIPTION = read('README.md')
 LONG_DESCRIPTION_CONTENT_TYPE = 'text/markdown'
 
