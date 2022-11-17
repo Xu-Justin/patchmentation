@@ -1,0 +1,3 @@
+-r requirements-main.txt
+pytest>=7.1.3
+coverage>=6.5.0

@@ -7,3 +7,8 @@ htmlcov/*
 # development tools
 dev.ipynb
 .ipynb_checkpoints
+
+# deployment
+build/*
+dist/*
+*.egg-info/
