@@ -30,7 +30,6 @@ COCO_FILE_ANNOTATIONS = 'dataset/sample_format_coco/annotations/instances_defaul
 PASCAL_VOC_FOLDER_IMAGES = 'dataset/sample_format_pascal_voc/JPEGImages/'
 PASCAL_VOC_FOLDER_ANNOTATIONS = 'dataset/sample_format_pascal_voc/Annotations/'
 PASCAL_VOC_FILE_IMAGESETS = 'dataset/sample_format_pascal_voc/ImageSets/Main/default.txt'
-PASCAL_VOC_FILE_CLASSES = 'dataset/sample_format_pascal_voc/classes.txt'
 
 DATASET_SAMPLE = 'Sample'
 DATASET_FORMAT_YOLO = 'YOLO'
@@ -110,8 +109,7 @@ def dataset_pascal_voc(key: str) -> Dataset:
     folder_images = st.text_input('Path to Pascal VOC Images', PASCAL_VOC_FOLDER_IMAGES, key=f'{key}-pascal-voc-folder_images')
     folder_annotations = st.text_input('Path to Pascal VOC Annotations', PASCAL_VOC_FOLDER_ANNOTATIONS, key=f'{key}-pascal-voc-folder_annotations')
     file_imagesets = st.text_input('Path to Pascal VOC Image Sets', PASCAL_VOC_FILE_IMAGESETS, key=f'{key}-pascal-voc-file_imagesets')
-    file_classes = st.text_input('Path to Pascal VOC Classes', PASCAL_VOC_FILE_CLASSES, key=f'{key}-pascal-voc-file_classes')
-    return loader.load_pascal_voc_dataset(folder_images, folder_annotations, file_imagesets, file_classes)
+    return loader.load_pascal_voc_dataset(folder_images, folder_annotations, file_imagesets)
 
 def background_image(key: str) -> Image:
     st.subheader('Background Image')

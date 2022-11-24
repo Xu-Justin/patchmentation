@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import tempfile
 import json
+import xml.etree.ElementTree as ET
 from typing import Dict, List, Union, Any, Tuple
 
 temporary_folder = tempfile.TemporaryDirectory()
@@ -175,5 +176,87 @@ def convert_coco_bbox(x: int, y: int, width: int, height: int) -> BBox:
     bbox = BBox(xmin, ymin, xmax, ymax)
     return bbox
     
-def load_pascal_voc_dataset(folder_images: str, folder_annotations: str, file_imagesets: str, file_classes: str) -> Dataset:
-    pass
+def load_pascal_voc_dataset(folder_images: str, folder_annotations: str, file_imagesets: str) -> Dataset:
+    imagesets = load_pascal_voc_imagesets(file_imagesets)
+    image_patches = load_pascal_voc_image_patches(folder_images, folder_annotations, imagesets)
+    classes = set()
+    for _, patches in image_patches:
+        for _, _, class_name in patches:
+            classes.add(class_name)
+    classes = list(classes)
+    dataset = Dataset(image_patches, classes)
+    return dataset
+
+def load_pascal_voc_imagesets(file_imagesets: str) -> List[str]:
+    imagesets = []
+    with open(file_imagesets, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.strip()
+            imagesets.append(line)
+    return imagesets
+
+def load_pascal_voc_image_patches(folder_images: str, folder_annotations: str, imagesets: List[str]) -> List[ImagePatch]:
+    images = load_pacal_voc_images(folder_images, imagesets)
+    annotations = load_pascal_voc_annotations(folder_annotations, imagesets)
+    image_patches = []
+    for image, annotation in zip(images, annotations):
+        patches = []
+        for bbox, class_name in annotation:
+            patch = Patch(image, bbox, class_name)
+            patches.append(patch)
+        image_patch = ImagePatch(image, patches)
+        image_patches.append(image_patch)
+    return image_patches
+    
+def load_pacal_voc_images(folder_images: str, imagesets: List[str]) -> List[Image]:
+    images = []
+    for file_name in imagesets:
+        path = None
+        for ext in ['.jpg', '.png', '.jpeg', '']:
+            path = os.path.join(folder_images, file_name + ext)
+            if os.path.exists(path):
+                break
+        assert os.path.exists(path)
+        image = Image(path)
+        images.append(image)
+    return images
+
+def load_pascal_voc_annotations(folder_annotations: str, imagesets: List[str]) -> List[List[Tuple[BBox, str]]]:
+    annotations = []
+    for file_name in imagesets:
+        path = None
+        ext = '.xml'
+        path = os.path.join(folder_annotations, file_name + ext)
+        assert os.path.exists(path)
+        annotation = load_pascal_voc_xml(path)
+        annotations.append(annotation)
+    return annotations
+    
+def load_pascal_voc_xml(file_xml: str) -> List[Tuple[BBox, str]]:
+    annotation = []
+    tree = ET.parse(file_xml)
+    root = tree.getroot()
+    for child in root:
+        if child.tag == 'object':
+            class_name = xmin = ymin = xmax = ymax = None
+            for attribute in child:
+                if attribute.tag == 'name':
+                    class_name = attribute.text
+                if attribute.tag == 'bndbox':
+                    for cord in attribute:
+                        if cord.tag == 'xmin': xmin = int(float(cord.text))
+                        if cord.tag == 'ymin': ymin = int(float(cord.text))
+                        if cord.tag == 'xmax': xmax = int(float(cord.text))
+                        if cord.tag == 'ymax': ymax = int(float(cord.text))
+            bbox = convert_pascal_voc_bbox(xmin, ymin, xmax, ymax)
+            annotation.append((bbox, class_name))
+    return annotation
+    
+def convert_pascal_voc_bbox(xmin: int, ymin: int, xmax: int, ymax: int) -> BBox:
+    xmin = int(xmin)
+    ymin = int(ymin)
+    xmax = int(xmax)
+    ymax = int(ymax)
+    bbox = BBox(xmin, ymin, xmax, ymax)
+    return bbox
