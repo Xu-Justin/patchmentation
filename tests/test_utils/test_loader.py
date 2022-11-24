@@ -6,9 +6,6 @@ from patchmentation.utils import loader
 from patchmentation.utils import validator
 from patchmentation.collections import BBox
 
-import pytest
-import numpy as np
-
 YOLO_FOLDER_IMAGES = 'dataset/sample_format_yolo/obj_train_data/'
 YOLO_FOLDER_ANNOTATIONS = 'dataset/sample_format_yolo/obj_train_data/'
 YOLO_FILE_NAMES = 'dataset/sample_format_yolo/obj.names'
@@ -19,7 +16,6 @@ COCO_FILE_ANNOTATIONS = 'dataset/sample_format_coco/annotations/instances_defaul
 PASCAL_VOC_FOLDER_IMAGES = 'dataset/sample_format_pascal_voc/JPEGImages/'
 PASCAL_VOC_FOLDER_ANNOTATIONS = 'dataset/sample_format_pascal_voc/Annotations/'
 PASCAL_VOC_FILE_IMAGESETS = 'dataset/sample_format_pascal_voc/ImageSets/Main/default.txt'
-PASCAL_VOC_FILE_CLASSES = 'dataset/sample_format_pascal_voc/classes.txt'
 
 def test_save_load_image_array_1():
     image_array = helper.generate_image_array()
@@ -65,7 +61,6 @@ def test_loader_coco():
     dataset = loader.load_coco_dataset(COCO_FOLDER_IMAGES, COCO_FILE_ANNOTATIONS)
     validator.validate_Dataset(dataset, check_image_bbox=True)
 
-@pytest.mark.skip('Not implemented')
 def test_loader_pascal_voc():
-    dataset = loader.load_pascal_voc_dataset(PASCAL_VOC_FOLDER_IMAGES, PASCAL_VOC_FOLDER_ANNOTATIONS, PASCAL_VOC_FILE_IMAGESETS, PASCAL_VOC_FILE_CLASSES)
+    dataset = loader.load_pascal_voc_dataset(PASCAL_VOC_FOLDER_IMAGES, PASCAL_VOC_FOLDER_ANNOTATIONS, PASCAL_VOC_FILE_IMAGESETS)
     validator.validate_Dataset(dataset, check_image_bbox=True)
