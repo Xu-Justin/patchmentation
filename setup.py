@@ -42,7 +42,9 @@ INSTALL_REQUIRES = [
     'numpy>=1.23.1',
     'opencv-python>=4.6.0.66',
     'typing-extensions>=4.3.0',
-    'scipy>=1.9.3'
+    'scipy>=1.9.3',
+    'appdirs==1.4.4',
+    'wget==3.2'
 ]
 CLASSIFIERS = [
     'Programming Language :: Python :: 3',
