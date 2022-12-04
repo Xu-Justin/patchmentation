@@ -26,7 +26,8 @@ class Mask:
 
     @property
     def image_array(self) -> np.ndarray:
-        return cv2.imread(self.path, cv2.IMREAD_GRAYSCALE)
+        from patchmentation.utils.loader import _imread
+        return _imread(self.path, cv2.IMREAD_GRAYSCALE)
 
     @cached_property
     def shape(self) -> Tuple[int, int]:

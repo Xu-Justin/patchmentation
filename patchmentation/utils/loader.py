@@ -5,11 +5,28 @@ import cv2
 import numpy as np
 import tempfile
 import json
+import functools
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Union, Tuple
+from copy import deepcopy
 
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
+
+def copying_lru_cache(maxsize=128, typed=False):
+    def decorator(f):
+        cached_func = functools.lru_cache(maxsize, typed)(f)
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            return deepcopy(cached_func(*args, **kwargs))
+        return wrapper
+    return decorator
+
+@copying_lru_cache(maxsize=128)
+def _imread(path: str, flags: int = None) -> np.ndarray:
+    if flags is None:
+        return cv2.imread(path)
+    return cv2.imread(path, flags)
 
 def load_image_array(image: Union[str, Image, ImagePatch, Mask, EmptyMask]) -> np.ndarray:
     if isinstance(image, str):

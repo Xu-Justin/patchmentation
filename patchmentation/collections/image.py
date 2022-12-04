@@ -78,7 +78,8 @@ class Image:
 
     @property
     def image_array_without_mask(self) -> np.ndarray:
-        array = cv2.imread(self.path)
+        from patchmentation.utils.loader import _imread
+        array = _imread(self.path)
         return array
 
     @cached_property
