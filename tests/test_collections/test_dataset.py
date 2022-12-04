@@ -14,7 +14,7 @@ def test_dataset():
     str(dataset)
 
 def test_dataset_generate_classes():
-    classes = helper.generate_classes()
-    image_patches = helper.generate_image_patches(classes=classes)
+    classes = helper.generate_classes(3)
+    image_patches = helper.generate_image_patches(100, classes)
     dataset = Dataset(image_patches)
     assert helper.compare_unordered_list_equal(classes, dataset.classes)
