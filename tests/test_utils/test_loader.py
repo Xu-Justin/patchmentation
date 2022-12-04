@@ -3,8 +3,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 
 from tests import helper
 from patchmentation.utils import loader
-from patchmentation.utils import validator
-from patchmentation.collections import BBox
+from patchmentation.collections import Dataset
+
+import numpy as np
 
 YOLO_FOLDER_IMAGES = 'dataset/sample_format_yolo/obj_train_data/'
 YOLO_FOLDER_ANNOTATIONS = 'dataset/sample_format_yolo/obj_train_data/'
@@ -21,46 +22,69 @@ def test_save_load_image_array_1():
     image_array = helper.generate_image_array()
     image = loader.save_image_array_temporary(image_array)
     reloaded_image_array = loader.load_image_array(image)
-    validator.validate_image_array(reloaded_image_array)
-    assert (reloaded_image_array == image_array).all()
+    assert reloaded_image_array.shape[:2] == image_array.shape[:2]
+    assert reloaded_image_array.shape[2] == 4
+    assert reloaded_image_array.dtype == np.uint8
+    assert (reloaded_image_array[:,:,:3] == image_array).all()
+    assert (reloaded_image_array[:,:,3] == 255).all()
     
 def test_save_load_image_array_2():
     image_array = helper.generate_image_array()
     image = loader.save_image_array_temporary(image_array)
     reloaded_image_array = loader.load_image_array(image.path)
-    validator.validate_image_array(reloaded_image_array)
-    assert (reloaded_image_array == image_array).all()
+    assert reloaded_image_array.shape[:2] == image_array.shape[:2]
+    assert reloaded_image_array.shape[2] == 4
+    assert reloaded_image_array.dtype == np.uint8
+    assert (reloaded_image_array[:,:,:3] == image_array).all()
+    assert (reloaded_image_array[:,:,3] == 255).all()
 
 def test_save_load_image_array_3():
     image_array = helper.generate_image_array()
     image = loader.save_image_array_temporary(image_array)
     reloaded_image = loader.load_image(image.path)
     reloaded_image_array = loader.load_image_array(reloaded_image)
-    validator.validate_image_array(reloaded_image_array)
-    assert (reloaded_image_array == image_array).all()
+    assert reloaded_image_array.shape[:2] == image_array.shape[:2]
+    assert reloaded_image_array.shape[2] == 4
+    assert reloaded_image_array.dtype == np.uint8
+    assert (reloaded_image_array[:,:,:3] == image_array).all()
+    assert (reloaded_image_array[:,:,3] == 255).all()
 
 def test_save_load_mask_image_array_1():
     image_array = helper.generate_mask_image_array()
     mask = loader.save_mask_image_array_temporary(image_array)
     reloaded_image_array = loader.load_image_array(mask)
-    validator.validate_mask_image_array(reloaded_image_array)
+    assert len(reloaded_image_array.shape) == 2
+    assert reloaded_image_array.shape == image_array.shape
+    assert reloaded_image_array.dtype == np.uint8
     assert (reloaded_image_array == image_array).all()
 
 def test_save_load_mask_image_array_2():
     image_array = helper.generate_image_array(channel=4)
     image = loader.save_image_array_temporary(image_array)
     reloaded_image_array = loader.load_image_array(image)
-    validator.validate_image_array(reloaded_image_array)
+    assert reloaded_image_array.shape[:2] == image_array.shape[:2]
+    assert reloaded_image_array.shape[2] == 4
+    assert reloaded_image_array.dtype == np.uint8
     assert (reloaded_image_array == image_array).all()
 
 def test_loader_yolo():
     dataset = loader.load_yolo_dataset(YOLO_FOLDER_IMAGES, YOLO_FOLDER_ANNOTATIONS, YOLO_FILE_NAMES)
-    validator.validate_Dataset(dataset, check_image_bbox=True)
+    validate_dataset(dataset)
 
 def test_loader_coco():
     dataset = loader.load_coco_dataset(COCO_FOLDER_IMAGES, COCO_FILE_ANNOTATIONS)
-    validator.validate_Dataset(dataset, check_image_bbox=True)
+    validate_dataset(dataset)
 
 def test_loader_pascal_voc():
     dataset = loader.load_pascal_voc_dataset(PASCAL_VOC_FOLDER_IMAGES, PASCAL_VOC_FOLDER_ANNOTATIONS, PASCAL_VOC_FILE_IMAGESETS)
-    validator.validate_Dataset(dataset, check_image_bbox=True)
+    validate_dataset(dataset)
+
+_NCLASSES = 3
+_NIMAGES = 30
+_CLASSES = ['person', 'car', 'horse']
+
+def validate_dataset(dataset: Dataset) -> None:
+    assert isinstance(dataset, Dataset)
+    assert len(dataset.classes) == _NCLASSES
+    assert helper.compare_unordered_list_equal(dataset.classes, _CLASSES)
+    assert len(dataset.image_patches) == _NIMAGES

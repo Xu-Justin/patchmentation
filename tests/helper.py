@@ -189,7 +189,7 @@ def compare_unordered_list_equal(list_1: list, list_2: list) -> bool:
 
 def check_grayscale(image: Union[np.ndarray, Image]) -> bool:
     if isinstance(image, Image):
-        image = image.image_array()
+        image = image.image_array
     height, width, _ = image.shape
     for i in range(height):
         for j in range(width):

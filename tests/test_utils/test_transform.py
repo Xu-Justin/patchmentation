@@ -24,8 +24,8 @@ def test_resize_2():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 60
     expected_image_height = 40
     assert actual_image_width == expected_image_width
@@ -41,8 +41,8 @@ def test_resize_3():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 20
     expected_image_height = 60
     assert actual_image_width == expected_image_width
@@ -58,8 +58,8 @@ def test_resize_4():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 80
     expected_image_height = 60
     assert actual_image_width == expected_image_width
@@ -75,8 +75,8 @@ def test_resize_5():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 80
     expected_image_height = 160
     assert actual_image_width == expected_image_width
@@ -93,8 +93,8 @@ def test_resize_6():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 10
     expected_image_height = 20
     assert actual_image_width == expected_image_width
@@ -111,8 +111,8 @@ def test_resize_7():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 40
     expected_image_height = 20
     assert actual_image_width == expected_image_width
@@ -129,8 +129,8 @@ def test_resize_8():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 30
     expected_image_height = 60
     assert actual_image_width == expected_image_width
@@ -147,8 +147,8 @@ def test_resize_9():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 100
     expected_image_height = 60
     assert actual_image_width == expected_image_width
@@ -164,9 +164,9 @@ def test_resize_with_mask():
     image_height = 40
     image = helper.generate_Image(image_width, image_height, mask=True)
     resized_image = resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
-    actual_image_channel = resized_image.channel()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
+    actual_image_channel = resized_image.channel
     expected_image_width = 100
     expected_image_height = 60
     expected_image_channel = 4
@@ -184,8 +184,8 @@ def test_random_resize_1():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_width >= width_range[0] and actual_image_width <= width_range[1]
     assert actual_image_height >= height_range[0] and actual_image_height <= height_range[1]
 
@@ -199,8 +199,8 @@ def test_random_resize_2():
     image_height = 20
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_width >= width_range[0] and actual_image_width <= width_range[1]
     assert actual_image_height >= height_range[0] and actual_image_height <= height_range[1]
 
@@ -214,8 +214,8 @@ def test_random_resize_3():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_width >= width_range[0] and actual_image_width <= width_range[1]
     assert actual_image_height == image_height
 
@@ -229,8 +229,8 @@ def test_random_resize_4():
     image_height = 20
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_width == image_width
     assert actual_image_height >= height_range[0] and actual_image_height <= height_range[1]
 
@@ -244,8 +244,8 @@ def test_random_resize_5():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_width >= width_range[0] and actual_image_width <= width_range[1]
     assert helper.compare_float_equal(image_width / image_height, actual_image_width / actual_image_height)
 
@@ -259,8 +259,8 @@ def test_random_resize_6():
     image_height = 20
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_height >= height_range[0] and actual_image_height <= height_range[1]
     assert helper.compare_float_equal(image_width / image_height, actual_image_width / actual_image_height)
 
@@ -274,8 +274,8 @@ def test_random_resize_7():
     image_height = 40
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_width >= width_range[0] and actual_image_width <= width_range[1]
     assert helper.compare_float_equal(aspect_ratio[0] / aspect_ratio[1], actual_image_width / actual_image_height, epsilon=0.01)
 
@@ -289,8 +289,8 @@ def test_random_resize_8():
     image_height = 20
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     assert actual_image_height >= height_range[0] and actual_image_height <= height_range[1]
     assert helper.compare_float_equal(aspect_ratio[0] / aspect_ratio[1], actual_image_width / actual_image_height, epsilon=0.01)
 
@@ -311,9 +311,9 @@ def test_random_resize_with_mask():
     image_height = 20
     image = helper.generate_Image(image_width, image_height, mask=True)
     resized_image = random_resize(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
-    actual_image_channel = resized_image.channel()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
+    actual_image_channel = resized_image.channel
     expected_image_channel = 4
     assert actual_image_height >= height_range[0] and actual_image_height <= height_range[1]
     assert helper.compare_float_equal(aspect_ratio[0] / aspect_ratio[1], actual_image_width / actual_image_height, epsilon=0.01)
@@ -336,8 +336,8 @@ def test_scale_2():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 60
     expected_image_height = 60
     assert actual_image_width == expected_image_width
@@ -353,8 +353,8 @@ def test_scale_3():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 40
     expected_image_height = 24
     assert actual_image_width == expected_image_width
@@ -370,8 +370,8 @@ def test_scale_4():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 32
     expected_image_height = 72
     assert actual_image_width == expected_image_width
@@ -387,8 +387,8 @@ def test_scale_5():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 80
     expected_image_height = 30
     assert actual_image_width == expected_image_width
@@ -404,8 +404,8 @@ def test_scale_6():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 32
     expected_image_height = 48
     assert actual_image_width == expected_image_width
@@ -422,8 +422,8 @@ def test_scale_7():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 20
     expected_image_height = 30
     assert actual_image_width == expected_image_width
@@ -440,8 +440,8 @@ def test_scale_8():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 15
     expected_image_height = 30
     assert actual_image_width == expected_image_width
@@ -458,8 +458,8 @@ def test_scale_9():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     expected_image_width = 60
     expected_image_height = 20
     assert actual_image_width == expected_image_width
@@ -476,9 +476,9 @@ def test_scale_with_mask():
     image_height = 60
     image = helper.generate_Image(image_width, image_height, mask=True)
     resized_image = scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
-    actual_image_channel = resized_image.channel()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
+    actual_image_channel = resized_image.channel
     expected_image_width = 60
     expected_image_height = 20
     expected_image_channel = 4
@@ -504,8 +504,8 @@ def test_random_scale_2():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
     expected_image_height = 60
@@ -523,8 +523,8 @@ def test_random_scale_3():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
     expected_image_width = 40
@@ -542,8 +542,8 @@ def test_random_scale_4():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
     assert actual_image_width_scale >= scale_width_range[0] and actual_image_width_scale <= scale_width_range[1]
@@ -559,8 +559,8 @@ def test_random_scale_5():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
     assert actual_image_width_scale >= scale_width_range[0] and actual_image_width_scale <= scale_width_range[1]
@@ -576,8 +576,8 @@ def test_random_scale_6():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
     assert actual_image_height_scale >= scale_height_range[0] and actual_image_height_scale <= scale_height_range[1]
@@ -593,8 +593,8 @@ def test_random_scale_7():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
     assert actual_image_width_scale >= scale_width_range[0] and actual_image_width_scale <= scale_width_range[1]
@@ -610,8 +610,8 @@ def test_random_scale_8():
     image_height = 60
     image = helper.generate_Image(image_width, image_height)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
     assert actual_image_height_scale >= scale_height_range[0] and actual_image_height_scale <= scale_height_range[1]
@@ -627,11 +627,11 @@ def test_random_scale_with_mask():
     image_height = 60
     image = helper.generate_Image(image_width, image_height, mask=True)
     resized_image = random_scale(image)
-    actual_image_width = resized_image.width()
-    actual_image_height = resized_image.height()
+    actual_image_width = resized_image.width
+    actual_image_height = resized_image.height
     actual_image_width_scale = actual_image_width / image_width
     actual_image_height_scale = actual_image_height / image_height
-    actual_image_channel = resized_image.channel()
+    actual_image_channel = resized_image.channel
     expected_image_channel = 4
     assert actual_image_height_scale >= scale_height_range[0] and actual_image_height_scale <= scale_height_range[1]
     assert helper.compare_float_equal(aspect_ratio[0] / aspect_ratio[1], actual_image_width / actual_image_height, epsilon=0.1)
@@ -641,8 +641,8 @@ def test_grayscale():
     grayscale = transform.Grayscale()
     image = helper.generate_Image()
     grayscale_image = grayscale(image)
-    actual_channel = grayscale_image.channel()
-    expected_channel = 3
+    actual_channel = grayscale_image.channel
+    expected_channel = 4
     assert helper.check_grayscale(grayscale_image)
     assert actual_channel == expected_channel
 
@@ -650,7 +650,7 @@ def test_grayscale_with_mask():
     grayscale = transform.Grayscale()
     image = helper.generate_Image(mask=True)
     grayscale_image = grayscale(image)
-    actual_channel = grayscale_image.channel()
+    actual_channel = grayscale_image.channel
     expected_channel = 4
     assert helper.check_grayscale(grayscale_image)
     assert actual_channel == expected_channel
@@ -720,7 +720,7 @@ def test_softedge_1():
         [ 19,  50,  69,  50,  19]
     ])
     assert softedge_image.path == image.path
-    assert (softedge_image.get_mask().image_array() == expected_softedge_mask_image_array).all()
+    assert (softedge_image.mask.image_array == expected_softedge_mask_image_array).all()
 
 def test_softedge_2():
     kernel_size = 5
@@ -739,7 +739,7 @@ def test_softedge_2():
         [  0,   1,   2,   1,   0]
     ])
     assert softedge_image.path == image.path
-    assert (softedge_image.get_mask().image_array() == expected_softedge_mask_image_array).all()
+    assert (softedge_image.mask.image_array == expected_softedge_mask_image_array).all()
 
 def test_hardedge():
     width = 5
@@ -753,4 +753,4 @@ def test_hardedge():
         [255, 255, 255, 255, 255]
     ])
     assert hardedge_image.path == image.path
-    assert (hardedge_image.get_mask().image_array() == expected_hardedge_mask_image_array).all()
+    assert (hardedge_image.mask.image_array == expected_hardedge_mask_image_array).all()

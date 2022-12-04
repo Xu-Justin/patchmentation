@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch, Dataset
+from patchmentation.collections import BBox, Mask, EmptyMask, Image, Patch, ImagePatch, Dataset
 
 import os
 import cv2
@@ -6,16 +6,16 @@ import numpy as np
 import tempfile
 import json
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Union, Any, Tuple
+from typing import Dict, List, Union, Tuple
 
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
 
-def load_image_array(image: Union[str, Image, ImagePatch]) -> np.ndarray:
+def load_image_array(image: Union[str, Image, ImagePatch, Mask, EmptyMask]) -> np.ndarray:
     if isinstance(image, str):
-        return Image(image).image_array()
-    if isinstance(image, (Mask, Image, ImagePatch)):
-        return image.image_array()
+        return Image(image).image_array
+    if isinstance(image, (Mask, Image, ImagePatch, Mask, EmptyMask)):
+        return image.image_array
     raise TypeError
 
 def load_image(path: str) -> Image:
@@ -87,7 +87,7 @@ def load_yolo_image_patches(folder_images: str, folder_annotations: str, classes
     return image_patches
     
 def load_yolo_patches(image: Image, file_annotation: str, classes: List[str]) -> List[ImagePatch]:
-    image_height, image_width, _ = image.image_array().shape
+    image_height, image_width, _ = image.image_array.shape
     patches = []
     with open(file_annotation, 'r') as f:
         lines = f.readlines()

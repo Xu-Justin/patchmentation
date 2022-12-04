@@ -28,8 +28,8 @@ class Resize(Transform):
         self.aspect_ratio = aspect_ratio
     
     def transform(self, image: Image) -> Image:
-        image_height = image.height()
-        image_width = image.width()
+        image_height = image.height
+        image_width = image.width
         width, height = Resize._generate_width_height(self.width, self.height, image_width, image_height, self.aspect_ratio)
         return Resize.resize(image, width, height)
 
@@ -37,7 +37,7 @@ class Resize(Transform):
 
     @staticmethod
     def resize(image: Image, width: int, height: int) -> Image:
-        image_array = image.image_array()
+        image_array = image.image_array
         resized_image_array = F.resize_image_array(image_array, width, height)
         resized_image = loader.save_image_array_temporary(resized_image_array)
         return resized_image
@@ -88,8 +88,8 @@ class Scale(Transform):
         self.aspect_ratio = aspect_ratio
     
     def transform(self, image: Image) -> Image:
-        image_height = image.height()
-        image_width = image.width()
+        image_height = image.height
+        image_width = image.width
         scale_width, scale_height = Scale._generate_scale_width_height(self.scale_width, self.scale_height, image_width, image_height, self.aspect_ratio)
         return Scale.scale(image, scale_width, scale_height)
 
@@ -101,8 +101,8 @@ class Scale(Transform):
 
     @staticmethod
     def scale(image: Image, scale_width: float, scale_height: float) -> Image:
-        image_height = image.height()
-        image_width = image.width()
+        image_height = image.height
+        image_width = image.width
         scaled_image_width = Scale.scale_length(image_width, scale_width)
         scaled_image_height = Scale.scale_length(image_height, scale_height)
         return Resize.resize(image, scaled_image_width, scaled_image_height)
@@ -151,8 +151,8 @@ class Grayscale(Transform):
         
     @staticmethod
     def grayscale(image: Image) -> Image:
-        image_array = image.image_array()
-        channel = image.channel()
+        image_array = image.image_array
+        channel = image.channel
         if channel == 3:
             grayscale_image_array = F.convert_BGR2Grayscale(image_array)
         elif channel == 4:
@@ -186,7 +186,7 @@ class SoftEdge(Transform):
         kernel_height, kernel_width = kernel.shape
         assert kernel_height % 2 == 1, f'Expected kernel_height is odd, but received kernel_height {kernel_height}'
         assert kernel_width % 2 == 1, f'Expected kernel_width is odd, but received kernel_width {kernel_width}'
-        mask_image_array = image.get_mask().image_array()
+        mask_image_array = image.mask.image_array
         mask_height, mask_width = mask_image_array.shape
         pad_up = pad_down = int((kernel_height - 1) / 2)
         pad_left = pad_right = int((kernel_width - 1) / 2)
@@ -203,7 +203,7 @@ class HardEdge(Transform):
         pass
 
     def transform(self, image: Image) -> Image:
-        mask = loader.save_mask_image_array_temporary(np.full((image.height(), image.width()), 255, np.uint8))
+        mask = loader.save_mask_image_array_temporary(np.full((image.height, image.width), 255, np.uint8))
         result_image = copy(image)
         result_image.mask = mask
         return result_image

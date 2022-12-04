@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from tests import helper
-from patchmentation.utils import validator
+from patchmentation.collections import BBox, Mask, EmptyMask, Image, Patch, ImagePatch, Dataset
 
 import numpy as np
 
@@ -10,64 +10,93 @@ def test_generate_bbox_1():
     width = 20
     height = 1000
     bbox = helper.generate_BBox(width, height)
-    validator.validate_BBox(bbox, width=width, height=height)
+    assert isinstance(bbox, BBox)
+    assert bbox.width <= width
+    assert bbox.height <= height
 
 def test_generate_bbox_2():
     width = 1000
     height = 20
     bbox = helper.generate_BBox(width, height)
-    validator.validate_BBox(bbox, width=width, height=height)
+    assert isinstance(bbox, BBox)
+    assert bbox.width <= width
+    assert bbox.height <= height
 
 def test_generate_mask_1():
     width = 100
     height = 20
-    image = helper.generate_Mask(width, height)
-    validator.validate_Mask(image, expected_width=width, expected_height=height)
+    mask = helper.generate_Mask(width, height)
+    assert isinstance(mask, Mask)
+    assert mask.shape == (height, width)
 
 def test_generate_mask_2():
     width = 20
     height = 100
-    image = helper.generate_Mask(width, height)
-    validator.validate_Mask(image, expected_width=width, expected_height=height)
+    mask = helper.generate_Mask(width, height)
+    assert isinstance(mask, Mask)
+    assert mask.shape == (height, width)
+
+def test_generate_mask_empty_1():
+    width = 100
+    height = 20
+    mask = helper.generate_Mask_Empty(width, height)
+    assert isinstance(mask, Mask)
+    assert mask == EmptyMask(width, height)
+
+def test_generate_mask_empty_2():
+    width = 20
+    height = 100
+    mask = helper.generate_Mask_Empty(width, height)
+    assert isinstance(mask, Mask)
+    assert mask == EmptyMask(width, height)
 
 def test_generate_image_1():
     width = 100
     height = 20
     image = helper.generate_Image(width, height)
-    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=3)
+    assert isinstance(image, Image)
+    assert image.shape == (height, width, 4)
+    assert image.mask == EmptyMask(width, height)
 
 def test_generate_image_2():
     width = 20
     height = 100
     image = helper.generate_Image(width, height)
-    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=3)
+    assert isinstance(image, Image)
+    assert image.shape == (height, width, 4)
+    assert image.mask == EmptyMask(width, height)
 
 def test_generate_image_3():
     width = 20
     height = 100
     mask = helper.generate_Mask(width, height)
     image = helper.generate_Image(width, height, mask)
-    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=4)
+    assert isinstance(image, Image)
+    assert image.shape == (height, width, 4)
+    assert image.mask == mask
 
 def test_generate_image_4():
     width = 20
     height = 100
     mask = True
     image = helper.generate_Image(width, height, mask)
-    validator.validate_Image(image, expected_width=width, expected_height=height, expected_channel=4)
+    assert isinstance(image, Image)
+    assert image.shape == (height, width, 4)
+    assert image.mask.shape == (height, width)
 
 def test_generate_patch():
     image = helper.generate_Image()
     patch = helper.generate_Patch(image)
-    validator.validate_Patch(patch)
+    assert isinstance(patch, Patch)
+    assert patch.image == image
 
 def test_generate_imagePatch():
     imagePatch = helper.generate_ImagePatch()
-    validator.validate_ImagePatch(imagePatch)
+    assert isinstance(imagePatch, ImagePatch)
 
 def test_generate_dataset():
     dataset = helper.generate_Dataset()
-    validator.validate_Dataset(dataset)
+    assert isinstance(dataset, Dataset)
 
 def test_compare_float_equal_1():
     float_1 = 0.1 + 0.2

@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch
+from patchmentation.collections import BBox, OverflowBBox, Mask, Image, Patch, ImagePatch
 from patchmentation.utils import functional as F
 from patchmentation.utils.transform import Transform
 from patchmentation.utils.filter import Filter
@@ -24,8 +24,8 @@ def patch_augmentation(
             background_patches = image.patches
         image = image.image
     
-    background_image_width = image.width()
-    background_image_height = image.height()
+    background_image_width = image.width
+    background_image_height = image.height
 
     if actions is not None:
         for action in actions:
@@ -43,7 +43,7 @@ def patch_augmentation(
         patch_distribution = np.full((background_image_height, background_image_width), 1)
     
     if isinstance(patch_distribution, Mask):
-        patch_distribution = patch_distribution.image_array()
+        patch_distribution = patch_distribution.image_array
 
     patch_distribution = patch_distribution.astype(np.float32)
     patch_distribution -= patch_distribution.min()
@@ -52,8 +52,8 @@ def patch_augmentation(
 
     list_patch_bbox = []
     for patch in patches:
-        width = patch.width()
-        height = patch.height()
+        width = patch.width
+        height = patch.height
         assert width <= background_image_width, f'Expected patch width <= background image width, but got patch width {width} background image width {background_image_width}'
         assert height <= background_image_height, f'Expected patch height <= background image height, but got patch height {height} background image height {background_image_height}'
         weight = patch_distribution.copy()
@@ -75,10 +75,10 @@ def patch_augmentation(
         list_patch_bbox,
         visibility_threshold,
         list_non_removal_patch_bbox = [
-            (None, BBox(-INF, -INF, 0, INF)),
-            (None, BBox(-INF, -INF, INF, 0)),
-            (None, BBox(background_image_width, -INF, INF, INF)),
-            (None, BBox(-INF, background_image_height, INF, INF))
+            (None, OverflowBBox(-INF, -INF, 0, INF)),
+            (None, OverflowBBox(-INF, -INF, INF, 0)),
+            (None, OverflowBBox(background_image_width, -INF, INF, INF)),
+            (None, OverflowBBox(-INF, background_image_height, INF, INF))
         ] + list_background_patch_bbox
     )
 
