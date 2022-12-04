@@ -1,7 +1,7 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-from patchmentation.collections import BBox
+from patchmentation.collections import BBox, OverflowBBox
 import pytest
 
 def test_bbox():
@@ -122,3 +122,78 @@ def test_bbox_failed_ymax_lt0():
     bbox = BBox(None, None, None, None)
     with pytest.raises(ValueError):
         bbox.ymax = -1
+
+def test_overflow_bbox():
+    xmin, xmax = -1, 2
+    ymin, ymax = 3, -4
+    bbox = OverflowBBox(xmin, ymin, xmax, ymax)
+    assert bbox.xmin == xmin
+    assert bbox.ymin == ymin
+    assert bbox.xmax == xmax
+    assert bbox.ymax == ymax
+    assert (xmin, ymin, xmax, ymax) == tuple(bbox)
+    str(bbox)
+    
+def test_overflow_bbox_width_1():
+    xmin = -4
+    xmax = 10
+    bbox = OverflowBBox(xmin, None, xmax, None)
+    actual_width = bbox.width
+    expected_width = 14
+    assert actual_width == expected_width
+
+def test_overflow_bbox_width_2():
+    xmin = 4
+    xmax = -4
+    bbox = OverflowBBox(xmin, None, xmax, None)
+    actual_width = bbox.width
+    expected_width = -8
+    assert actual_width == expected_width
+
+def test_overflow_bbox_height_1():
+    ymin = 4
+    ymax = -9
+    bbox = OverflowBBox(None, ymin, None, ymax)
+    actual_height = bbox.height
+    expected_height = -13
+    assert actual_height == expected_height
+
+def test_overflow_bbox_height_2():
+    ymin = -4
+    ymax = 4
+    bbox = OverflowBBox(None, ymin, None, ymax)
+    actual_height = bbox.height
+    expected_height = 8
+    assert actual_height == expected_height
+
+def test_overflow_bbox_area_1():
+    xmin, xmax = -4, 10
+    ymin, ymax = 6, 8
+    bbox = OverflowBBox(xmin, ymin, xmax, ymax)
+    actual_area = bbox.area
+    expected_area = 28
+    assert actual_area == expected_area
+
+def test_overflow_bbox_area_2():
+    xmin, xmax = 4, -4
+    ymin, ymax = 6, 8
+    bbox = OverflowBBox(xmin, ymin, xmax, ymax)
+    actual_area = bbox.area
+    expected_area = -16
+    assert actual_area == expected_area
+
+def test_overflow_bbox_area_3():
+    xmin, xmax = 4, 10
+    ymin, ymax = -8, 8
+    bbox = OverflowBBox(xmin, ymin, xmax, ymax)
+    actual_area = bbox.area
+    expected_area = 96
+    assert actual_area == expected_area
+
+def test_overflow_bbox_area_4():
+    xmin, xmax = 10, 10
+    ymin, ymax = 6, -6
+    bbox = OverflowBBox(xmin, ymin, xmax, ymax)
+    actual_area = bbox.area
+    expected_area = 0
+    assert actual_area == expected_area

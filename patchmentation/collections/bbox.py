@@ -13,6 +13,9 @@ class BBox:
     def __repr__(self) -> str:
         return f'BBox(xmin={self.xmin}, ymin={self.ymin}, xmax={self.xmax}, ymax={self.ymax})'
 
+    def __eq__(self, bbox: 'BBox') -> bool:
+        return (self.xmin == bbox.xmin) and (self.ymin == bbox.ymin) and (self.xmax == bbox.xmax) and (self.ymax == bbox.ymax) 
+
     @property
     def xmin(self) -> int:
         return getattr(self, '_xmin', None)
@@ -76,3 +79,21 @@ class BBox:
     @property
     def area(self) -> int:
         return self.width * self.height
+
+class OverflowBBox(BBox):
+    @BBox.xmin.setter
+    def xmin(self, value: int):
+        self._xmin =  value
+
+    @BBox.ymin.setter
+    def ymin(self, value: int):
+        self._ymin =  value
+
+    @BBox.xmax.setter
+    def xmax(self, value: int):
+        self._xmax =  value
+
+    @BBox.ymax.setter
+    def ymax(self, value: int):
+        self._ymax =  value
+    

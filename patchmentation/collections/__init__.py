@@ -1,4 +1,4 @@
-from .bbox import BBox
+from .bbox import BBox, OverflowBBox
 from .mask import Mask, EmptyMask
 from .image import Image
 from .patch import Patch
