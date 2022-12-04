@@ -22,6 +22,13 @@ def test_image_patch():
 
 def test_image_patch_image_array():
     image_patch = helper.generate_ImagePatch()
-    image_array = image_patch.image_array
+    image_array = image_patch.image_array()
+    assert image_array.shape == (image_patch.height, image_patch.width, 4)
+    assert image_array.dtype == np.uint8
+
+def test_image_patch_image_array_with_classes():
+    classes = helper.generate_classes(5)
+    image_patch = helper.generate_ImagePatch(classes)
+    image_array = image_patch.image_array(classes[:3])
     assert image_array.shape == (image_patch.height, image_patch.width, 4)
     assert image_array.dtype == np.uint8

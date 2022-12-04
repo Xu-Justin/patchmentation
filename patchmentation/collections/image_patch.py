@@ -38,7 +38,6 @@ class ImagePatch:
                     raise ValueError(f'all patch image must equal to image-patch image, but got patch image {patch.image}, image-patch image {self.image}')
         self._patches = value
     
-    @property
     def image_array(self, classes: List[str] = None, **kwargs) -> np.ndarray:
         rectangle_color = kwargs.get('rectangle_color', (255, 0, 0, 255))
         rectangle_thickness = kwargs.get('rectangle_thickness', 1)
