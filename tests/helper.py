@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch, Dataset
+from patchmentation.collections import BBox, Mask, EmptyMask, Image, Patch, ImagePatch, Dataset
 from patchmentation.utils import loader
 
 import random
@@ -46,7 +46,7 @@ def generate_classes(number_of_class: int = None, **kwargs) -> List[str]:
     length = _kwargs(kwargs, generate_class_name, 'length')
     return [generate_class_name(length) for _ in range(number_of_class)]
 
-def generate_filename(ext: str, length: int = DEFAULT_FILENAME_LENGTH) -> str:
+def generate_filename(ext: str = "", length: int = DEFAULT_FILENAME_LENGTH) -> str:
     return ''.join(random.choice(string.digits) for _ in range(length)) + ext
 
 def generate_number_of_patch() -> int:
@@ -94,19 +94,25 @@ def generate_Mask(width: int = None, height: int = None) -> Mask:
     image_array = generate_mask_image_array(width, height)
     return loader.save_mask_image_array_temporary(image_array)
 
+def generate_Mask_Empty(width: int = None, height: int = None) -> Mask:
+    if width is None: width = generate_width()
+    if height is None: height = generate_height()
+    image_array = np.full((height, width), 255, np.uint8)
+    return loader.save_mask_image_array_temporary(image_array)
+
 def generate_Image(width: int = None, height: int = None, mask: Union[Mask, bool] = None) -> Image:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
     image_array = generate_image_array(width, height)
     image = loader.save_image_array_temporary(image_array)
     if mask is not None:
-        image_width = image.width()
-        image_height = image.height()
+        image_width = image.width
+        image_height = image.height
         if mask is True:
             mask = generate_Mask(image_width, image_height)
         if isinstance(mask, Mask):
-            assert image_width == mask.width()
-            assert image_height == mask.height()
+            assert image_width == mask.width
+            assert image_height == mask.height
             image.mask = mask
         else:
             raise TypeError(f'Received unexpected mask {mask}')
@@ -114,7 +120,7 @@ def generate_Image(width: int = None, height: int = None, mask: Union[Mask, bool
     
 def generate_Patch(image: Image, classes: List[str] = None, **kwargs) -> Patch:
     if classes is None: classes = generate_classes(number_of_class=1)
-    shape = kwargs.get('shape', image.shape())
+    shape = kwargs.get('shape', image.shape)
     height = shape[0]
     width = shape[1]
     bbox = generate_BBox(width, height)
@@ -124,7 +130,7 @@ def generate_Patch(image: Image, classes: List[str] = None, **kwargs) -> Patch:
 def generate_patches(image: Image, number_of_patch: int = None, classes: List[str] = None, **kwargs) -> List[Patch]:
     if number_of_patch is None: number_of_patch = generate_number_of_patch()
     if classes is None: classes = generate_classes()
-    shape = kwargs.get('shape', image.shape())
+    shape = kwargs.get('shape', image.shape)
     kwargs['shape'] = shape
     return [generate_Patch(image, classes, **kwargs) for _ in range(number_of_patch)]
 

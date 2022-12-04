@@ -1,29 +1,78 @@
 from typing import Tuple
-from dataclasses import dataclass
 
-@dataclass
 class BBox:
-    xmin: int
-    ymin: int
-    xmax: int
-    ymax: int
+    def __init__(self, xmin: int, ymin: int, xmax: int, ymax: int):
+        self.xmin = xmin
+        self.ymin = ymin
+        self.xmax = xmax
+        self.ymax = ymax
 
     def __iter__(self) -> Tuple[int, int, int, int]:
         return iter((self.xmin, self.ymin, self.xmax, self.ymax))
 
-    def summary(self) -> None:
-        print(
-            f'xmin: {self.xmin}\n'
-            f'ymin: {self.ymin}\n'
-            f'xmax: {self.xmax}\n'
-            f'ymax: {self.ymax}\n'
-        )
+    def __repr__(self) -> str:
+        return f'BBox(xmin={self.xmin}, ymin={self.ymin}, xmax={self.xmax}, ymax={self.ymax})'
 
+    @property
+    def xmin(self) -> int:
+        return getattr(self, '_xmin', None)
+
+    @xmin.setter
+    def xmin(self, value: int):
+        if value is not None:
+            if value < 0:
+                raise ValueError(f'xmin value cannot smaller than zero, xmin value : {value}')
+            if self.xmax is not None and value > self.xmax:
+                raise ValueError(f'xmin value cannot greater than xmax, xmin value : {value}, xmax : {self.xmax}')
+        self._xmin =  value
+
+    @property
+    def ymin(self) -> int:
+        return getattr(self, '_ymin', None)
+
+    @ymin.setter
+    def ymin(self, value: int):
+        if value is not None:
+            if value < 0:
+                raise ValueError(f'ymin value cannot smaller than zero, ymin value : {value}')
+            if self.ymax is not None and value > self.ymax:
+                raise ValueError(f'ymin value cannot greater than ymax, ymin value : {value}, ymax : {self.ymax}')
+        self._ymin =  value
+
+    @property
+    def xmax(self) -> int:
+        return getattr(self, '_xmax', None)
+
+    @xmax.setter
+    def xmax(self, value: int):
+        if value is not None:
+            if value < 0:
+                raise ValueError(f'xmax value cannot smaller than zero, xmax value : {value}')
+            if self.xmin is not None and value < self.xmin:
+                raise ValueError(f'xmax value cannot smaller than xmin, xmax value : {value}, xmin : {self.xmin}')
+        self._xmax =  value
+
+    @property
+    def ymax(self) -> int:
+        return getattr(self, '_ymax', None)
+
+    @ymax.setter
+    def ymax(self, value: int):
+        if value is not None:
+            if value < 0:
+                raise ValueError(f'ymax value cannot smaller than zero, ymax value : {value}')
+            if self.ymin is not None and value < self.ymin:
+                raise ValueError(f'ymax value cannot smaller than ymin, ymax value : {value}, ymin : {self.ymin}')
+        self._ymax =  value
+
+    @property
     def width(self) -> int:
         return self.xmax - self.xmin
 
+    @property
     def height(self) -> int:
         return self.ymax - self.ymin
 
+    @property
     def area(self) -> int:
-        return self.width() * self.height()
+        return self.width * self.height
