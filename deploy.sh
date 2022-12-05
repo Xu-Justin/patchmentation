@@ -24,3 +24,10 @@ else
     echo "No arguments are given. [Provide \"PyPI\" to upload to PyPI or \"Test PyPI\" to upload to Test PyPI]"
     echo "Upload failed."
 fi
+
+# remove caches
+echo "Removing caches..."
+sudo rm -rf build/
+sudo rm -rf dist/
+sudo rm -rf *.egg-info/
+sudo rm -rf patchmentation/*.egg-info/
