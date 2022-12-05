@@ -102,10 +102,6 @@ def dataset_sample(key: str) -> Dataset:
     file_names = st.text_input('Path to YOLO Names', SAMPLE_FILE_NAMES, disabled=True, key=f'{key}-sample-file_names')
     return load_yolo_dataset(folder_images, folder_annotations, file_names)
 
-@lru_cache(maxsize=1)
-def load_yolo_dataset(folder_images, folder_annotations, file_names) -> Dataset:
-    return loader.load_yolo_dataset(folder_images, folder_annotations, file_names)
-
 def dataset_yolo(key: str) -> Dataset:
     folder_images = st.text_input('Path to YOLO Images', YOLO_FOLDER_IMAGES, key=f'{key}-yolo-folder_images')
     folder_annotations = st.text_input('Path to YOLO Annotations', YOLO_FOLDER_ANNOTATIONS, key=f'{key}-yolo-folder_annotations')
