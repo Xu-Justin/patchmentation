@@ -5,6 +5,7 @@ from patchmentation.collections import ImagePatch
 from tests import helper
 
 import numpy as np
+import pytest
 
 def test_image_patch():
     image = helper.generate_Image()
@@ -32,3 +33,19 @@ def test_image_patch_image_array_with_classes():
     image_array = image_patch.image_array(classes[:3])
     assert image_array.shape == (image_patch.height, image_patch.width, 4)
     assert image_array.dtype == np.uint8
+
+def test_image_patch_patches_none():
+    image = helper.generate_Image()
+    image_patch = ImagePatch(image, None)
+    assert image_patch.image is image
+    assert image_patch.patches == []
+
+def test_image_patch_patches_error():
+    image1 = helper.generate_Image()
+    patches1 = helper.generate_patches(image1)
+    image2 = helper.generate_Image()
+    patches2 = helper.generate_patches(image2)
+    assert image1.path != image2.path
+    with pytest.raises(ValueError):
+        image_patch = ImagePatch(image1, patches1 + patches2)
+    

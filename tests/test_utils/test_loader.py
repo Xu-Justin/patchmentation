@@ -6,6 +6,7 @@ from patchmentation.utils import loader
 from patchmentation.collections import Dataset
 
 import numpy as np
+import pytest
 
 YOLO_FOLDER_IMAGES = 'dataset/sample_format_yolo/obj_train_data/'
 YOLO_FOLDER_ANNOTATIONS = 'dataset/sample_format_yolo/obj_train_data/'
@@ -66,6 +67,15 @@ def test_save_load_mask_image_array_2():
     assert reloaded_image_array.shape[2] == 4
     assert reloaded_image_array.dtype == np.uint8
     assert (reloaded_image_array == image_array).all()
+
+def test_save_image_array_error():
+    image_array = helper.generate_image_array(channel=1)
+    with pytest.raises(TypeError):
+        loader.save_image_array(image_array, "")
+
+def test_load_image_array_error():
+    with pytest.raises(TypeError):
+        loader.load_image_array(5)
 
 def test_loader_yolo():
     dataset = loader.load_yolo_dataset(YOLO_FOLDER_IMAGES, YOLO_FOLDER_ANNOTATIONS, YOLO_FILE_NAMES)

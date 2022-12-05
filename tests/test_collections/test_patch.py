@@ -5,6 +5,7 @@ from patchmentation.collections import Patch, BBox
 from tests import helper
 
 import numpy as np
+import pytest
 
 def test_patch():
     image = helper.generate_Image()
@@ -42,9 +43,31 @@ def test_patch_shape_cache_clear():
     assert patch.height == bbox1.height
     assert patch.channel == 4
     bbox2 = BBox(4, 1, 6, 15)
-    patch = Patch(image, bbox2, None)
+    patch.bbox = bbox2
     assert patch.shape == (bbox2.height, bbox2.width, 4)
     assert patch.width == bbox2.width
     assert patch.height == bbox2.height
     assert patch.channel == 4
-    
+
+def test_patch_error_bbox():
+    width = 10
+    height = 20
+    image = helper.generate_Image(width, height, True)
+    Patch(image, BBox(0, 0, width, height), None)
+    with pytest.raises(ValueError):
+        Patch(image, BBox(0, 0, width+1, height), None)
+    with pytest.raises(ValueError):
+        Patch(image, BBox(0, 0, width, height+1), None)
+
+def test_patch_error_image():
+    width = 10
+    height = 20    
+    patch = Patch(None, BBox(0, 0, width, height), None)
+    image = helper.generate_Image(width, height, True)
+    patch.image = image
+    with pytest.raises(ValueError):
+        image = helper.generate_Image(width-1, height, True)
+        patch.image = image
+    with pytest.raises(ValueError):
+        image = helper.generate_Image(width, height-1, True)
+        patch.image = image
