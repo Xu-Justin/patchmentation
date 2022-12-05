@@ -41,10 +41,10 @@ def test_image_patch_patches_none():
     assert image_patch.patches == []
 
 def test_image_patch_patches_error():
-    image1 = helper.generate_Image()
-    patches1 = helper.generate_patches(image1)
-    image2 = helper.generate_Image()
-    patches2 = helper.generate_patches(image2)
+    image1 = helper.generate_Image(10, 20)
+    patches1 = helper.generate_patches(image1, number_of_patch=2)
+    image2 = helper.generate_Image(20, 10)
+    patches2 = helper.generate_patches(image2, number_of_patch=2)
     assert image1.path != image2.path
     with pytest.raises(ValueError):
         image_patch = ImagePatch(image1, patches1 + patches2)
