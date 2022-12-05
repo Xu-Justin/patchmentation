@@ -741,6 +741,82 @@ def test_softedge_2():
     assert softedge_image.path == image.path
     assert (softedge_image.mask.image_array == expected_softedge_mask_image_array).all()
 
+def test_softedge_3():
+    kernel_size = 7
+    sigma = 2.2
+    softedge = transform.SoftEdge(kernel_size, sigma)
+    image = helper.generate_Image(10, 9)
+    softedge_image = softedge.transform(image)
+    expected_softedge_mask_image_array = np.array([
+        [  1,   4,   8,  12,  14,  14,  12,   8,   4,   1],
+        [  4,  11,  21,  32,  38,  38,  32,  21,  11,   4],
+        [  8,  21,  40,  61,  71,  71,  61,  40,  21,   8],
+        [ 10,  28,  52,  80,  93,  93,  80,  52,  28,  10],
+        [ 11,  31,  57,  87, 102, 102,  87,  57,  31,  11],
+        [ 10,  28,  52,  80,  93,  93,  80,  52,  28,  10],
+        [  8,  21,  40,  61,  71,  71,  61,  40,  21,   8],
+        [  4,  11,  21,  32,  38,  38,  32,  21,  11,   4],
+        [  1,   4,   8,  12,  14,  14,  12,   8,   4,   1]
+    ])
+    assert softedge_image.path == image.path
+    assert (softedge_image.mask.image_array == expected_softedge_mask_image_array).all()
+
+def test_softedge_4():
+    kernel_size = 3
+    sigma = 1.7
+    softedge = transform.SoftEdge(kernel_size, sigma)
+    image = helper.generate_Image(8, 10)
+    softedge_image = softedge.transform(image)
+    expected_softedge_mask_image_array = np.array([
+        [ 25,  54,  79,  79,  79,  79,  54,  25],
+        [ 54, 120, 175, 175, 175, 175, 120,  54],
+        [ 79, 175, 255, 255, 255, 255, 175,  79],
+        [ 79, 175, 255, 255, 255, 255, 175,  79],
+        [ 79, 175, 255, 255, 255, 255, 175,  79],
+        [ 79, 175, 255, 255, 255, 255, 175,  79],
+        [ 79, 175, 255, 255, 255, 255, 175,  79],
+        [ 79, 175, 255, 255, 255, 255, 175,  79],
+        [ 54, 120, 175, 175, 175, 175, 120,  54],
+        [ 25,  54,  79,  79,  79,  79,  54,  25]
+    ])
+    assert softedge_image.path == image.path
+    assert (softedge_image.mask.image_array == expected_softedge_mask_image_array).all()
+
+def test_softedge_5():
+    kernel_size = 9
+    sigma = 3.3
+    softedge = transform.SoftEdge(kernel_size, sigma)
+    image = helper.generate_Image(9, 13)
+    softedge_image = softedge.transform(image)
+    expected_softedge_mask_image_array = np.array([
+        [ 1,  1,  2,  2,  2,  2,  2,  1,  1],
+        [ 2,  4,  5,  5,  6,  5,  5,  4,  2],
+        [ 5,  7,  8, 10, 10, 10,  8,  7,  5],
+        [ 7, 10, 13, 15, 15, 15, 13, 10,  7],
+        [10, 14, 17, 20, 21, 20, 17, 14, 10],
+        [11, 15, 19, 22, 23, 22, 19, 15, 11],
+        [11, 16, 20, 23, 24, 23, 20, 16, 11],
+        [11, 15, 19, 22, 23, 22, 19, 15, 11],
+        [10, 14, 17, 20, 21, 20, 17, 14, 10],
+        [ 7, 10, 13, 15, 15, 15, 13, 10,  7],
+        [ 5,  7,  8, 10, 10, 10,  8,  7,  5],
+        [ 2,  4,  5,  5,  6,  5,  5,  4,  2],
+        [ 1,  1,  2,  2,  2,  2,  2,  1,  1]
+    ])
+    assert softedge_image.path == image.path
+    assert (softedge_image.mask.image_array == expected_softedge_mask_image_array).all()
+
+def test_softedge_error_kernel():
+    kernel = np.random.rand(4, 5)
+    with pytest.raises(ValueError):
+        transform.SoftEdge.softedge(None, kernel)
+    kernel = np.random.rand(3, 4)
+    with pytest.raises(ValueError):
+        transform.SoftEdge.softedge(None, kernel)
+    kernel_size = 4
+    with pytest.raises(ValueError):
+        transform.SoftEdge(kernel_size).transform(None)
+
 def test_hardedge():
     width = 5
     height = 3
