@@ -1,0 +1,9 @@
+[run]
+omit =
+    */site-packages/*
+    */dist-packages/*
+    */distutils/*
+    tests/*
+    patchmentation/dataset.py
+
+disable_warnings = couldnt-parse
