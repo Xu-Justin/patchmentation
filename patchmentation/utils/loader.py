@@ -1,21 +1,38 @@
-from patchmentation.collections import BBox, Mask, Image, Patch, ImagePatch, Dataset
+from patchmentation.collections import BBox, Mask, EmptyMask, Image, Patch, ImagePatch, Dataset
 
 import os
 import cv2
 import numpy as np
 import tempfile
 import json
+import functools
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Union, Any, Tuple
+from typing import Dict, List, Union, Tuple
+from copy import deepcopy
 
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
 
-def load_image_array(image: Union[str, Image, ImagePatch]) -> np.ndarray:
+def copying_lru_cache(maxsize=128, typed=False):
+    def decorator(f):
+        cached_func = functools.lru_cache(maxsize, typed)(f)
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            return deepcopy(cached_func(*args, **kwargs))
+        return wrapper
+    return decorator
+
+@copying_lru_cache(maxsize=128)
+def _imread(path: str, flags: int = None) -> np.ndarray:
+    if flags is None:
+        return cv2.imread(path)
+    return cv2.imread(path, flags)
+
+def load_image_array(image: Union[str, Image, ImagePatch, Mask, EmptyMask]) -> np.ndarray:
     if isinstance(image, str):
-        return Image(image).image_array()
-    if isinstance(image, (Mask, Image, ImagePatch)):
-        return image.image_array()
+        return Image(image).image_array
+    if isinstance(image, (Mask, Image, ImagePatch, Mask, EmptyMask)):
+        return image.image_array
     raise TypeError
 
 def load_image(path: str) -> Image:
@@ -87,7 +104,7 @@ def load_yolo_image_patches(folder_images: str, folder_annotations: str, classes
     return image_patches
     
 def load_yolo_patches(image: Image, file_annotation: str, classes: List[str]) -> List[ImagePatch]:
-    image_height, image_width, _ = image.image_array().shape
+    image_height, image_width, _ = image.image_array.shape
     patches = []
     with open(file_annotation, 'r') as f:
         lines = f.readlines()

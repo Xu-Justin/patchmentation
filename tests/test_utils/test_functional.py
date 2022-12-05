@@ -3,8 +3,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 
 from patchmentation.utils import functional as F
 from patchmentation.utils import loader
-from patchmentation.utils import validator
-from patchmentation.collections import BBox, Image, Patch, ImagePatch, Dataset
+from patchmentation.collections import BBox, OverflowBBox
 from tests import helper
 
 import numpy as np
@@ -213,8 +212,9 @@ def test_resize_image_array_1():
     expected_width = 5
     expected_height = 7
     actual_image_array = F.resize_image_array(image_array, expected_width, expected_height)
-    validator.validate_image_array(actual_image_array, expected_width=expected_width, expected_height=expected_height)
-
+    assert actual_image_array.dtype == np.uint8
+    assert actual_image_array.shape[:2] == (expected_height, expected_width)
+    
 def test_resize_image_array_2():
     width = 10
     height = 20
@@ -222,7 +222,8 @@ def test_resize_image_array_2():
     expected_width = 12
     expected_height = 9
     actual_image_array = F.resize_image_array(image_array, expected_width, expected_height)
-    validator.validate_image_array(actual_image_array, expected_width=expected_width, expected_height=expected_height)
+    assert actual_image_array.dtype == np.uint8
+    assert actual_image_array.shape[:2] == (expected_height, expected_width)
 
 @pytest.mark.filterwarnings('error')
 def test_display_image_array_Grayscale():
@@ -364,7 +365,7 @@ def test_overlay_image_1():
         [[19, 20, 21, 255], [113, 114, 115, 255], [116, 117, 118, 255]],
         [[28, 29, 30, 255], [31, 32, 33, 255], [34, 35, 36, 255]]
     ])
-    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array
     assert (expected_image_array == actual_image_array).all()
 
 def test_overlay_image_2():
@@ -388,7 +389,7 @@ def test_overlay_image_2():
         [[107, 108, 109, 255], [110, 111, 112, 255], [25, 26, 27, 255]],
         [[113, 114, 115, 255], [116, 117, 118, 255], [34, 35, 36, 255]]
     ])
-    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array
     assert (expected_image_array == actual_image_array).all()
 
 def test_overlay_image_3():
@@ -412,7 +413,7 @@ def test_overlay_image_3():
         [[19, 20, 21, 255], [55, 56, 57, 255], [75, 76, 77, 255]],
         [[28, 29, 30, 255], [95, 96, 97, 255], [116, 117, 118, 255]]
     ])
-    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array
     assert (expected_image_array == actual_image_array).all()
 
 def test_overlay_image_4():
@@ -436,7 +437,7 @@ def test_overlay_image_4():
         [[90, 91, 91, 221], [116, 117, 118, 255], [25, 26, 27, 100]],
         [[28, 29, 30, 150], [31, 32, 33, 150], [34, 35, 36, 150]]
     ])
-    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array()
+    actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array
     assert (expected_image_array == actual_image_array).all()
 
 def test_visibility_thresholding_1():
@@ -507,7 +508,7 @@ def test_visibility_thresholding_6():
     patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 10)
     patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
     patch_bbox_4 = helper.generate_Patch(image), BBox(0, 0, 5, 4)
-    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 5, INF, 6)
+    patch_bbox_5 = helper.generate_Patch(image), OverflowBBox(-INF, 5, INF, 6)
     list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
     visibility_threshold = 0.4
     list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5]
@@ -522,7 +523,7 @@ def test_visibility_thresholding_7():
     patch_bbox_2 = helper.generate_Patch(image), BBox(0, 0, 5, 10)
     patch_bbox_3 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
     patch_bbox_4 = helper.generate_Patch(image), BBox(0, 0, 5, 4)
-    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 5, INF, INF)
+    patch_bbox_5 = helper.generate_Patch(image), OverflowBBox(-INF, 5, INF, INF)
     list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
     visibility_threshold = 0.4
     list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5]
@@ -536,9 +537,9 @@ def test_visibility_thresholding_8():
     patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
     patch_bbox_2 = helper.generate_Patch(image), BBox(5, 5, 10, 10)
     patch_bbox_3 = helper.generate_Patch(image), BBox(0, 5, 5, 15)
-    patch_bbox_4 = helper.generate_Patch(image), BBox(-5, -10, 5, 10)
-    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 3, INF, 5)
-    patch_bbox_6 = helper.generate_Patch(image), BBox(INF, 0, INF, INF)
+    patch_bbox_4 = helper.generate_Patch(image), OverflowBBox(-5, -10, 5, 10)
+    patch_bbox_5 = helper.generate_Patch(image), OverflowBBox(-INF, 3, INF, 5)
+    patch_bbox_6 = helper.generate_Patch(image), OverflowBBox(INF, 0, INF, INF)
     list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
     visibility_threshold = 0.4
     list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5, patch_bbox_6]
@@ -552,9 +553,9 @@ def test_visibility_thresholding_9():
     patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
     patch_bbox_2 = helper.generate_Patch(image), BBox(5, 5, 10, 10)
     patch_bbox_3 = helper.generate_Patch(image), BBox(0, 5, 5, 15)
-    patch_bbox_4 = helper.generate_Patch(image), BBox(-5, -10, 5, 10)
-    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 3, INF, 5)
-    patch_bbox_6 = helper.generate_Patch(image), BBox(INF, 0, INF, INF)
+    patch_bbox_4 = helper.generate_Patch(image), OverflowBBox(-5, -10, 5, 10)
+    patch_bbox_5 = helper.generate_Patch(image), OverflowBBox(-INF, 3, INF, 5)
+    patch_bbox_6 = helper.generate_Patch(image), OverflowBBox(INF, 0, INF, INF)
     list_patch_bbox = []
     visibility_threshold = 0.4
     list_non_removal_patch_bbox = [patch_bbox_4, patch_bbox_5, patch_bbox_6]
@@ -568,9 +569,9 @@ def test_visibility_thresholding_10():
     patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 5, 5)
     patch_bbox_2 = helper.generate_Patch(image), BBox(5, 5, 10, 10)
     patch_bbox_3 = helper.generate_Patch(image), BBox(0, 5, 5, 15)
-    patch_bbox_4 = helper.generate_Patch(image), BBox(-5, -10, 5, 10)
-    patch_bbox_5 = helper.generate_Patch(image), BBox(-INF, 3, INF, 5)
-    patch_bbox_6 = helper.generate_Patch(image), BBox(INF, 0, INF, INF)
+    patch_bbox_4 = helper.generate_Patch(image), OverflowBBox(-5, -10, 5, 10)
+    patch_bbox_5 = helper.generate_Patch(image), OverflowBBox(-INF, 3, INF, 5)
+    patch_bbox_6 = helper.generate_Patch(image), OverflowBBox(INF, 0, INF, INF)
     list_patch_bbox = [patch_bbox_1, patch_bbox_2, patch_bbox_3]
     visibility_threshold = 0.4
     list_non_removal_patch_bbox = []
@@ -609,8 +610,8 @@ def test_get_negative_patch_1():
     for patch in image_patch.patches:
         assert F.intersection_over_union(patch.bbox, negative_patch.bbox) <= iou_threshold
     assert negative_patch.class_name == F.NEGATIVE_PATCH_CLASS_NAME
-    assert negative_patch.width() > 0 and negative_patch.width() <= image_patch.image.width()
-    assert negative_patch.height() > 0 and negative_patch.height() <= image_patch.image.height()
+    assert negative_patch.width > 0 and negative_patch.width <= image_patch.image.width
+    assert negative_patch.height > 0 and negative_patch.height <= image_patch.image.height
 
 def test_get_negative_patch_2():
     image_patch = helper.generate_ImagePatch()
@@ -619,8 +620,8 @@ def test_get_negative_patch_2():
     for patch in image_patch.patches:
         assert F.intersection_over_union(patch.bbox, negative_patch.bbox) <= iou_threshold
     assert negative_patch.class_name == F.NEGATIVE_PATCH_CLASS_NAME
-    assert negative_patch.width() > 0 and negative_patch.width() <= image_patch.image.width()
-    assert negative_patch.height() > 0 and negative_patch.height() <= image_patch.image.height()
+    assert negative_patch.width > 0 and negative_patch.width <= image_patch.image.width
+    assert negative_patch.height > 0 and negative_patch.height <= image_patch.image.height
 
 def test_get_negative_patch_3():
     image_patch = helper.generate_ImagePatch()
@@ -629,16 +630,16 @@ def test_get_negative_patch_3():
     for patch in image_patch.patches:
         assert F.intersection_over_union(patch.bbox, negative_patch.bbox) <= iou_threshold
     assert negative_patch.class_name == F.NEGATIVE_PATCH_CLASS_NAME
-    assert negative_patch.width() > 0 and negative_patch.width() <= image_patch.image.width()
-    assert negative_patch.height() > 0 and negative_patch.height() <= image_patch.image.height()
+    assert negative_patch.width > 0 and negative_patch.width <= image_patch.image.width
+    assert negative_patch.height > 0 and negative_patch.height <= image_patch.image.height
 
 def test_get_negative_patch_4():
     image = helper.generate_Image()
     iou_threshold = 0.5
     negative_patch = F.get_negative_patch(image, iou_threshold)
     assert negative_patch.class_name == F.NEGATIVE_PATCH_CLASS_NAME
-    assert negative_patch.width() > 0 and negative_patch.width() <= image.width()
-    assert negative_patch.height() > 0 and negative_patch.height() <= image.height()
+    assert negative_patch.width > 0 and negative_patch.width <= image.width
+    assert negative_patch.height > 0 and negative_patch.height <= image.height
 
 def test_get_weighted_random_2d_1():
     weight = np.array([

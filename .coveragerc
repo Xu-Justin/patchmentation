@@ -4,6 +4,6 @@ omit =
     */dist-packages/*
     */distutils/*
     tests/*
-    patchmentation/utils/validator.py
+    patchmentation/dataset.py
 
 disable_warnings = couldnt-parse

@@ -19,8 +19,8 @@ def intersection(bbox_1: BBox, bbox_2: BBox) -> BBox:
 
 def intersection_over_union(bbox_1: BBox, bbox_2: BBox) -> float:
     bbox_intersection = intersection(bbox_1, bbox_2)
-    intersection_area = bbox_intersection.area()
-    union_area = bbox_1.area() + bbox_2.area() - intersection_area
+    intersection_area = bbox_intersection.area
+    union_area = bbox_1.area + bbox_2.area - intersection_area
     if union_area == 0 and intersection_area == 0:
         return 0
     return intersection_area / union_area
@@ -36,8 +36,8 @@ def scale_dimension(width: int, height: int, scale: float) -> Tuple[int, int]:
     return scaled_width, scaled_height
 
 def scale_bbox(bbox: BBox, scale: float) -> BBox:
-    width = bbox.width()
-    height = bbox.height()
+    width = bbox.width
+    height = bbox.height
     scaled_width, scaled_height = scale_dimension(width, height, scale)
     xmin, ymin, _, _ = bbox
     xmax = xmin + scaled_width
@@ -69,7 +69,7 @@ def visibility_thresholding(list_patch_bbox: List[Tuple[Patch, BBox]], visibilit
         ymin -= min_y
         ymax -= min_y
         grid[ymin:ymax, xmin:xmax] = i
-        total_area[i] = bbox.area()
+        total_area[i] = bbox.area
     
     if list_non_removal_patch_bbox is not None:
         for _, bbox in list_non_removal_patch_bbox:
@@ -103,14 +103,14 @@ def resize_image_array(image_array: np.ndarray, width: int, height: int) -> np.n
     return cv2.resize(image_array, (width, height), interpolation = cv2.INTER_AREA)
 
 def overlay_image(image_a: Image, image_b: Image, bbox: BBox) -> Image:
-    assert bbox.width() == image_b.width()
-    assert bbox.height() == image_b.height()
+    assert bbox.width == image_b.width
+    assert bbox.height == image_b.height
 
-    background_image_array = image_a.image_array()[:,:,:3]
-    background_mask_image_array = image_a.get_mask().image_array()
+    background_image_array = image_a.image_array[:,:,:3]
+    background_mask_image_array = image_a.mask.image_array
 
-    overlay_image_array = image_b.image_array()[:,:,:3]
-    overlay_mask_image_array = image_b.get_mask().image_array()
+    overlay_image_array = image_b.image_array[:,:,:3]
+    overlay_mask_image_array = image_b.mask.image_array
 
     background_color = background_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax, :] / 255.0
     background_alpha = background_mask_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax] / 255.0
@@ -173,8 +173,8 @@ def get_negative_patch(image_patch: Union[Image, ImagePatch], iou_threshold: flo
     if isinstance(image_patch, Image):
         image_patch = ImagePatch(image_patch, [])
     image = image_patch.image
-    image_width = image.width()
-    image_height = image.height()
+    image_width = image.width
+    image_height = image.height
     for _ in range(max_iteration):
         xmin = random.randint(0, image_width - 1)
         ymin = random.randint(0, image_height - 1)

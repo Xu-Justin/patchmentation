@@ -14,6 +14,7 @@ import extra_streamlit_components as stx
 import numpy as np
 import random
 from typing import List, Tuple, Union, Dict, Any
+from functools import lru_cache
 
 SAMPLE_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
 SAMPLE_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
@@ -99,17 +100,25 @@ def dataset_sample(key: str) -> Dataset:
     folder_images = st.text_input('Path to YOLO Images', SAMPLE_FOLDER_IMAGES, disabled=True, key=f'{key}-sample-folder_images')
     folder_annotations = st.text_input('Path to YOLO Annotations', SAMPLE_FOLDER_ANNOTATIONS, disabled=True, key=f'{key}-sample-folder_annotations')
     file_names = st.text_input('Path to YOLO Names', SAMPLE_FILE_NAMES, disabled=True, key=f'{key}-sample-file_names')
-    return loader.load_yolo_dataset(folder_images, folder_annotations, file_names)
-    
+    return load_yolo_dataset(folder_images, folder_annotations, file_names)
+
 def dataset_yolo(key: str) -> Dataset:
     folder_images = st.text_input('Path to YOLO Images', YOLO_FOLDER_IMAGES, key=f'{key}-yolo-folder_images')
     folder_annotations = st.text_input('Path to YOLO Annotations', YOLO_FOLDER_ANNOTATIONS, key=f'{key}-yolo-folder_annotations')
     file_names = st.text_input('Path to YOLO Names', YOLO_FILE_NAMES, key=f'{key}-yolo-file_names')
+    return load_yolo_dataset(folder_images, folder_annotations, file_names)
+
+@lru_cache(maxsize=1)
+def load_yolo_dataset(folder_images: str, folder_annotations: str, file_names: str) -> Dataset:
     return loader.load_yolo_dataset(folder_images, folder_annotations, file_names)
 
 def dataset_coco(key: str) -> Dataset:
     folder_images = st.text_input('Path to COCO Images', COCO_FOLDER_IMAGES, key=f'{key}-coco-folder_images')
     file_annotations = st.text_input('Path to COCO Annotations', COCO_FILE_ANNOTATIONS, key=f'{key}-coco-file_annotations')
+    return load_coco_dataset(folder_images, file_annotations)
+
+@lru_cache(maxsize=1)
+def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
     return loader.load_coco_dataset(folder_images, file_annotations)
 
 def dataset_pascal_voc(key: str) -> Dataset:
@@ -178,6 +187,10 @@ def _dataset_pascal_voc(default_folder_images: str, default_folder_annotations: 
     folder_images = st.text_input('Path to Pascal VOC Images', default_folder_images, disabled=disabled, key=f'{key}-pascal-voc-folder_images')
     folder_annotations = st.text_input('Path to Pascal VOC Annotations', default_folder_annotations, disabled=disabled, key=f'{key}-pascal-voc-folder_annotations')
     file_imagesets = st.text_input('Path to Pascal VOC Image Sets', default_file_imagesets, disabled=disabled, key=f'{key}-pascal-voc-file_imagesets')
+    return load_pascal_voc_dataset(folder_images, folder_annotations, file_imagesets)
+
+@lru_cache(maxsize=1)
+def load_pascal_voc_dataset(folder_images: str, folder_annotations, file_imagesets) -> Dataset:
     return loader.load_pascal_voc_dataset(folder_images, folder_annotations, file_imagesets)
 
 def background_image(key: str) -> Image:

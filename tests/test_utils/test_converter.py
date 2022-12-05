@@ -11,7 +11,7 @@ def test_array2image():
     image_array = helper.generate_image_array()
     image = converter.array2image(image_array)
     assert isinstance(image, Image)
-    assert (image.image_array() == image_array).all()
+    assert (image.image_array[:,:,:3] == image_array[:,:,:3]).all()
 
 def test_image2patch():
     image = helper.generate_Image()
@@ -20,7 +20,7 @@ def test_image2patch():
     assert isinstance(patch, Patch)
     assert patch.class_name == class_name
     assert patch.image is image
-    assert (patch.image_array() == image.image_array()).all()
+    assert (patch.image_array == image.image_array).all()
 
 def test_array2patch():
     image_array = helper.generate_image_array()
@@ -28,7 +28,7 @@ def test_array2patch():
     patch = converter.array2patch(image_array, class_name)
     assert isinstance(patch, Patch)
     assert patch.class_name == class_name
-    assert (patch.image_array() == image_array).all()
+    assert (patch.image_array[:,:,:3] == image_array[:,:,:3]).all()
 
 def test_patch2image():
     image_array = np.array([
@@ -40,8 +40,8 @@ def test_patch2image():
     patch = Patch(_image, bbox)
     image = converter.patch2image(patch)
     assert isinstance(image, Image)
-    actual_image_array = image.image_array()
+    actual_image_array = image.image_array
     expected_image_array = np.array([
         [[4, 5, 6], [7, 8, 9]]
     ])
-    assert (actual_image_array == expected_image_array).all()
+    assert (actual_image_array[:,:,:3] == expected_image_array[:,:,:3]).all()

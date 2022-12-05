@@ -11,4 +11,10 @@ def test_dataset():
     assert dataset.image_patches is image_patches
     assert dataset.classes is classes
     assert (image_patches, classes) == tuple(dataset)
-    dataset.summary()
+    str(dataset)
+
+def test_dataset_generate_classes():
+    classes = helper.generate_classes(3)
+    image_patches = helper.generate_image_patches(100, classes)
+    dataset = Dataset(image_patches)
+    assert helper.compare_unordered_list_equal(classes, dataset.classes)

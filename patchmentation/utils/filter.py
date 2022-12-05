@@ -23,7 +23,7 @@ class FilterWidth(Filter):
     def filter(self, patches: List[Patch]) -> List[Patch]:
         result = []
         for patch in patches:
-            width = patch.width()
+            width = patch.width
             if self.comparator(width, self.width):
                 result.append(patch)
         return result
@@ -36,7 +36,7 @@ class FilterHeight(Filter):
     def filter(self, patches: List[Patch]) -> List[Patch]:
         result = []
         for patch in patches:
-            height = patch.height()
+            height = patch.height
             if self.comparator(height, self.height):
                 result.append(patch)
         return result
@@ -51,7 +51,7 @@ class FilterAspectRatio(Filter):
         threshold_aspect_ratio = self.width / self.height
         result = []
         for patch in patches:
-            aspect_ratio = patch.width() / patch.height()
+            aspect_ratio = patch.width / patch.height
             if self.comparator(aspect_ratio, threshold_aspect_ratio):
                 result.append(patch)
         return result
