@@ -1,13 +1,12 @@
 from abc import ABC, abstractmethod
 
-import cv2
 import numpy as np
 import random
 from typing import Tuple, Union
 from scipy.signal import convolve2d
 from copy import copy
 
-from patchmentation.collections import Image
+from patchmentation.collections import Image, EmptyMask
 from patchmentation.utils import functional as F
 from patchmentation.utils import loader
 
@@ -184,8 +183,10 @@ class SoftEdge(Transform):
     @staticmethod
     def softedge(image: Image, kernel: np.ndarray) -> Image:
         kernel_height, kernel_width = kernel.shape
-        assert kernel_height % 2 == 1, f'Expected kernel_height is odd, but received kernel_height {kernel_height}'
-        assert kernel_width % 2 == 1, f'Expected kernel_width is odd, but received kernel_width {kernel_width}'
+        if kernel_height % 2 == 0:
+            raise ValueError(f'Expected kernel_height is odd, but received kernel_height {kernel_height}')
+        if kernel_width % 2 == 0:
+            raise ValueError(f'Expected kernel_width is odd, but received kernel_width {kernel_width}')
         mask_image_array = image.mask.image_array
         mask_height, mask_width = mask_image_array.shape
         pad_up = pad_down = int((kernel_height - 1) / 2)
@@ -203,7 +204,6 @@ class HardEdge(Transform):
         pass
 
     def transform(self, image: Image) -> Image:
-        mask = loader.save_mask_image_array_temporary(np.full((image.height, image.width), 255, np.uint8))
         result_image = copy(image)
-        result_image.mask = mask
+        result_image.mask = EmptyMask(image.width, image.height)
         return result_image

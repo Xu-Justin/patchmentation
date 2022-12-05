@@ -607,8 +607,17 @@ def input_comparator(key: str) -> Comparator:
 def patchmentation_configuration(key: str) -> Dict[str, Any]:
     st.subheader('Configuration')
     conf = dict()
-    visibility_threshold = st.number_input('Visibility Threshold', min_value=0.0, max_value=1.0, value=0.5, step=0.05, key=f'{key}-visibility-threshold')
-    conf['visibility_threshold'] = visibility_threshold
+
+    col = st.columns([1, 1])
+    
+    with col[0]:
+        visibility_threshold = st.number_input('Visibility Threshold', min_value=0.0, max_value=1.0, value=0.5, step=0.05, key=f'{key}-visibility-threshold')
+        conf['visibility_threshold'] = visibility_threshold
+
+    with col[1]:
+        max_n_patches = st.number_input('Max. Number of Patches', min_value=0, value=100, step=5, key=f'{key}-max-n-patch')
+        conf['max_n_patches'] = max_n_patches
+
     return conf
 
 def refresh_button(key: str) -> None:

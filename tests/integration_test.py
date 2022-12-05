@@ -29,21 +29,36 @@ def test_patch_augmentation_1():
     negative_patches.append(F.get_negative_patch(background_image, 0.5))
 
     patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches + negative_patches
-    image_patch = patch_augmentation(patches, background_image)
+    max_n_patches = 5
+
+    assert len(patches) > max_n_patches
+    image_patch = patch_augmentation(patches, background_image, max_n_patches=max_n_patches)
     assert isinstance(image_patch, ImagePatch)
+    assert len(image_patch.patches) <= max_n_patches
 
 def test_patch_augmentation_2():
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_2)
     
+    max_n_patches = 3
+
+    expected_max_n_patches = 0 + max_n_patches
     patches = dataset.image_patches[0].patches
-    image_patch = patch_augmentation(patches, background_image)
+    image_patch = patch_augmentation(patches, background_image, max_n_patches=max_n_patches)
+    actual_n_patches = len(image_patch.patches)
+    assert actual_n_patches <= expected_max_n_patches
 
+    expected_max_n_patches = actual_n_patches + max_n_patches
     patches = dataset.image_patches[1].patches
-    image_patch = patch_augmentation(patches, image_patch)
+    image_patch = patch_augmentation(patches, image_patch, max_n_patches=max_n_patches)
+    actual_n_patches = len(image_patch.patches)
+    assert actual_n_patches <= expected_max_n_patches
 
+    expected_max_n_patches = actual_n_patches + max_n_patches
     patches = dataset.image_patches[2].patches
-    image_patch = patch_augmentation(patches, image_patch)
+    image_patch = patch_augmentation(patches, image_patch, max_n_patches=max_n_patches)
+    actual_n_patches = len(image_patch.patches)
+    assert actual_n_patches <= expected_max_n_patches
 
     assert isinstance(image_patch, ImagePatch)
 

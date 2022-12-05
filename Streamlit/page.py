@@ -31,6 +31,6 @@ def patchmentation(key: str = 'page-patchmentation'):
     if shuffle:
         random.shuffle(patches)
     
-    result_image_patch = patch_augmentation(patches, background_image, conf.get('visibility_threshold', 0.5), actions)
+    result_image_patch = patch_augmentation(patches, background_image, conf.get('visibility_threshold', 0.5), actions, max_n_patches=conf.get('max_n_patches', 100))
     section.display_image_patch(result_image_patch, key=f'{key}-display_result_image_patch')
     section.refresh_button(key=f'{key}-refresh')

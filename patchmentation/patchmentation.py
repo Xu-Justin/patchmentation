@@ -14,9 +14,13 @@ def patch_augmentation(
         visibility_threshold: float = 0.5,
         actions: List[Union[Transform, Filter]] = None,
         preserve_background_patch: bool = True,
-        patch_distribution: Union[np.ndarray, Mask] = None
+        patch_distribution: Union[np.ndarray, Mask] = None,
+        max_n_patches: int = 100
     ) -> ImagePatch:
     
+    if max_n_patches < len(patches):
+        patches = random.sample(patches, k=max_n_patches)
+
     background_patches = []
 
     if isinstance(image, ImagePatch):
