@@ -227,7 +227,7 @@ def load_pascal_voc_image_patches(folder_images: str, folder_annotations: str, i
     images = load_pacal_voc_images(folder_images, imagesets)
     annotations = load_pascal_voc_annotations(folder_annotations, imagesets)
     image_patches = []
-    for image, annotation in tqdm(zip(images, annotations), desc=f'load_pascal_voc_image_patches'):
+    for image, annotation in tqdm(list(zip(images, annotations)), desc=f'load_pascal_voc_image_patches'):
         patches = []
         for bbox, class_name in annotation:
             patch = Patch(image, bbox, class_name)

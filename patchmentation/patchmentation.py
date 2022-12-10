@@ -58,10 +58,9 @@ def patch_augmentation(
     list_patch_bbox = []
     for patch in patches:
         if patch.width == 0 or patch.height == 0: continue
+        if patch.width > background_image_width or patch.height > background_image_height: continue
         width = patch.width
         height = patch.height
-        assert width <= background_image_width, f'Expected patch width <= background image width, but got patch width {width} background image width {background_image_width}'
-        assert height <= background_image_height, f'Expected patch height <= background image height, but got patch height {height} background image height {background_image_height}'
         weight = patch_distribution.copy()
         weight[background_image_height - height + 1:, :] = 0
         weight[:, background_image_width - width + 1:] = 0
@@ -74,6 +73,7 @@ def patch_augmentation(
     list_background_patch_bbox = []
     for patch in background_patches:
         if patch.width == 0 or patch.height == 0: continue
+        if patch.width > background_image_width or patch.height > background_image_height: continue
         bbox = patch.bbox
         list_background_patch_bbox.append((patch, bbox))
             
@@ -94,6 +94,7 @@ def patch_augmentation(
     
     for patch, bbox in list_patch_bbox:
         if patch.width == 0 or patch.height == 0: continue
+        if patch.width > background_image_width or patch.height > background_image_height: continue
         patch_image = converter.patch2image(patch)
         result_image = F.overlay_image(result_image, patch_image, bbox)
         result_patch = Patch(None, bbox, patch.class_name)
@@ -101,6 +102,7 @@ def patch_augmentation(
 
     for patch, bbox in list_background_patch_bbox:
         if patch.width == 0 or patch.height == 0: continue
+        if patch.width > background_image_width or patch.height > background_image_height: continue
         patch_image = converter.patch2image(patch)
         result_image = F.overlay_image(result_image, patch_image, bbox)
         result_patch = Patch(None, bbox, patch.class_name)
