@@ -1,7 +1,7 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from patchmentation.collections import Image, ImagePatch
+from patchmentation.collections import BBox, Image, Patch, ImagePatch
 from patchmentation.utils import loader
 from patchmentation.utils import filter
 from patchmentation.utils import transform
@@ -72,7 +72,12 @@ def test_patch_augmentation_3():
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1)
     
-    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches
+    zero_patches = [
+        Patch(dataset.image_patches[0].image, BBox(1, 1, 1, 2), None),
+        Patch(dataset.image_patches[1].image, BBox(1, 1, 2, 1), None)
+    ]
+
+    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches + zero_patches
     image_patch = patch_augmentation(patches, background_image, actions=actions)
     assert isinstance(image_patch, ImagePatch)
 
@@ -98,6 +103,11 @@ def test_patch_augmentation_4():
 
     patches = dataset.image_patches[1].patches
     image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, False, patch_distribution)
+    zero_background_patches = [
+        Patch(image_patch.image, BBox(1, 1, 1, 2), None),
+        Patch(image_patch.image, BBox(1, 1, 2, 1), None)
+    ]
+    image_patch.patches += zero_background_patches
 
     patches = dataset.image_patches[2].patches
     image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, True, loader.save_mask_image_array_temporary(patch_distribution))
