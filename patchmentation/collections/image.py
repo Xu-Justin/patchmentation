@@ -1,6 +1,5 @@
 from .mask import Mask, EmptyMask
 
-import cv2
 import numpy as np
 from typing import Tuple
 from functools import cached_property
@@ -45,7 +44,7 @@ class Image:
             if value.width != self.width_without_mask:
                 raise ValueError(f'mask width must equal to image width, but got mask width {value.width}, image width {self.width_without_mask}')
             if value.height != self.height_without_mask:
-                raise ValueError(f'mask height must equal to image height, but got mask heigth {value.height}, mask height {self.height_without_mask}')
+                raise ValueError(f'mask height must equal to image height, but got mask heigth {value.height}, image height {self.height_without_mask}')
         self._mask = value
 
     @property
