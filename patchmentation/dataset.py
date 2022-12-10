@@ -3,7 +3,7 @@ import wget
 import tarfile
 from appdirs import user_cache_dir
 
-from typing import Dict
+from typing import Dict, List, Union
 from patchmentation.utils import loader
 from patchmentation.collections import Dataset
 
@@ -36,20 +36,26 @@ def _remove_file(file):
     print(f'removing {file}')
     os.remove(file)
 
-def load(dataset) -> Dict[str, Dataset]:
+def load(dataset, categories: Union[str, List[str]] = None) -> Dict[str, Dataset]:
     if dataset == PASCAL_VOC_2007:
-        return load_pascal_voc_2007()
+        return load_pascal_voc_2007(categories)
     raise ValueError(f'Unexpected dataset value : {dataset}')
 
-def load_pascal_voc_2007() -> Dict[str, Dataset]:
+def load_pascal_voc_2007(categories: Union[str, List[str]] = None) -> Dict[str, Dataset]:
     os.makedirs(_CACHEDIR, exist_ok=True)
     if not os.path.exists(_PASCAL_VOC_2007_FOLDER):
         _download_pascal_voc_2007()
-    dataset = {
-        'train' : loader.load_pascal_voc_dataset(_PASCAL_VOC_2007_FOLDER_IMAGES, _PASCAL_VOC_2007_FOLDER_ANNOTATIONS, _PASCAL_VOC_2007_IMAGESETS_TRAIN),
-        'val'   : loader.load_pascal_voc_dataset(_PASCAL_VOC_2007_FOLDER_IMAGES, _PASCAL_VOC_2007_FOLDER_ANNOTATIONS, _PASCAL_VOC_2007_IMAGESETS_VAL),
-        'test'  : loader.load_pascal_voc_dataset(_PASCAL_VOC_2007_FOLDER_IMAGES, _PASCAL_VOC_2007_FOLDER_ANNOTATIONS, _PASCAL_VOC_2007_IMAGESETS_TEST),
-    }
+    if categories is None:
+        categories = ['train', 'val', 'test']
+    if isinstance(categories, str):
+        categories = [categories]
+    dataset = {}
+    if 'train' in categories:
+        dataset['train'] = loader.load_pascal_voc_dataset(_PASCAL_VOC_2007_FOLDER_IMAGES, _PASCAL_VOC_2007_FOLDER_ANNOTATIONS, _PASCAL_VOC_2007_IMAGESETS_TRAIN)
+    if 'val' in categories:
+        dataset['val'] = loader.load_pascal_voc_dataset(_PASCAL_VOC_2007_FOLDER_IMAGES, _PASCAL_VOC_2007_FOLDER_ANNOTATIONS, _PASCAL_VOC_2007_IMAGESETS_VAL)
+    if 'test' in categories:
+        dataset['test'] = loader.load_pascal_voc_dataset(_PASCAL_VOC_2007_FOLDER_IMAGES, _PASCAL_VOC_2007_FOLDER_ANNOTATIONS, _PASCAL_VOC_2007_IMAGESETS_TEST)
     return dataset
 
 def _download_pascal_voc_2007():

@@ -657,7 +657,7 @@ def test_get_weighted_random_2d_2():
         [0, 3, 2],
         [1, 0, 0]
     ])
-    k = 100
+    k = 500
     indexes = F.get_weighted_random_2d(weight, k)
     count = dict()
     for y, x in indexes:

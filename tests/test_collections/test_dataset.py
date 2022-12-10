@@ -9,8 +9,8 @@ def test_dataset():
     classes = helper.generate_classes()
     dataset = Dataset(image_patches, classes)
     assert dataset.image_patches is image_patches
-    assert dataset.classes is classes
-    assert (image_patches, classes) == tuple(dataset)
+    assert dataset.classes == sorted(classes)
+    assert (image_patches, sorted(classes)) == tuple(dataset)
     str(dataset)
 
 def test_dataset_generate_classes():
