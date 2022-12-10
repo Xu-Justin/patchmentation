@@ -60,6 +60,9 @@ def save_image_array(image_array: np.ndarray, path: str) -> Image:
         raise TypeError(f'Received unexpected image array with channel {channel}')
 
 def save_mask_image_array_temporary(mask_image_array: np.ndarray) -> Mask:
+    height, width = mask_image_array.shape
+    if (mask_image_array == EmptyMask(width, height).image_array).all():
+        return EmptyMask(width, height)
     temporary_file = tempfile.NamedTemporaryFile(suffix='.png', dir=temporary_folder.name)
     path = temporary_file.name
     mask = save_mask_image_array(mask_image_array, path)
@@ -67,10 +70,16 @@ def save_mask_image_array_temporary(mask_image_array: np.ndarray) -> Mask:
     return mask
 
 def save_image_array_temporary(image_array: np.ndarray) -> Image:
+    channel = image_array.shape[2]
+    if channel not in (3, 4):
+        raise TypeError(f'Received unexpected image array with channel {channel}')
     temporary_file = tempfile.NamedTemporaryFile(suffix='.png', dir=temporary_folder.name)
     path = temporary_file.name
-    image = save_image_array(image_array, path)
+    image = save_image_array(image_array[:, :, :3], path)
     setattr(image, ATTR_TEMPORARY_FILE, temporary_file)
+    if channel == 4:
+        mask = save_mask_image_array_temporary(image_array[:, :, 3])
+        image.mask = mask
     return image
 
 def load_yolo_dataset(folder_images: str, folder_annotations: str, file_names: str) -> Dataset:

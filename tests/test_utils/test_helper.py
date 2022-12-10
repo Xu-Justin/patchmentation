@@ -40,14 +40,14 @@ def test_generate_mask_empty_1():
     width = 100
     height = 20
     mask = helper.generate_Mask_Empty(width, height)
-    assert isinstance(mask, Mask)
+    assert isinstance(mask, EmptyMask)
     assert mask == EmptyMask(width, height)
 
 def test_generate_mask_empty_2():
     width = 20
     height = 100
     mask = helper.generate_Mask_Empty(width, height)
-    assert isinstance(mask, Mask)
+    assert isinstance(mask, EmptyMask)
     assert mask == EmptyMask(width, height)
 
 def test_generate_image_1():
