@@ -9,6 +9,7 @@ import functools
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Union, Tuple
 from copy import deepcopy
+from tqdm import tqdm
 
 temporary_folder = tempfile.TemporaryDirectory()
 ATTR_TEMPORARY_FILE = 'temporary_file'
@@ -92,7 +93,7 @@ def load_yolo_names(file_names: str) -> List[str]:
     classes = []
     with open(file_names, 'r') as f:
         lines = f.readlines()
-        for line in lines:
+        for line in tqdm(lines, desc=f'load_yolo_names'):
             line = line.strip()
             class_name = line
             if class_name == '': continue
@@ -101,7 +102,7 @@ def load_yolo_names(file_names: str) -> List[str]:
 
 def load_yolo_image_patches(folder_images: str, folder_annotations: str, classes: List[str]) -> List[ImagePatch]:
     image_patches = []
-    for file_name in os.listdir(folder_images):
+    for file_name in tqdm(os.listdir(folder_images), desc=f'load_yolo_image_patches'):
         if file_name.startswith('.'): continue
         if not(file_name.endswith(('.jpg', '.png'))): continue
         file_image = os.path.join(folder_images, file_name)
@@ -151,7 +152,7 @@ def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
 def load_coco_categories(data_json: dict) -> List[str]:
     coco_classes = data_json['categories']
     classes = []
-    for coco_class in coco_classes:
+    for coco_class in tqdm(coco_classes, desc=f'load_coco_categories'):
         class_name = coco_class['name']
         classes.append(class_name)
     return classes
@@ -160,7 +161,7 @@ def load_coco_image_patches(data_json: dict, folder_images: str, classes: List[s
     images = load_coco_images(data_json['images'], folder_images)
     annotations = load_coco_annotations(data_json['annotations'], classes)
     image_patches = []
-    for image_id in images.keys():
+    for image_id in tqdm(images.keys(), desc=f'load_coco_image_patches'):
         image = images[image_id]
         patches = []
         if image_id in annotations.keys():
@@ -217,7 +218,7 @@ def load_pascal_voc_imagesets(file_imagesets: str) -> List[str]:
     imagesets = []
     with open(file_imagesets, 'r') as f:
         lines = f.readlines()
-        for line in lines:
+        for line in tqdm(lines, desc=f'load_pascal_voc_imagesets'):
             line = line.strip()
             imagesets.append(line)
     return imagesets
@@ -226,7 +227,7 @@ def load_pascal_voc_image_patches(folder_images: str, folder_annotations: str, i
     images = load_pacal_voc_images(folder_images, imagesets)
     annotations = load_pascal_voc_annotations(folder_annotations, imagesets)
     image_patches = []
-    for image, annotation in zip(images, annotations):
+    for image, annotation in tqdm(zip(images, annotations), desc=f'load_pascal_voc_image_patches'):
         patches = []
         for bbox, class_name in annotation:
             patch = Patch(image, bbox, class_name)
