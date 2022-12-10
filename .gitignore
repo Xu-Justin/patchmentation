@@ -5,8 +5,9 @@
 htmlcov/*
 
 # development tools
-dev.ipynb
-.ipynb_checkpoints
+*.ipynb
+.ipynb_checkpoints/
+temp*
 
 # deployment
 build/*

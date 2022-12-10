@@ -44,7 +44,8 @@ INSTALL_REQUIRES = [
     'typing-extensions>=4.3.0',
     'scipy>=1.9.3',
     'appdirs==1.4.4',
-    'wget==3.2'
+    'wget==3.2',
+    'tqdm'
 ]
 CLASSIFIERS = [
     'Programming Language :: Python :: 3',
