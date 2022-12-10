@@ -71,13 +71,18 @@ def test_patch_augmentation_3():
     
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
     background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1)
-    
+    background_image_2 = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_2)
+
     zero_patches = [
         Patch(dataset.image_patches[0].image, BBox(1, 1, 1, 2), None),
         Patch(dataset.image_patches[1].image, BBox(1, 1, 2, 1), None)
     ]
 
-    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches + zero_patches
+    overflow_patches = [
+        Patch(background_image_2, BBox(0, 0, background_image_2.width, background_image_2.height), None)
+    ]
+
+    patches = dataset.image_patches[0].patches + dataset.image_patches[1].patches + dataset.image_patches[2].patches + zero_patches + overflow_patches
     image_patch = patch_augmentation(patches, background_image, actions=actions)
     assert isinstance(image_patch, ImagePatch)
 
@@ -112,4 +117,22 @@ def test_patch_augmentation_4():
     patches = dataset.image_patches[2].patches
     image_patch = patch_augmentation(patches, image_patch, visibility_threshold, actions, True, loader.save_mask_image_array_temporary(patch_distribution))
 
+    assert isinstance(image_patch, ImagePatch)
+
+def test_patch_augmentation_5():
+    dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
+    background_image = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1)
+    background_image_2 = Image(SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_2)
+
+    zero_patches = [
+        Patch(dataset.image_patches[0].image, BBox(1, 1, 1, 2), None),
+        Patch(dataset.image_patches[1].image, BBox(1, 1, 2, 1), None)
+    ]
+
+    overflow_patches = [
+        Patch(background_image_2, BBox(0, 0, background_image_2.width, background_image_2.height), None)
+    ]
+
+    patches = zero_patches + overflow_patches
+    image_patch = patch_augmentation(patches, background_image)
     assert isinstance(image_patch, ImagePatch)
