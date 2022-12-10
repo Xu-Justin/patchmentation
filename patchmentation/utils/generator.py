@@ -15,7 +15,7 @@ def generate_yolo_dataset(dataset: Dataset, n_images: int, folder_images: str, f
     for image_patch in dataset.image_patches:
         patches += image_patch.patches
     
-    for i in tqdm(range(n_images)):
+    for i in tqdm(range(n_images), desc='generate_yolo_dataset'):
         image = random.choice(dataset.image_patches)
         result = patch_augmentation(patches, image, **kwargs)
         file_image = os.path.join(folder_images, f'{i}.jpg')
