@@ -141,6 +141,53 @@ def convert_yolo_bbox(x_center: float, y_center: float, yolo_width: float, yolo_
     bbox = BBox(xmin, ymin, xmax, ymax)
     return bbox
 
+def save_yolo_dataset(dataset: Dataset, folder_images: str, folder_annotations: str, file_names: str) -> None:
+    save_yolo_names(dataset.classes, file_names)
+    save_yolo_image_patches(dataset.image_patches, dataset.classes, folder_images, folder_annotations)
+
+def save_yolo_names(classes: List[str], file_names: str) -> None:
+    os.makedirs(os.path.dirname(file_names), exist_ok=True)
+    if os.path.exists(file_names):
+        raise FileExistsError(file_names)
+    with open(file_names, 'w') as f:
+        for class_name in classes:
+            f.write(f'{class_name}\n')
+
+def save_yolo_image_patches(image_patches: List[ImagePatch], classes: List[str], folder_images: str, folder_annotations: str) -> None:
+    os.makedirs(folder_images)
+    os.makedirs(folder_annotations)
+    for i, image_patch in tqdm(enumerate(image_patches), desc='save_yolo_image_patches'):
+        file_image = os.path.join(folder_images, f'{i}.jpg')
+        file_annotation = os.path.join(folder_annotations, f'{i}.txt')
+        save_yolo_image_patch(image_patch, classes, file_image, file_annotation)
+
+def save_yolo_image_patch(image_patch: ImagePatch, classes: List[str], file_image: str, file_annotation: str) -> None:
+    save_yolo_image(image_patch.image, file_image)
+    save_yolo_patches(image_patch.patches, classes, file_annotation)
+
+def save_yolo_image(image: Image, file_image: str) -> None:
+    os.makedirs(os.path.dirname(file_image), exist_ok=True)
+    if os.path.exists(file_image):
+        raise FileExistsError(file_image)
+    _save_image_array(image.image_array, file_image)
+    
+def save_yolo_patches(patches: List[Patch], classes: List[str], file_annotation: str) -> None:
+    os.makedirs(os.path.dirname(file_annotation), exist_ok=True)
+    if os.path.exists(file_annotation):
+        raise FileExistsError(file_annotation)
+    with open(file_annotation, 'w') as f:
+        for patch in patches:
+            class_index = classes.index(patch.class_name)
+            x_center, y_center, yolo_width, yolo_height = convert_bbox_yolo(patch.bbox, patch.image.width, patch.image.height)
+            f.write(f'{class_index} {x_center:.8f} {y_center:.8f} {yolo_width:.8f} {yolo_height:.8f}\n')
+
+def convert_bbox_yolo(bbox: BBox, image_width: int, image_height: int) -> Tuple[float, float, float, float]:
+    x_center = ((bbox.xmin + bbox.xmax) / 2) / image_width
+    y_center = ((bbox.ymin + bbox.ymax) / 2) / image_height
+    yolo_width = bbox.width / image_width
+    yolo_height = bbox.height / image_height
+    return x_center, y_center, yolo_width, yolo_height
+
 def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
     with open(file_annotations, 'r') as file_coco: 
         data = json.load(file_coco)
@@ -203,6 +250,9 @@ def convert_coco_bbox(x: int, y: int, width: int, height: int) -> BBox:
     bbox = BBox(xmin, ymin, xmax, ymax)
     return bbox
     
+def save_coco_dataset(dataset: Dataset, folder_images: str, file_annotations: str) -> None:
+    raise NotImplementedError
+
 def load_pascal_voc_dataset(folder_images: str, folder_annotations: str, file_imagesets: str) -> Dataset:
     imagesets = load_pascal_voc_imagesets(file_imagesets)
     image_patches = load_pascal_voc_image_patches(folder_images, folder_annotations, imagesets)
@@ -287,3 +337,6 @@ def convert_pascal_voc_bbox(xmin: int, ymin: int, xmax: int, ymax: int) -> BBox:
     ymax = int(ymax)
     bbox = BBox(xmin, ymin, xmax, ymax)
     return bbox
+
+def save_pascal_voc_dataset(dataset: Dataset, folder_images: str, folder_annotations: str, file_imagesets: str) -> Dataset:
+    raise NotImplementedError
