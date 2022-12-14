@@ -221,7 +221,7 @@ def load_coco_image_patches(data_json: dict, folder_images: str, classes: List[s
 
 def load_coco_images(coco_images: List, folder_images: str) -> Dict[int, Image]:
     images = {}
-    for coco_image in coco_images:
+    for coco_image in tqdm(coco_images, desc=f'load_coco_images'):
         id = coco_image['id']
         file_name = coco_image['file_name']
         path = os.path.join(folder_images, file_name)
@@ -231,7 +231,7 @@ def load_coco_images(coco_images: List, folder_images: str) -> Dict[int, Image]:
 
 def load_coco_annotations(coco_annotations: List, classes: List[str]) -> Dict[int, List[Tuple[BBox, str]]]:
     annotations = {}
-    for coco_annotation in coco_annotations:
+    for coco_annotation in tqdm(coco_annotations, desc=f'load_coco_annotations'):
         image_id = coco_annotation['image_id']
         category_id = coco_annotation['category_id']
         coco_bbox = coco_annotation['bbox']
@@ -274,7 +274,7 @@ def load_pascal_voc_imagesets(file_imagesets: str) -> List[str]:
     return imagesets
 
 def load_pascal_voc_image_patches(folder_images: str, folder_annotations: str, imagesets: List[str]) -> List[ImagePatch]:
-    images = load_pacal_voc_images(folder_images, imagesets)
+    images = load_pascal_voc_images(folder_images, imagesets)
     annotations = load_pascal_voc_annotations(folder_annotations, imagesets)
     image_patches = []
     for image, annotation in tqdm(list(zip(images, annotations)), desc=f'load_pascal_voc_image_patches'):
@@ -286,9 +286,9 @@ def load_pascal_voc_image_patches(folder_images: str, folder_annotations: str, i
         image_patches.append(image_patch)
     return image_patches
     
-def load_pacal_voc_images(folder_images: str, imagesets: List[str]) -> List[Image]:
+def load_pascal_voc_images(folder_images: str, imagesets: List[str]) -> List[Image]:
     images = []
-    for file_name in imagesets:
+    for file_name in tqdm(imagesets, desc=f'load_pascal_voc_images'):
         path = None
         for ext in ['.jpg', '.png', '.jpeg', '']:
             path = os.path.join(folder_images, file_name + ext)
@@ -301,7 +301,7 @@ def load_pacal_voc_images(folder_images: str, imagesets: List[str]) -> List[Imag
 
 def load_pascal_voc_annotations(folder_annotations: str, imagesets: List[str]) -> List[List[Tuple[BBox, str]]]:
     annotations = []
-    for file_name in imagesets:
+    for file_name in tqdm(imagesets, desc=f'load_pascal_voc_annotations'):
         path = None
         ext = '.xml'
         path = os.path.join(folder_annotations, file_name + ext)
