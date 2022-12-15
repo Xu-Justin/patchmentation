@@ -33,19 +33,22 @@ class PascalVOC2007(Data):
 
     def load_train(self) -> Dataset:
         if not self.exists_train():
-            self.download_train_val(overwrite=True)
+            if not self.exists_tar_train_val():
+                self.download_train_val(overwrite=True)
             self.extract_train_val(overwrite=True)
         return loader.load_pascal_voc_dataset(FOLDER_IMAGES, FOLDER_ANNOTATIONS, FILE_IMAGESETS_TRAIN)
         
     def load_val(self) -> Dataset:
         if not self.exists_val():
-            self.download_train_val(overwrite=True)
+            if not self.exists_tar_train_val():
+                self.download_train_val(overwrite=True)            
             self.extract_train_val(overwrite=True)
         return loader.load_pascal_voc_dataset(FOLDER_IMAGES, FOLDER_ANNOTATIONS, FILE_IMAGESETS_VAL)
 
     def load_test(self) -> Dataset:
         if not self.exists_test():
-            self.download_test(overwrite=True)
+            if not self.exists_tar_test():
+                self.download_test(overwrite=True)
             self.extract_test(overwrite=True)
         return loader.load_pascal_voc_dataset(FOLDER_IMAGES, FOLDER_ANNOTATIONS, FILE_IMAGESETS_TEST)
 
