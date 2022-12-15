@@ -37,6 +37,7 @@ DATASET_FORMAT_PASCAL_VOC = 'Pascal VOC'
 DATASET_DATA_PASCAL_VOC_2007_TRAIN = 'Pascal VOC 2007 - Train'
 DATASET_DATA_PASCAL_VOC_2007_VAL = 'Pascal VOC 2007 - Val'
 DATASET_DATA_PASCAL_VOC_2007_TEST = 'Pascal VOC 2007 - Test'
+DATASET_DATA_PENN_FUDAN_PED = 'Penn-Fudan Pedestrian'
 
 TRANSFORM_RESIZE = 'Resize'
 TRANSFORM_RANDOM_RESIZE = 'Random Resize'
@@ -94,7 +95,8 @@ def dataset_data(key: str) -> Dataset:
     options = [
         DATASET_DATA_PASCAL_VOC_2007_TRAIN,
         DATASET_DATA_PASCAL_VOC_2007_VAL,
-        DATASET_DATA_PASCAL_VOC_2007_TEST
+        DATASET_DATA_PASCAL_VOC_2007_TEST,
+        DATASET_DATA_PENN_FUDAN_PED
     ]
     option = st.radio('Dataset Source', options, key=f'{key}-option')
     return load_data_dataset(option)
@@ -109,6 +111,9 @@ def load_data_dataset(option: str) -> Dataset:
 
     if option == DATASET_DATA_PASCAL_VOC_2007_TEST:
         return patchmentation.data.PascalVOC2007().load('test')
+
+    if option == DATASET_DATA_PENN_FUDAN_PED:
+        return patchmentation.data.PennFudanPed().load()
 
     raise Exception(f'Unknown option {option}')
 
