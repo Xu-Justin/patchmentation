@@ -109,6 +109,12 @@ def generate_Mask_Empty(width: int = None, height: int = None) -> Mask:
     image_array = np.full((height, width), 255, np.uint8)
     return loader.save_mask_image_array_temporary(image_array)
 
+def generate_zero_Mask(width: int = None, height: int = None) -> Mask:
+    if width is None: width = generate_width()
+    if height is None: height = generate_height()
+    image_array = np.full((height, width), 0, np.uint8)
+    return loader.save_mask_image_array_temporary(image_array)
+
 def generate_Image(width: int = None, height: int = None, mask: Union[Mask, bool] = None) -> Image:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
