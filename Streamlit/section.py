@@ -16,10 +16,6 @@ import random
 from typing import List, Tuple, Union, Dict, Any
 from functools import lru_cache
 
-# SAMPLE_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
-# SAMPLE_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
-# SAMPLE_FILE_NAMES = 'dataset/sample_patchmentation/source/obj.names'
-
 SAMPLE_BACKGROUND_IMAGE = 'dataset/sample_patchmentation/background/background_1.jpg'
 
 YOLO_FOLDER_IMAGES = 'dataset/sample_format_yolo/obj_train_data/'
