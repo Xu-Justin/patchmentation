@@ -67,10 +67,10 @@ class PascalVOC2007(Data):
         self.extract_test(overwrite)
 
     def extract_train_val(self, overwrite: bool = False) -> None:
-        datautils.extract_tar(FILE_TAR_TRAIN_VAL, FOLDER_CACHE, overwrite)
+        datautils.extract_tar(FILE_TAR_TRAIN_VAL, FOLDER, overwrite)
 
     def extract_test(self, overwrite: bool = False) -> None:
-        datautils.extract_tar(FILE_TAR_TEST, FOLDER_CACHE, overwrite)
+        datautils.extract_tar(FILE_TAR_TEST, FOLDER, overwrite)
 
     def exists_archive(self) -> bool:
         return self.exists_train_val() and self.exists_tar_test()
