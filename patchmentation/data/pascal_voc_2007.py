@@ -7,103 +7,136 @@ import os
 DOWNLOAD_URL_TRAIN_VAL = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar'
 DOWNLOAD_URL_TEST = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar'
 
-FOLDER_CACHE = os.path.join(datautils.FOLDER_CACHE, 'PascalVOC2007')
-FILE_TAR_TRAIN_VAL = os.path.join(datautils.FOLDER_CACHE, 'VOCtrainval_06-Nov-2007.tar')
-FILE_TAR_TEST = os.path.join(datautils.FOLDER_CACHE, 'VOCtest_06-Nov-2007.tar')
-
-FOLDER = os.path.join(FOLDER_CACHE, 'VOCdevkit', 'VOC2007')
-FOLDER_IMAGES = os.path.join(FOLDER, 'JPEGImages')
-FOLDER_ANNOTATIONS = os.path.join(FOLDER, 'Annotations')
-FOLDER_IMAGESETS = os.path.join(FOLDER, 'ImageSets', 'Main')
+FOLDER_IMAGES = os.path.join('JPEGImages')
+FOLDER_ANNOTATIONS = os.path.join('Annotations')
+FOLDER_IMAGESETS = os.path.join('ImageSets/Main')
 FILE_IMAGESETS_TRAIN = os.path.join(FOLDER_IMAGESETS, 'train.txt')
 FILE_IMAGESETS_VAL = os.path.join(FOLDER_IMAGESETS, 'val.txt')
 FILE_IMAGESETS_TEST = os.path.join(FOLDER_IMAGESETS, 'test.txt')
 
 class PascalVOC2007(Data):
+
+    ex = Exception('This method/attribute is not available. Use PascalVOC2007TrainVal or PascalVOC2007Test instead.')
+
+    @property
+    def name(self) -> str:
+        return 'pascal-voc-2007'
+
+    @property
+    def root(self) -> str:
+        raise self.ex
+
+    @property
+    def folder(self) -> str:
+        raise self.ex
+
+    @property
+    def archive_name(self) -> str:
+        raise self.ex
+
+    @property
+    def file_archive(self) -> str:
+        raise self.ex
+
+    def load(self, category: str) -> Dataset:
+        if category == 'train' or category == 'val':
+            return PascalVOC2007TrainVal().load(category)
+        if category == 'test':
+            return PascalVOC2007Test().load()
+        raise ValueError(f'Unexpected category {category}')
+
+    def download(self, overwrite: bool = False) -> None:
+        PascalVOC2007TrainVal().download(overwrite)
+        PascalVOC2007Test().download(overwrite)
+
+    def extract(self, overwrite: bool = False) -> None:
+        PascalVOC2007TrainVal().extract(overwrite)
+        PascalVOC2007Test().extract(overwrite)
+
+    def exists_archive(self) -> bool:
+        return PascalVOC2007TrainVal().exists_archive() and PascalVOC2007Test().exists_archive()
+
+    def exists(self) -> bool:
+        return PascalVOC2007TrainVal().exists() and PascalVOC2007Test().exists()
+
+    def remove_archive(self) -> None:
+        PascalVOC2007TrainVal().remove_archive()
+        PascalVOC2007Test().remove_archive()
+        
+    def remove(self) -> None:
+        PascalVOC2007TrainVal().remove()
+        PascalVOC2007Test().remove()
+
+    def initialize(self) -> None:
+        PascalVOC2007TrainVal().initialize()
+        PascalVOC2007Test().initialize()
+
+class PascalVOC2007TrainVal(Data):
+
+    @property
+    def name(self) -> str:
+        return 'pascal-voc-2007-train-val'
+
+    @property
+    def folder_images(self) -> str:
+        return os.path.join(self.folder, FOLDER_IMAGES)
+
+    @property
+    def folder_annotations(self) -> str:
+        return os.path.join(self.folder, FOLDER_ANNOTATIONS)
+
+    @property
+    def file_imagesets_train(self) -> str:
+        return os.path.join(self.folder, FILE_IMAGESETS_TRAIN)
+
+    @property
+    def file_imagesets_val(self) -> str:
+        return os.path.join(self.folder, FILE_IMAGESETS_VAL)
     
     def load(self, category: str) -> Dataset:
+        self.initialize()
         if category == 'train':
             return self.load_train()
         if category == 'val':
             return self.load_val()
-        if category == 'test':
-            return self.load_test()
         raise ValueError(f'Unexpected category {category}')
 
     def load_train(self) -> Dataset:
-        if not self.exists_train():
-            if not self.exists_tar_train_val():
-                self.download_train_val(overwrite=True)
-            self.extract_train_val(overwrite=True)
-        return loader.load_pascal_voc_dataset(FOLDER_IMAGES, FOLDER_ANNOTATIONS, FILE_IMAGESETS_TRAIN)
-        
+        return loader.load_pascal_voc_dataset(self.folder_images, self.folder_annotations, self.file_imagesets_train)
+    
     def load_val(self) -> Dataset:
-        if not self.exists_val():
-            if not self.exists_tar_train_val():
-                self.download_train_val(overwrite=True)            
-            self.extract_train_val(overwrite=True)
-        return loader.load_pascal_voc_dataset(FOLDER_IMAGES, FOLDER_ANNOTATIONS, FILE_IMAGESETS_VAL)
-
-    def load_test(self) -> Dataset:
-        if not self.exists_test():
-            if not self.exists_tar_test():
-                self.download_test(overwrite=True)
-            self.extract_test(overwrite=True)
-        return loader.load_pascal_voc_dataset(FOLDER_IMAGES, FOLDER_ANNOTATIONS, FILE_IMAGESETS_TEST)
-
+        return loader.load_pascal_voc_dataset(self.folder_images, self.folder_annotations, self.file_imagesets_val)
+        
     def download(self, overwrite: bool = False) -> None:
-        self.download_train_val(overwrite)
-        self.download_test(overwrite)
-
-    def download_train_val(self, overwrite: bool = False) -> None:
-        datautils.download(DOWNLOAD_URL_TRAIN_VAL, FILE_TAR_TRAIN_VAL, overwrite)
-
-    def download_test(self, overwrite: bool = False) -> None:
-        datautils.download(DOWNLOAD_URL_TEST, FILE_TAR_TEST, overwrite)
+        datautils.download(DOWNLOAD_URL_TRAIN_VAL, self.file_archive, overwrite)
 
     def extract(self, overwrite: bool = False) -> None:
-        self.extract_train_val(overwrite)
-        self.extract_test(overwrite)
+        datautils.extract_tar(self.file_archive, self.folder, overwrite)
 
-    def extract_train_val(self, overwrite: bool = False) -> None:
-        datautils.extract_tar(FILE_TAR_TRAIN_VAL, FOLDER_CACHE, overwrite)
+class PascalVOC2007Test(Data):
 
-    def extract_test(self, overwrite: bool = False) -> None:
-        datautils.extract_tar(FILE_TAR_TEST, FOLDER_CACHE, overwrite)
+    @property
+    def name(self) -> str:
+        return 'pascal-voc-2007-test'
 
-    def exists_archive(self) -> bool:
-        return self.exists_train_val() and self.exists_tar_test()
+    @property
+    def folder_images(self) -> str:
+        return os.path.join(self.folder, FOLDER_IMAGES)
 
-    def exists_tar_train_val(self) -> bool:
-        return os.path.exists(FILE_TAR_TRAIN_VAL)
+    @property
+    def folder_annotations(self) -> str:
+        return os.path.join(self.folder, FOLDER_ANNOTATIONS)
 
-    def exists_tar_test(self) -> bool:
-        return os.path.exists(FILE_TAR_TEST)
-
-    def exists(self) -> bool:
-        return self.exists_train_val() and self.exists_test()
-
-    def exists_train_val(self) -> bool:
-        return self.exists_train() and self.exists_val()
-
-    def exists_train(self) -> bool:
-        return os.path.exists(FILE_IMAGESETS_TRAIN)
-
-    def exists_val(self) -> bool:
-        return os.path.exists(FILE_IMAGESETS_VAL)
-
-    def exists_test(self) -> bool:
-        return os.path.exists(FILE_IMAGESETS_TEST)
-
-    def remove_archive(self) -> None:
-        self.remove_tar_train_val()
-        self.remove_tar_test()
+    @property
+    def file_imagesets(self) -> str:
+        return os.path.join(self.folder, FILE_IMAGESETS_TEST)
     
-    def remove_tar_train_val(self) -> None:
-        datautils.rm(FILE_TAR_TRAIN_VAL)
+    def load(self) -> Dataset:
+        self.initialize()
+        return loader.load_pascal_voc_dataset(self.folder_images, self.folder_annotations, self.file_imagesets)
 
-    def remove_tar_test(self) -> None:
-        datautils.rm(FILE_TAR_TEST)
+    def download(self, overwrite: bool = False) -> None:
+        datautils.download(DOWNLOAD_URL_TEST, self.file_archive, overwrite)
 
-    def remove(self) -> None:
-        datautils.rm(FOLDER)
+    def extract(self, overwrite: bool = False) -> None:
+        datautils.extract_tar(self.file_archive, self.folder, overwrite)
