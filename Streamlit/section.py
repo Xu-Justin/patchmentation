@@ -16,9 +16,9 @@ import random
 from typing import List, Tuple, Union, Dict, Any
 from functools import lru_cache
 
-SAMPLE_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
-SAMPLE_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
-SAMPLE_FILE_NAMES = 'dataset/sample_patchmentation/source/obj.names'
+# SAMPLE_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
+# SAMPLE_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
+# SAMPLE_FILE_NAMES = 'dataset/sample_patchmentation/source/obj.names'
 
 SAMPLE_BACKGROUND_IMAGE = 'dataset/sample_patchmentation/background/background_1.jpg'
 
@@ -29,20 +29,18 @@ YOLO_FILE_NAMES = 'dataset/sample_format_yolo/obj.names'
 COCO_FOLDER_IMAGES = 'dataset/sample_format_coco/images/'
 COCO_FILE_ANNOTATIONS = 'dataset/sample_format_coco/annotations/instances_default.json'
 
-SAMPLE_PASCAL_VOC_FOLDER_IMAGES = 'dataset/sample_format_pascal_voc/JPEGImages/'
-SAMPLE_PASCAL_VOC_FOLDER_ANNOTATIONS = 'dataset/sample_format_pascal_voc/Annotations/'
-SAMPLE_PASCAL_VOC_FILE_IMAGESETS = 'dataset/sample_format_pascal_voc/ImageSets/Main/default.txt'
+PASCAL_VOC_FOLDER_IMAGES = 'dataset/sample_format_pascal_voc/JPEGImages/'
+PASCAL_VOC_FOLDER_ANNOTATIONS = 'dataset/sample_format_pascal_voc/Annotations/'
+PASCAL_VOC_FILE_IMAGESETS = 'dataset/sample_format_pascal_voc/ImageSets/Main/default.txt'
 
-DATASET_SAMPLE = 'Sample'
+DATASET_DATA = 'Data'
 DATASET_FORMAT_YOLO = 'YOLO'
 DATASET_FORMAT_COCO = 'COCO'
 DATASET_FORMAT_PASCAL_VOC = 'Pascal VOC'
 
-DATASET_SOURCE_SAMPLE = 'Sample'
-DATASET_SOURCE_CUSTOM = 'Custom'
-DATASET_SOURCE_PASCAL_VOC_2007_TRAIN = 'Pascal VOC 2007 - Train'
-DATASET_SOURCE_PASCAL_VOC_2007_VAL = 'Pascal VOC 2007 - Val'
-DATASET_SOURCE_PASCAL_VOC_2007_TEST = 'Pascal VOC 2007 - Test'
+DATASET_DATA_PASCAL_VOC_2007_TRAIN = 'Pascal VOC 2007 - Train'
+DATASET_DATA_PASCAL_VOC_2007_VAL = 'Pascal VOC 2007 - Val'
+DATASET_DATA_PASCAL_VOC_2007_TEST = 'Pascal VOC 2007 - Test'
 
 TRANSFORM_RESIZE = 'Resize'
 TRANSFORM_RANDOM_RESIZE = 'Random Resize'
@@ -69,14 +67,14 @@ COMPARATOR_GREATER_EQUAL = 'Greater Equal'
 def dataset(key: str) -> Dataset:
     st.subheader('Dataset')
     tab = stx.tab_bar(data=[
-        stx.TabBarItemData(id=DATASET_SAMPLE, title=DATASET_SAMPLE, description=None),
         stx.TabBarItemData(id=DATASET_FORMAT_YOLO, title=DATASET_FORMAT_YOLO, description=None),
         stx.TabBarItemData(id=DATASET_FORMAT_COCO, title=DATASET_FORMAT_COCO, description=None),
-        stx.TabBarItemData(id=DATASET_FORMAT_PASCAL_VOC, title=DATASET_FORMAT_PASCAL_VOC, description=None)
+        stx.TabBarItemData(id=DATASET_FORMAT_PASCAL_VOC, title=DATASET_FORMAT_PASCAL_VOC, description=None),
+        stx.TabBarItemData(id=DATASET_DATA, title=DATASET_DATA, description=None),
     ])
 
-    if tab == DATASET_SAMPLE:
-        dataset = dataset_sample(f'{key}-tab_dataset_sample')
+    if tab == DATASET_DATA:
+        dataset = dataset_data(f'{key}-tab_dataset_data')
 
     elif tab == DATASET_FORMAT_YOLO:
         dataset = dataset_yolo(f'{key}-tab_dataset_format_yolo')
@@ -88,7 +86,7 @@ def dataset(key: str) -> Dataset:
         dataset = dataset_pascal_voc(f'{key}-tab_dataset_format_pascal_voc')
 
     else:
-        dataset = dataset_sample(f'{key}-tab_dataset_sample_default')
+        dataset = dataset_yolo(f'{key}-tab_dataset_sample_default')
 
     if dataset is None:
         st.error(f'ERROR: Invalid dataset')
@@ -96,11 +94,27 @@ def dataset(key: str) -> Dataset:
     else:
         return dataset
 
-def dataset_sample(key: str) -> Dataset:
-    folder_images = st.text_input('Path to YOLO Images', SAMPLE_FOLDER_IMAGES, disabled=True, key=f'{key}-sample-folder_images')
-    folder_annotations = st.text_input('Path to YOLO Annotations', SAMPLE_FOLDER_ANNOTATIONS, disabled=True, key=f'{key}-sample-folder_annotations')
-    file_names = st.text_input('Path to YOLO Names', SAMPLE_FILE_NAMES, disabled=True, key=f'{key}-sample-file_names')
-    return load_yolo_dataset(folder_images, folder_annotations, file_names)
+def dataset_data(key: str) -> Dataset:
+    options = [
+        DATASET_DATA_PASCAL_VOC_2007_TRAIN,
+        DATASET_DATA_PASCAL_VOC_2007_VAL,
+        DATASET_DATA_PASCAL_VOC_2007_TEST
+    ]
+    option = st.radio('Dataset Source', options, key=f'{key}-option')
+    return load_data_dataset(option)
+
+@lru_cache(maxsize=1)
+def load_data_dataset(option: str) -> Dataset:
+    if option == DATASET_DATA_PASCAL_VOC_2007_TRAIN:
+        return patchmentation.data.PascalVOC2007().load('train')
+    
+    if option == DATASET_DATA_PASCAL_VOC_2007_VAL:
+        return patchmentation.data.PascalVOC2007().load('val')
+
+    if option == DATASET_DATA_PASCAL_VOC_2007_TEST:
+        return patchmentation.data.PascalVOC2007().load('test')
+
+    raise Exception(f'Unknown option {option}')
 
 def dataset_yolo(key: str) -> Dataset:
     folder_images = st.text_input('Path to YOLO Images', YOLO_FOLDER_IMAGES, key=f'{key}-yolo-folder_images')
@@ -122,71 +136,9 @@ def load_coco_dataset(folder_images: str, file_annotations: str) -> Dataset:
     return loader.load_coco_dataset(folder_images, file_annotations)
 
 def dataset_pascal_voc(key: str) -> Dataset:
-    source = st.radio('Dataset Source', [
-        DATASET_SOURCE_SAMPLE,
-        DATASET_SOURCE_PASCAL_VOC_2007_TRAIN,
-        DATASET_SOURCE_PASCAL_VOC_2007_VAL,
-        DATASET_SOURCE_PASCAL_VOC_2007_TEST,
-        DATASET_SOURCE_CUSTOM],
-        key=f'{key}-source')
-    
-    if source == DATASET_SOURCE_SAMPLE:
-        return _dataset_pascal_voc(
-            SAMPLE_PASCAL_VOC_FOLDER_IMAGES,
-            SAMPLE_PASCAL_VOC_FOLDER_ANNOTATIONS,
-            SAMPLE_PASCAL_VOC_FILE_IMAGESETS,
-            disabled=True,
-            key=f'{key}-sample'
-        )
-
-    if source == DATASET_SOURCE_CUSTOM:
-        return _dataset_pascal_voc(
-            SAMPLE_PASCAL_VOC_FOLDER_IMAGES,
-            SAMPLE_PASCAL_VOC_FOLDER_ANNOTATIONS,
-            SAMPLE_PASCAL_VOC_FILE_IMAGESETS,
-            disabled=False,
-            key=f'{key}-sample'
-        )
-
-    if source == DATASET_SOURCE_PASCAL_VOC_2007_TRAIN:
-        if not os.path.exists(patchmentation.dataset._PASCAL_VOC_2007_FOLDER):
-            patchmentation.dataset._download_pascal_voc_2007()
-        return _dataset_pascal_voc(
-            patchmentation.dataset._PASCAL_VOC_2007_FOLDER_IMAGES,
-            patchmentation.dataset._PASCAL_VOC_2007_FOLDER_ANNOTATIONS,
-            patchmentation.dataset._PASCAL_VOC_2007_IMAGESETS_TRAIN,
-            disabled=True,
-            key=f'{key}-pascal-voc-2007-train'
-        )
-
-    if source == DATASET_SOURCE_PASCAL_VOC_2007_VAL:
-        if not os.path.exists(patchmentation.dataset._PASCAL_VOC_2007_FOLDER):
-            patchmentation.dataset._download_pascal_voc_2007()
-        return _dataset_pascal_voc(
-            patchmentation.dataset._PASCAL_VOC_2007_FOLDER_IMAGES,
-            patchmentation.dataset._PASCAL_VOC_2007_FOLDER_ANNOTATIONS,
-            patchmentation.dataset._PASCAL_VOC_2007_IMAGESETS_VAL,
-            disabled=True,
-            key=f'{key}-pascal-voc-2007-val'
-        )
-    
-    if source == DATASET_SOURCE_PASCAL_VOC_2007_TEST:
-        if not os.path.exists(patchmentation.dataset._PASCAL_VOC_2007_FOLDER):
-            patchmentation.dataset._download_pascal_voc_2007()
-        return _dataset_pascal_voc(
-            patchmentation.dataset._PASCAL_VOC_2007_FOLDER_IMAGES,
-            patchmentation.dataset._PASCAL_VOC_2007_FOLDER_ANNOTATIONS,
-            patchmentation.dataset._PASCAL_VOC_2007_IMAGESETS_TEST,
-            disabled=True,
-            key=f'{key}-pascal-voc-2007-test'
-        )
-
-    raise ValueError(f'Unexpected source value {source}')
-
-def _dataset_pascal_voc(default_folder_images: str, default_folder_annotations: str, default_file_imagesets: str, disabled: bool, key: str) -> Dataset:
-    folder_images = st.text_input('Path to Pascal VOC Images', default_folder_images, disabled=disabled, key=f'{key}-pascal-voc-folder_images')
-    folder_annotations = st.text_input('Path to Pascal VOC Annotations', default_folder_annotations, disabled=disabled, key=f'{key}-pascal-voc-folder_annotations')
-    file_imagesets = st.text_input('Path to Pascal VOC Image Sets', default_file_imagesets, disabled=disabled, key=f'{key}-pascal-voc-file_imagesets')
+    folder_images = st.text_input('Path to Pascal VOC Images', PASCAL_VOC_FOLDER_IMAGES, key=f'{key}-pascal-voc-folder_images')
+    folder_annotations = st.text_input('Path to Pascal VOC Annotations', PASCAL_VOC_FOLDER_ANNOTATIONS, key=f'{key}-pascal-voc-folder_annotations')
+    file_imagesets = st.text_input('Path to Pascal VOC Image Sets', PASCAL_VOC_FILE_IMAGESETS, key=f'{key}-pascal-voc-file_imagesets')
     return load_pascal_voc_dataset(folder_images, folder_annotations, file_imagesets)
 
 @lru_cache(maxsize=1)
