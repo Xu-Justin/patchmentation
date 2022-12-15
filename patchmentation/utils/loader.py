@@ -156,7 +156,7 @@ def save_yolo_names(classes: List[str], file_names: str) -> None:
 def save_yolo_image_patches(image_patches: List[ImagePatch], classes: List[str], folder_images: str, folder_annotations: str) -> None:
     os.makedirs(folder_images)
     os.makedirs(folder_annotations)
-    for i, image_patch in tqdm(enumerate(image_patches), desc='save_yolo_image_patches'):
+    for i, image_patch in enumerate(tqdm(image_patches, desc='save_yolo_image_patches')):
         file_image = os.path.join(folder_images, f'{i}.jpg')
         file_annotation = os.path.join(folder_annotations, f'{i}.txt')
         save_yolo_image_patch(image_patch, classes, file_image, file_annotation)
