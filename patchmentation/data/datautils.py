@@ -23,6 +23,15 @@ def download(url: str, file: str, overwrite: bool = False) -> None:
 def extract_tar(file: str, folder: str, overwrite: bool = False) -> None:
     print(f'extract tar from {file} to {folder} (overwrite={overwrite})')
     validate_not_exists(folder, overwrite)
-    os.makedirs(folder, exist_ok=True)
+    os.makedirs(folder)
     with tarfile.open(file) as f:
         f.extractall(folder)
+
+def extract_zip(file: str, folder: str, overwrite: bool = False) -> None:
+    print(f'extract zip from {file} to {folder} (overwrite={overwrite})')
+    validate_not_exists(folder, overwrite)
+    os.makedirs(folder)
+    shutil.unpack_archive(file, folder, 'zip')
+
+def remove_ext(file: str):
+    return os.path.splitext(file)[0]
