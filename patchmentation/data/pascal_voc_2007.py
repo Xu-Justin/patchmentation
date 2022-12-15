@@ -7,10 +7,11 @@ import os
 DOWNLOAD_URL_TRAIN_VAL = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar'
 DOWNLOAD_URL_TEST = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar'
 
-FILE_TAR_TRAIN_VAL = os.path.join(datautils.FOLDER_CACHE, 'VOCtrainval_06-Nov-2007.tar')
-FILE_TAR_TEST = os.path.join(datautils.FOLDER_CACHE, 'VOCtest_06-Nov-2007.tar')
+FOLDER_CACHE = os.path.join(datautils.FOLDER_CACHE, 'PascalVOC2007')
+FILE_TAR_TRAIN_VAL = os.path.join(FOLDER_CACHE, 'VOCtrainval_06-Nov-2007.tar')
+FILE_TAR_TEST = os.path.join(FOLDER_CACHE, 'VOCtest_06-Nov-2007.tar')
 
-FOLDER = os.path.join(datautils.FOLDER_CACHE, 'VOCdevkit', 'VOC2007')
+FOLDER = os.path.join(FOLDER_CACHE, 'VOCdevkit', 'VOC2007')
 FOLDER_IMAGES = os.path.join(FOLDER, 'JPEGImages')
 FOLDER_ANNOTATIONS = os.path.join(FOLDER, 'Annotations')
 FOLDER_IMAGESETS = os.path.join(FOLDER, 'ImageSets', 'Main')
@@ -63,10 +64,10 @@ class PascalVOC2007(Data):
         self.extract_test(overwrite)
 
     def extract_train_val(self, overwrite: bool = False) -> None:
-        datautils.extract_tar(FILE_TAR_TRAIN_VAL, datautils.FOLDER_CACHE, overwrite)
+        datautils.extract_tar(FILE_TAR_TRAIN_VAL, FOLDER_CACHE, overwrite)
 
     def extract_test(self, overwrite: bool = False) -> None:
-        datautils.extract_tar(FILE_TAR_TEST, datautils.FOLDER_CACHE, overwrite)
+        datautils.extract_tar(FILE_TAR_TEST, FOLDER_CACHE, overwrite)
 
     def exists_archive(self) -> bool:
         return self.exists_train_val() and self.exists_tar_test()
