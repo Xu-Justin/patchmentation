@@ -63,7 +63,7 @@ class Patch:
 
     @mask.setter
     def mask(self, value: Mask):
-        if value is not None:
+        if value is not None and self.image is not None:
             if value.width != self.image.width:
                 raise ValueError(f'mask width must equal to patch image width, but got mask width {value.width}, patch image width {self.image.width}')
             if value.height != self.image.height:
