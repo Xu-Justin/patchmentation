@@ -7,9 +7,10 @@ import os
 DOWNLOAD_URL_TRAIN_VAL = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar'
 DOWNLOAD_URL_TEST = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar'
 
-FOLDER_IMAGES = os.path.join('JPEGImages')
-FOLDER_ANNOTATIONS = os.path.join('Annotations')
-FOLDER_IMAGESETS = os.path.join('ImageSets/Main')
+FOLDER_VOC2007 = os.path.join('VOCdevkit', 'VOC2007')
+FOLDER_IMAGES = os.path.join(FOLDER_VOC2007, 'JPEGImages')
+FOLDER_ANNOTATIONS = os.path.join(FOLDER_VOC2007, 'Annotations')
+FOLDER_IMAGESETS = os.path.join(FOLDER_VOC2007, 'ImageSets/Main')
 FILE_IMAGESETS_TRAIN = os.path.join(FOLDER_IMAGESETS, 'train.txt')
 FILE_IMAGESETS_VAL = os.path.join(FOLDER_IMAGESETS, 'val.txt')
 FILE_IMAGESETS_TEST = os.path.join(FOLDER_IMAGESETS, 'test.txt')
