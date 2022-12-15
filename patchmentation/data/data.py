@@ -21,7 +21,7 @@ class Data(ABC):
 
     @property
     def archive_name(self) -> str:
-        return self.name
+        return self.name + '.archive'
 
     @property
     def file_archive(self) -> str:
