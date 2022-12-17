@@ -1,4 +1,4 @@
-from patchmentation.collections import BBox, Image, Patch, ImagePatch
+from patchmentation.collections import BBox, Image, Mask, Patch, ImagePatch
 from patchmentation.utils import loader
 
 import numpy as np
@@ -128,6 +128,15 @@ def overlay_image(image_a: Image, image_b: Image, bbox: BBox) -> Image:
     background_mask_image_array[bbox.ymin:bbox.ymax, bbox.xmin:bbox.xmax] = composite_alpha
     image_array = np.dstack((background_image_array, background_mask_image_array))
     return loader.save_image_array_temporary(image_array)
+
+def overlay_mask(mask_a: Mask, mask_b: Mask) -> Mask:
+    assert mask_a.width == mask_b.width
+    assert mask_a.height == mask_b.height
+
+    array_a = mask_a.image_array / 255.0
+    array_b = mask_b.image_array / 255.0
+    array = ((array_a * array_b) * 255).astype(np.uint8)
+    return loader.save_mask_image_array_temporary(array)
 
 def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
     if len(image_array.shape) == 2:
