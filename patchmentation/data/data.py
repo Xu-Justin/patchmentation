@@ -54,8 +54,8 @@ class Data(ABC):
     def remove(self) -> None:
         datautils.rm(self.folder)
 
-    def initialize(self) -> None:
-        if not self.exists():
-            if not self.exists_archive():
+    def initialize(self, extract: bool = False, download: bool = False) -> None:
+        if extract or not self.exists():
+            if download or not self.exists_archive():
                 self.download(overwrite=True)
             self.extract(overwrite=True)

@@ -68,9 +68,9 @@ class PascalVOC2007(Data):
         PascalVOC2007TrainVal().remove()
         PascalVOC2007Test().remove()
 
-    def initialize(self) -> None:
-        PascalVOC2007TrainVal().initialize()
-        PascalVOC2007Test().initialize()
+    def initialize(self, **kwargs) -> None:
+        PascalVOC2007TrainVal().initialize(**kwargs)
+        PascalVOC2007Test().initialize(**kwargs)
 
 class PascalVOC2007TrainVal(Data):
 
