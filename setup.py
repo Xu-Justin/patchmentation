@@ -43,9 +43,10 @@ INSTALL_REQUIRES = [
     'opencv-python>=4.6.0.66',
     'typing-extensions>=4.3.0',
     'scipy>=1.9.3',
-    'appdirs==1.4.4',
-    'wget==3.2',
-    'tqdm'
+    'appdirs>=1.4.4',
+    'wget>=3.2',
+    'tqdm>=4.64.1',
+    'requests>=2.28.1'
 ]
 CLASSIFIERS = [
     'Programming Language :: Python :: 3',
