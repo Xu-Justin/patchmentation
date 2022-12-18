@@ -1,6 +1,6 @@
 import setuptools
 
-version = '0.1.6'
+version = '0.1.7'
 
 def parse_version(version):
     _version = version.split('.')
