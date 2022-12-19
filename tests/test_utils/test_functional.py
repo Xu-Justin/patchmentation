@@ -739,6 +739,19 @@ def test_get_negative_patch_4():
     assert negative_patch.width > 0 and negative_patch.width <= image.width
     assert negative_patch.height > 0 and negative_patch.height <= image.height
 
+def test_get_overpatch_1():
+    image = helper.generate_ImagePatch()
+    iou_threshold = 0.5
+    overpatch = F.get_overpatch(image, iou_threshold)
+    assert overpatch is not None
+    assert len(overpatch.patches) > 0
+
+def test_get_overpatch_2():
+    image = helper.generate_ImagePatch()
+    iou_threshold = 1.0
+    overpatch = F.get_overpatch(image, iou_threshold, 100)
+    assert overpatch is None
+
 def test_get_weighted_random_2d_1():
     weight = np.array([
         [1, 1, 1],
