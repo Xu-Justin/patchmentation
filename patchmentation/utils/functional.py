@@ -198,7 +198,36 @@ def get_negative_patch(image_patch: Union[Image, ImagePatch], iou_threshold: flo
         if valid:
             return Patch(image, bbox, NEGATIVE_PATCH_CLASS_NAME)
     return None
-    
+
+def get_overpatch(image_patch: ImagePatch, iou_threshold: float, max_iteration: int = 300) -> ImagePatch:
+    image_width = image_patch.width
+    image_height = image_patch.height
+    for _ in range(max_iteration):
+        xmin = random.randint(0, image_width - 1)
+        ymin = random.randint(0, image_height - 1)
+        xmax = random.randint(xmin + 1, image_width)
+        ymax = random.randint(ymin + 1, image_height)
+        bbox = BBox(xmin, ymin, xmax, ymax)
+        positive_patches: List[Patch] = []
+        for positive_patch in image_patch.patches:
+            intersection_bbox = intersection(positive_patch.bbox, bbox)
+            if intersection_over_union(positive_patch.bbox, intersection_bbox) > iou_threshold:
+                positive_patches.append(positive_patch)
+        if len(positive_patches) > 0:
+            image = loader.save_image_array_temporary(Patch(image_patch.image, bbox, None).image_array)
+            patches = []
+            for positive_patch in positive_patches:
+                intersection_bbox = intersection(positive_patch.bbox, bbox)
+                if intersection_over_union(positive_patch.bbox, intersection_bbox) > iou_threshold:
+                    intersection_bbox.xmin -= bbox.xmin
+                    intersection_bbox.ymin -= bbox.ymin
+                    intersection_bbox.xmax -= bbox.xmin
+                    intersection_bbox.ymax -= bbox.ymin
+                    patch = Patch(image, intersection_bbox, positive_patch.class_name)
+                    patches.append(patch)
+            return ImagePatch(image, patches)
+    return None
+
 def get_weighted_random_2d(weight: np.ndarray, k: int = 1) -> Union[Tuple[int, int], List[Tuple[int, int]]]:
     height, width = weight.shape
     indexes = np.arange(0, height * width)
