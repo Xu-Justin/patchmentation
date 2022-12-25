@@ -33,7 +33,7 @@ class Dataset:
 
     @classes.setter
     def classes(self, value: List[str]):
-        self._classes = value
+        self._classes = sorted(value)
 
     @property
     def n_classes(self) -> int:

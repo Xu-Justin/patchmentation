@@ -5,5 +5,6 @@ omit =
     */distutils/*
     tests/*
     patchmentation/dataset.py
+    patchmentation/data/*
 
 disable_warnings = couldnt-parse

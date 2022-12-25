@@ -40,15 +40,23 @@ def test_generate_mask_empty_1():
     width = 100
     height = 20
     mask = helper.generate_Mask_Empty(width, height)
-    assert isinstance(mask, Mask)
+    assert isinstance(mask, EmptyMask)
     assert mask == EmptyMask(width, height)
 
 def test_generate_mask_empty_2():
     width = 20
     height = 100
     mask = helper.generate_Mask_Empty(width, height)
-    assert isinstance(mask, Mask)
+    assert isinstance(mask, EmptyMask)
     assert mask == EmptyMask(width, height)
+
+def test_generate_zero_mask():
+    width = 20
+    height = 100
+    mask = helper.generate_zero_Mask(width, height)
+    assert isinstance(mask, Mask)
+    assert mask.shape == (height, width)
+    assert (mask.image_array == 0).all()
 
 def test_generate_image_1():
     width = 100
@@ -166,4 +174,3 @@ def test_check_grayscale_2():
         [[4, 4, 4], [5, 4, 5], [6, 6, 6]]
     ])
     assert not helper.check_grayscale(image_array)
-

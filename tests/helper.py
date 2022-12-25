@@ -4,6 +4,7 @@ from patchmentation.utils import loader
 import random
 import string
 import sys
+import tempfile
 import numpy as np
 from typing import List, Tuple, Callable, Union
 from inspect import signature
@@ -25,6 +26,14 @@ DEFAULT_MAX_NUMBER_OF_IMAGE = 5
 DEFAULT_EPSILON = 1e-6
 FLOAT_MIN = sys.float_info.min
 FLOAT_MAX = sys.float_info.max
+
+temporary_folder = tempfile.TemporaryDirectory()
+
+def get_temporary_folder():
+    return tempfile.TemporaryDirectory(dir=temporary_folder.name)
+
+def get_temporary_file(suffix: str):
+    return tempfile.NamedTemporaryFile(suffix=suffix, dir=temporary_folder.name)
 
 def _kwargs(kwargs, func: Callable, var: str):
     return kwargs.get(var, signature(func).parameters[var].default)
@@ -98,6 +107,12 @@ def generate_Mask_Empty(width: int = None, height: int = None) -> Mask:
     if width is None: width = generate_width()
     if height is None: height = generate_height()
     image_array = np.full((height, width), 255, np.uint8)
+    return loader.save_mask_image_array_temporary(image_array)
+
+def generate_zero_Mask(width: int = None, height: int = None) -> Mask:
+    if width is None: width = generate_width()
+    if height is None: height = generate_height()
+    image_array = np.full((height, width), 0, np.uint8)
     return loader.save_mask_image_array_temporary(image_array)
 
 def generate_Image(width: int = None, height: int = None, mask: Union[Mask, bool] = None) -> Image:

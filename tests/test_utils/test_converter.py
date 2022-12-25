@@ -6,12 +6,23 @@ from patchmentation.utils import converter
 from tests import helper
 
 import numpy as np
+import pytest
 
 def test_array2image():
     image_array = helper.generate_image_array()
     image = converter.array2image(image_array)
     assert isinstance(image, Image)
     assert (image.image_array[:,:,:3] == image_array[:,:,:3]).all()
+
+def test_array2image_zero_width():
+    image_array = helper.generate_image_array(0, 5, 4)
+    with pytest.raises(ValueError):
+        converter.array2image(image_array)
+
+def test_array2image_zero_height():
+    image_array = helper.generate_image_array(5, 0, 4)
+    with pytest.raises(ValueError):
+        converter.array2image(image_array)
 
 def test_image2patch():
     image = helper.generate_Image()

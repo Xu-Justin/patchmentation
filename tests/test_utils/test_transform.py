@@ -665,7 +665,7 @@ def test_random_grayscale_1():
 
     iteration = 200
     trial = 0
-    max_trial = 3
+    max_trial = 5
     while trial < max_trial:
         trial += 1
         for _ in range(trial * iteration):
@@ -689,7 +689,7 @@ def test_random_grayscale_2():
 
     iteration = 200
     trial = 0
-    max_trial = 3
+    max_trial = 5
     while trial < max_trial:
         trial += 1
         for _ in range(trial * iteration):

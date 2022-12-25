@@ -440,6 +440,104 @@ def test_overlay_image_4():
     actual_image_array = F.overlay_image(image_a, image_b, bbox).image_array
     assert (expected_image_array == actual_image_array).all()
 
+def test_overlay_mask_1():
+    mask_a_image_array = np.array([
+        [0, 1, 2, 3, 4],
+        [5, 6, 7, 8, 9],
+        [10, 11, 12, 13, 14]
+    ])
+    mask_b_image_array = np.array([
+        [101, 102, 103, 104, 105],
+        [106, 107, 108, 109, 110],
+        [111, 112, 113, 114, 115]
+    ])
+    mask_a = loader.save_mask_image_array_temporary(mask_a_image_array)
+    mask_b = loader.save_mask_image_array_temporary(mask_b_image_array)
+    expected_image_array = np.array([
+        [0, 0, 0, 1, 1],
+        [2, 2, 2, 3, 3],
+        [4, 4, 5, 5, 6]
+    ])
+    actual_image_array = F.overlay_mask(mask_a, mask_b).image_array
+    assert (expected_image_array == actual_image_array).all()
+
+def test_overlay_mask_2():
+    mask_a_image_array = np.array([
+        [223, 127,  75],
+        [ 32, 186, 139],
+        [232,  78,  43],
+        [117, 202,  50],
+        [180,  57, 119]
+    ])
+    mask_b_image_array = np.array([
+        [191, 204, 174],
+        [185,  30, 147],
+        [136,  39, 149],
+        [ 62, 204,  75],
+        [151, 129, 190]
+    ])
+    mask_a = loader.save_mask_image_array_temporary(mask_a_image_array)
+    mask_b = loader.save_mask_image_array_temporary(mask_b_image_array)
+    expected_image_array = np.array([
+       [167, 101,  51],
+       [ 23,  21,  80],
+       [123,  11,  25],
+       [ 28, 161,  14],
+       [106,  28,  88]
+    ])
+    actual_image_array = F.overlay_mask(mask_a, mask_b).image_array
+    assert (expected_image_array == actual_image_array).all()
+
+def test_overlay_mask_3():
+    width = 10
+    height = 8
+    mask_a = helper.EmptyMask(width, height)
+    mask_b = helper.EmptyMask(width, height)
+    expected_image_array = helper.EmptyMask(width, height).image_array
+    actual_image_array = F.overlay_mask(mask_a, mask_b).image_array
+    assert (expected_image_array == actual_image_array).all()
+
+def test_overlay_mask_4():
+    mask_a_image_array = np.array([
+        [0, 127,  75],
+        [ 32, 186, 139],
+        [232,  78,  43],
+        [117, 202,  50],
+        [180,  0, 119]
+    ])
+    mask_b_image_array = np.array([
+        [191, 204, 0],
+        [185,  30, 0],
+        [136,  39, 149],
+        [ 62, 204,  75],
+        [151, 129, 190]
+    ])
+    mask_a = loader.save_mask_image_array_temporary(mask_a_image_array)
+    mask_b = loader.save_mask_image_array_temporary(mask_b_image_array)
+    expected_image_array = np.array([
+       [0, 101,  0],
+       [ 23,  21,  0],
+       [123,  11,  25],
+       [ 28, 161,  14],
+       [106,  0,  88]
+    ])
+    actual_image_array = F.overlay_mask(mask_a, mask_b).image_array
+    assert (expected_image_array == actual_image_array).all()
+
+def test_overlay_mask_5():
+    mask_a_image_array = np.array([
+        [0, 127,  75],
+        [ 32, 186, 139],
+        [232,  78,  43],
+        [117, 202,  50],
+        [180,  0, 119]
+    ])
+    mask_a = loader.save_mask_image_array_temporary(mask_a_image_array)
+    mask_b = helper.EmptyMask(mask_a.width, mask_a.height)
+    expected_image_array = mask_a.image_array
+    actual_image_array = F.overlay_mask(mask_a, mask_b).image_array
+    assert (expected_image_array == actual_image_array).all()
+
 def test_visibility_thresholding_1():
     image = helper.generate_Image()
     patch_bbox_1 = helper.generate_Patch(image), BBox(0, 0, 10, 10)
@@ -641,6 +739,19 @@ def test_get_negative_patch_4():
     assert negative_patch.width > 0 and negative_patch.width <= image.width
     assert negative_patch.height > 0 and negative_patch.height <= image.height
 
+def test_get_overpatch_1():
+    image = helper.generate_ImagePatch()
+    iou_threshold = 0.5
+    overpatch = F.get_overpatch(image, iou_threshold)
+    assert overpatch is not None
+    assert len(overpatch.patches) > 0
+
+def test_get_overpatch_2():
+    image = helper.generate_ImagePatch()
+    iou_threshold = 1.0
+    overpatch = F.get_overpatch(image, iou_threshold, 100)
+    assert overpatch is None
+
 def test_get_weighted_random_2d_1():
     weight = np.array([
         [1, 1, 1],
@@ -657,7 +768,7 @@ def test_get_weighted_random_2d_2():
         [0, 3, 2],
         [1, 0, 0]
     ])
-    k = 100
+    k = 500
     indexes = F.get_weighted_random_2d(weight, k)
     count = dict()
     for y, x in indexes:

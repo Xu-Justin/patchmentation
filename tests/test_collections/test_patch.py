@@ -11,10 +11,12 @@ def test_patch():
     image = helper.generate_Image()
     bbox = helper.generate_BBox(image.width, image.height)
     class_name = helper.generate_class_name()
-    patch = Patch(image, bbox, class_name)
+    mask = helper.generate_Mask(image.width, image.height)
+    patch = Patch(image, bbox, class_name, mask)
     assert patch.image is image
     assert patch.bbox is bbox
     assert patch.class_name == class_name
+    assert patch.mask == mask
     assert (image, bbox, class_name) == tuple(patch)
     str(patch)
 
@@ -31,6 +33,37 @@ def test_patch_image_array():
     image_array = patch.image_array
     assert image_array.shape == (bbox.height, bbox.width, 4)
     assert image_array.dtype == np.uint8
+
+def test_patch_image_array_with_mask():
+    width = 10
+    height = 20
+    image = helper.generate_Image(width, height, True)
+    bbox = BBox(1, 2, 5, 7)
+    mask = helper.generate_Mask(width, height)
+    patch = Patch(image, bbox, None, mask)
+    assert patch.shape == (bbox.height, bbox.width, 4)
+    assert patch.width == bbox.width
+    assert patch.height == bbox.height
+    assert patch.channel == 4
+    image_array = patch.image_array
+    assert image_array.shape == (bbox.height, bbox.width, 4)
+    assert image_array.dtype == np.uint8
+
+def test_patch_image_array_with_zero_mask():
+    width = 10
+    height = 20
+    image = helper.generate_Image(width, height, True)
+    bbox = BBox(1, 2, 5, 7)
+    mask = helper.generate_zero_Mask(width, height)
+    patch = Patch(image, bbox, None, mask)
+    assert patch.shape == (bbox.height, bbox.width, 4)
+    assert patch.width == bbox.width
+    assert patch.height == bbox.height
+    assert patch.channel == 4
+    image_array = patch.image_array
+    assert image_array.shape == (bbox.height, bbox.width, 4)
+    assert image_array.dtype == np.uint8
+    assert (image_array[:, :, 3] == 0).all()
 
 def test_patch_shape_cache_clear():
     width = 10
@@ -71,3 +104,15 @@ def test_patch_error_image():
     with pytest.raises(ValueError):
         image = helper.generate_Image(width, height-1, True)
         patch.image = image
+
+def test_patch_mask_error():
+    width = 10
+    height = 20   
+    image = helper.generate_Image(width, height, True) 
+    patch = Patch(image, BBox(0, 0, width, height), None)
+    with pytest.raises(ValueError):
+        mask = helper.generate_Mask(width-1, height)
+        patch.mask = mask
+    with pytest.raises(ValueError):
+        mask = helper.generate_Mask(width, height+1)
+        patch.mask = mask
