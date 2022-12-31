@@ -1,4 +1,4 @@
-from patchmentation.collections import Dataset, ImagePatch, Image, Patch, BBox, Mask
+from patchmentation.collections import Dataset, ImagePatch, Image, Patch, BBox
 from patchmentation.utils import loader
 from . import datautils
 from .data import Data
@@ -7,7 +7,7 @@ import cv2
 import os
 import numpy as np
 from typing import Dict, List, Any
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from tqdm import tqdm
 
 class Campus(Data):
@@ -85,7 +85,7 @@ def load_dataset(file_video: str, file_annotation: str) -> Dataset:
     annotations = read_file_annotation(file_annotation)
     annotations = organize_annotations_by_frame_number(annotations)
 
-    for frame_index, frame in tqdm(enumerate(video_generator(file_video))):
+    for frame_index, frame in tqdm(enumerate(video_generator(file_video)), desc='load_dataset'):
         frame_annotations = annotations.get(frame_index, [])
         image_patch = construct_image_patch(frame, frame_annotations)
         image_patches.append(image_patch)
@@ -149,7 +149,7 @@ def construct_patches(image: Image, annotations: List[Dict[str, Any]]) -> List[P
 
 def construct_patch(image: Image, annotation: Dict[str, Any]) -> Patch:
     bbox = construct_bbox(annotation)
-    class_name = f"{annotation['label']} {annotation['lost']} {annotation['generated']}"
+    class_name = annotation['label']
     return Patch(image, bbox, class_name)
 
 def construct_bbox(annotation: Dict[str, Any]) -> BBox:
