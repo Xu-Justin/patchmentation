@@ -78,6 +78,97 @@ class Garden1:
         def url_file_annotation(self) -> str:
             return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden1/view-IP1.txt'
 
+    class Contour2(Campus):
+        @property
+        def name(self) -> str:
+            return 'campus-garden1-contour2'
+
+        @property
+        def url_file_video(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden1/view-Contour2.mp4'
+
+        @property
+        def url_file_annotation(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden1/view-Contour2.txt'
+
+    class HC2(Campus):
+        @property
+        def name(self) -> str:
+            return 'campus-garden1-hc2'
+
+        @property
+        def url_file_video(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden1/view-HC2.mp4'
+
+        @property
+        def url_file_annotation(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden1/view-HC2.txt'
+
+    class HC3(Campus):
+        @property
+        def name(self) -> str:
+            return 'campus-garden1-hc3'
+
+        @property
+        def url_file_video(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden1/view-HC3.mp4'
+
+        @property
+        def url_file_annotation(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden1/view-HC3.txt'
+
+class Garden2:
+    class HC1(Campus):
+        @property
+        def name(self) -> str:
+            return 'campus-garden2-hc1'
+
+        @property
+        def url_file_video(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC1.mp4'
+
+        @property
+        def url_file_annotation(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC1.txt'
+
+    class HC2(Campus):
+        @property
+        def name(self) -> str:
+            return 'campus-garden2-hc2'
+
+        @property
+        def url_file_video(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC2.mp4'
+
+        @property
+        def url_file_annotation(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC2.txt'
+
+    class HC3(Campus):
+        @property
+        def name(self) -> str:
+            return 'campus-garden2-hc3'
+
+        @property
+        def url_file_video(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC3.mp4'
+
+        @property
+        def url_file_annotation(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC3.txt'
+
+    class HC4(Campus):
+        @property
+        def name(self) -> str:
+            return 'campus-garden2-hc4'
+
+        @property
+        def url_file_video(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC4.mp4'
+
+        @property
+        def url_file_annotation(self) -> str:
+            return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC4.txt'
 
 def load_dataset(file_video: str, file_annotation: str) -> Dataset:
     image_patches = []
