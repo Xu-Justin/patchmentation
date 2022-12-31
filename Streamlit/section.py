@@ -38,6 +38,14 @@ DATASET_DATA_PASCAL_VOC_2007_TRAIN = 'Pascal VOC 2007 - Train'
 DATASET_DATA_PASCAL_VOC_2007_VAL = 'Pascal VOC 2007 - Val'
 DATASET_DATA_PASCAL_VOC_2007_TEST = 'Pascal VOC 2007 - Test'
 DATASET_DATA_PENN_FUDAN_PED = 'Penn-Fudan Pedestrian'
+DATASET_DATA_CAMPUS_GARDEN1_IP1 = 'Campus - Gaden1 - IP1'
+DATASET_DATA_CAMPUS_GARDEN1_COUNTOUR2 = 'Campus - Gaden1 - Countour2'
+DATASET_DATA_CAMPUS_GARDEN1_HC2 = 'Campus - Gaden1 - HC2'
+DATASET_DATA_CAMPUS_GARDEN1_HC3 = 'Campus - Gaden1 - HC3'
+DATASET_DATA_CAMPUS_GARDEN2_HC1 = 'Campus - Gaden2 - HC1'
+DATASET_DATA_CAMPUS_GARDEN2_HC2 = 'Campus - Gaden2 - HC2'
+DATASET_DATA_CAMPUS_GARDEN2_HC3 = 'Campus - Gaden2 - HC3'
+DATASET_DATA_CAMPUS_GARDEN2_HC4 = 'Campus - Gaden2 - HC4'
 
 TRANSFORM_RESIZE = 'Resize'
 TRANSFORM_RANDOM_RESIZE = 'Random Resize'
@@ -96,7 +104,15 @@ def dataset_data(key: str) -> Dataset:
         DATASET_DATA_PASCAL_VOC_2007_TRAIN,
         DATASET_DATA_PASCAL_VOC_2007_VAL,
         DATASET_DATA_PASCAL_VOC_2007_TEST,
-        DATASET_DATA_PENN_FUDAN_PED
+        DATASET_DATA_PENN_FUDAN_PED,
+        DATASET_DATA_CAMPUS_GARDEN1_COUNTOUR2,
+        DATASET_DATA_CAMPUS_GARDEN1_IP1,
+        DATASET_DATA_CAMPUS_GARDEN1_HC2,
+        DATASET_DATA_CAMPUS_GARDEN1_HC3,
+        DATASET_DATA_CAMPUS_GARDEN2_HC1,
+        DATASET_DATA_CAMPUS_GARDEN2_HC2,
+        DATASET_DATA_CAMPUS_GARDEN2_HC3,
+        DATASET_DATA_CAMPUS_GARDEN2_HC4
     ]
     option = st.radio('Dataset Source', options, key=f'{key}-option')
     return load_data_dataset(option)
@@ -115,6 +131,30 @@ def load_data_dataset(option: str) -> Dataset:
     if option == DATASET_DATA_PENN_FUDAN_PED:
         return patchmentation.data.PennFudanPed().load()
 
+    if option == DATASET_DATA_CAMPUS_GARDEN1_COUNTOUR2:
+        return patchmentation.data.campus.Garden1.Contour2().load()
+    
+    if option == DATASET_DATA_CAMPUS_GARDEN1_IP1:
+        return patchmentation.data.campus.Garden1.IP1().load()
+    
+    if option == DATASET_DATA_CAMPUS_GARDEN1_HC2:
+        return patchmentation.data.campus.Garden1.HC2().load()
+    
+    if option == DATASET_DATA_CAMPUS_GARDEN1_HC3:
+        return patchmentation.data.campus.Garden1.HC3().load()
+    
+    if option == DATASET_DATA_CAMPUS_GARDEN2_HC1:
+        return patchmentation.data.campus.Garden2.HC1().load()
+    
+    if option == DATASET_DATA_CAMPUS_GARDEN2_HC2:
+        return patchmentation.data.campus.Garden2.HC2().load()
+    
+    if option == DATASET_DATA_CAMPUS_GARDEN2_HC3:
+        return patchmentation.data.campus.Garden2.HC3().load()
+    
+    if option == DATASET_DATA_CAMPUS_GARDEN2_HC4:
+        return patchmentation.data.campus.Garden2.HC4().load()
+    
     raise Exception(f'Unknown option {option}')
 
 def dataset_yolo(key: str) -> Dataset:
