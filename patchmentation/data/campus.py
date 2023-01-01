@@ -16,6 +16,18 @@ class Campus(Data):
     @abstractmethod
     def name(self) -> str:
         pass
+
+    @property
+    def folder_images(self) -> str:
+        return os.path.join(self.folder, 'images')
+
+    @property
+    def folder_annotations(self) -> str:
+        return os.path.join(self.folder, 'labels')
+
+    @property
+    def file_names(self) -> str:
+        return os.path.join(self.folder, 'obj.names')
     
     @property
     @abstractmethod
@@ -37,15 +49,15 @@ class Campus(Data):
 
     @property
     def file_video(self) -> str:
-        return os.path.join(self.folder, self.name_file_video)
+        return os.path.join(self.root, self.name_file_video)
 
     @property
     def file_annotation(self) -> str:
-        return os.path.join(self.folder, self.name_file_annotation)
+        return os.path.join(self.root, self.name_file_annotation)
 
     def load(self) -> Dataset:
         self.initialize()
-        return load_dataset(self.file_video, self.file_annotation)
+        return loader.load_yolo_dataset(self.folder_images, self.folder_annotations, self.file_names)
 
     def download(self, overwrite: bool = False) -> None:
         self.download_file_video(overwrite)
@@ -57,12 +69,25 @@ class Campus(Data):
     def download_file_annotation(self, overwrite: bool = False) -> None:
         datautils.download(self.url_file_annotation, self.file_annotation, overwrite)
 
+    def exists_file_video(self) -> bool:
+        return os.path.exists(self.file_video)
+
+    def exists_file_annotation(self) -> bool:
+        return os.path.exists(self.file_annotation)
+
     def initialize(self) -> None:
         if not self.exists():
-            self.download(overwrite=True)
+            if not self.exists_file_video():
+                self.download_file_video(overwrite=True)
+            if not self.exists_file_annotation():
+                self.download_file_annotation(overwrite=True)
+            self.extract_yolo(overwrite=True)
 
     def extract(self, overwrite: bool = False) -> None:
         raise NotImplementedError
+
+    def extract_yolo(self, overwrite: bool = False) -> None:
+        save_video_yolo(self.file_video, self.file_annotation, self.folder_images, self.folder_annotations, self.file_names, overwrite=overwrite)
 
 class Garden1:
     class IP1(Campus):
@@ -170,19 +195,28 @@ class Garden2:
         def url_file_annotation(self) -> str:
             return 'https://bitbucket.org/merayxu/multiview-object-tracking-dataset/raw/023d64c36f073dbba371d31b76f6f20ab46aeaf2/CAMPUS/Garden2/view-HC4.txt'
 
-def load_dataset(file_video: str, file_annotation: str) -> Dataset:
-    image_patches = []
-
+def save_video_yolo(file_video: str, file_annotation: str, save_folder_images: str, save_folder_annotations: str, save_file_names: str, overwrite: bool = False) -> None:
+    datautils.validate_not_exists(save_folder_images, overwrite)
+    datautils.validate_not_exists(save_folder_annotations, overwrite)
+    datautils.validate_not_exists(save_file_names, overwrite)
+    
     annotations = read_file_annotation(file_annotation)
     annotations = organize_annotations_by_frame_number(annotations)
 
-    for frame_index, frame in tqdm(enumerate(video_generator(file_video)), desc=f'load_video {os.path.basename(file_video)}'):
+    classes = set()
+    for _, annotation in annotations.items():
+        for patch in annotation:
+            classes.add(patch['label'])
+    classes = sorted(list(classes))
+    loader.save_yolo_names(classes, save_file_names)
+
+    for frame_index, frame in tqdm(enumerate(video_generator(file_video)), desc=f'save_video_yolo {os.path.basename(file_video)}'):
         frame_annotations = annotations.get(frame_index, [])
         image_patch = construct_image_patch(frame, frame_annotations)
-        image_patches.append(image_patch)
+        save_file_image = os.path.join(save_folder_images, f'{str(frame_index).zfill(5)}.jpg')
+        save_file_annotation = os.path.join(save_folder_annotations, f'{str(frame_index).zfill(5)}.txt')
+        loader.save_yolo_image_patch(image_patch, classes, save_file_image, save_file_annotation)
         
-    return Dataset(image_patches)
-
 def video_generator(file_video):
     video = cv2.VideoCapture(file_video)
     while True:
