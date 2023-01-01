@@ -176,7 +176,7 @@ def load_dataset(file_video: str, file_annotation: str) -> Dataset:
     annotations = read_file_annotation(file_annotation)
     annotations = organize_annotations_by_frame_number(annotations)
 
-    for frame_index, frame in tqdm(enumerate(video_generator(file_video)), desc='load_dataset'):
+    for frame_index, frame in tqdm(enumerate(video_generator(file_video)), desc=f'load_video {os.path.basename(file_video)}'):
         frame_annotations = annotations.get(frame_index, [])
         image_patch = construct_image_patch(frame, frame_annotations)
         image_patches.append(image_patch)
