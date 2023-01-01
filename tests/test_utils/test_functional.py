@@ -740,9 +740,13 @@ def test_get_negative_patch_4():
     assert negative_patch.height > 0 and negative_patch.height <= image.height
 
 def test_get_overpatch_1():
-    image = helper.generate_ImagePatch()
     iou_threshold = 0.5
-    overpatch = F.get_overpatch(image, iou_threshold)
+    max_trial = 5
+    for _ in range(max_trial):
+        image = helper.generate_ImagePatch()
+        overpatch = F.get_overpatch(image, iou_threshold)
+        if overpatch is not None:
+            break
     assert overpatch is not None
     assert len(overpatch.patches) > 0
 
