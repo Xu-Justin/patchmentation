@@ -27,6 +27,8 @@ pip install patchmentation
 
 * PyPI: https://pypi.org/project/patchmentation
 
+* Docs: TBA
+
 * Research Paper: TBA
 
 * Benchmarking Results: https://github.com/Xu-Justin/patchmentation-yolov5
