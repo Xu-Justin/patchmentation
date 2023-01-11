@@ -1,4 +1,4 @@
-# `patchmentation`
+# patchmentation
 
 [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Xu-Justin/patchmentation)
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://pypi.org/project/patchmentation)
@@ -6,7 +6,7 @@
 Patchmentation is a python library to perform patch augmentation, a data augmentation technique for object detection, that allows for the synthesis of new images by combining objects from one or more source images into a background image.
 
 <p align="center">
-  <img src="assets/patch-augmentation-flow.jpg" height="400" />
+  <img src="https://github.com/Xu-Justin/patchmentation/blob/1320590e1f1015b1c37c241fd2a1608bd0826ea8/assets/patch-augmentation-flow.jpg" height="400" />
 </p>
 
 The process of patch augmentation involves extracting objects of interest from the source images, transforming them, and then pasting them onto the background image to create a composite image, therefore increasing diversity at the object level. The resulting dataset offers a greater variety of object combinations within a single image, making it more robust and accurate when training object detection models.
