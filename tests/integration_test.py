@@ -10,6 +10,8 @@ from patchmentation.utils import functional as F
 from patchmentation import patch_augmentation
 
 import numpy as np
+import patchmentation
+import setup
 
 SAMPLE_PATCHMENTATION_FOLDER_IMAGES = 'dataset/sample_patchmentation/source/obj_train_data/'
 SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS = 'dataset/sample_patchmentation/source/obj_train_data/'
@@ -17,6 +19,9 @@ SAMPLE_PATCHMENTATION_FILE_NAMES = 'dataset/sample_patchmentation/source/obj.nam
 
 SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_1 = 'dataset/sample_patchmentation/background/background_1.jpg'
 SAMPLE_PATCHMENTATION_BACKGROUND_IMAGE_2 = 'dataset/sample_patchmentation/background/background_2.jpg'
+
+def test_version():
+    assert patchmentation.__version__ == setup.version
 
 def test_patch_augmentation_1():
     dataset = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
