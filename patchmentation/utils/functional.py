@@ -138,18 +138,30 @@ def overlay_mask(mask_a: Mask, mask_b: Mask) -> Mask:
     array = ((array_a * array_b) * 255).astype(np.uint8)
     return loader.save_mask_image_array_temporary(array)
 
-def display_image_array(image_array: np.ndarray, block: bool = True) -> None:
+def display_image_array(image_array: np.ndarray, block: bool = True, axis: bool = False) -> None:
+    fig, ax = plt.subplots(1, 1)
+    construct_ax_imshow(ax, image_array)
+    ax.axis(axis)
+    plt.show(block=block)
+
+def display_images(images: List[Image], block: bool = True, axis: bool = False) -> None:
+    fig, axs = plt.subplots(1, len(images), figsize=(20, 20))
+    for i, image in enumerate(images):
+        construct_ax_imshow(axs[i], image.image_array)
+        axs[i].axis(axis)
+    plt.show(block=block)
+        
+def construct_ax_imshow(ax: plt.Axes, image_array: np.ndarray) -> None:
+    kwargs = {
+        'vmin': 0,
+        'vmax': 255
+    }
     if len(image_array.shape) == 2:
-        plt.imshow(image_array, cmap='gray', vmin=0, vmax=255)
-        plt.show(block=block)
-    elif image_array.shape[2] == 3:
-        image_array = convert_BGR2RGB(image_array)
-        plt.imshow(image_array, vmin=0, vmax=255)
-        plt.show(block=block)
-    elif image_array.shape[2] == 4:
-        image_array = convert_BGRA2RGBA(image_array)
-        plt.imshow(image_array, vmin=0, vmax=255)
-        plt.show(block=block)
+        ax.imshow(image_array, cmap='gray', **kwargs)
+    elif len(image_array.shape) == 3 and image_array.shape[2] == 3:
+        ax.imshow(convert_BGR2RGB(image_array), **kwargs)
+    elif len(image_array.shape) == 3 and image_array.shape[2] == 4:
+        ax.imshow(convert_BGRA2RGBA(image_array), **kwargs)
     else:
         raise TypeError(f'Received unexpected image_array with shape {image_array.shape}')
 
