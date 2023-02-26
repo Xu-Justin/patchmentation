@@ -1,7 +1,7 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from patchmentation.collections import BBox, Image, Patch, ImagePatch
+from patchmentation.collections import BBox, Image, Patch, ImagePatch, Mask
 from patchmentation.utils import loader
 from patchmentation.utils import filter
 from patchmentation.utils import transform
@@ -9,6 +9,7 @@ from patchmentation.utils import Comparator
 from patchmentation.utils import functional as F
 from patchmentation import patch_augmentation
 
+from typing import List
 import numpy as np
 import patchmentation
 import setup
@@ -141,3 +142,89 @@ def test_patch_augmentation_5():
     patches = zero_patches + overflow_patches
     image_patch = patch_augmentation(patches, background_image)
     assert isinstance(image_patch, ImagePatch)
+
+def test_demo():
+    penn_fudan_ped = loader.load_yolo_dataset(SAMPLE_PATCHMENTATION_FOLDER_IMAGES, SAMPLE_PATCHMENTATION_FOLDER_ANNOTATIONS, SAMPLE_PATCHMENTATION_FILE_NAMES)
+    patches = []
+    for image_patch in penn_fudan_ped.image_patches:
+        patches += image_patch.patches
+        if len(patches) > 5:
+            break
+
+    assert isinstance(patches, List)
+    assert len(patches) > 0
+    assert isinstance(patches[0], Patch)
+    
+    # Load Background Image
+    path_image = 'dataset/campus_garden1_frame1/images/contour2.jpg'
+    path_annotation = 'dataset/campus_garden1_frame1/labels/contour2.txt'
+    path_classes = 'dataset/campus_garden1_frame1/obj.names'
+
+    classes = loader.load_yolo_names(path_classes)
+    background_image = Image(path_image)
+    background_patches = loader.load_yolo_patches(background_image, path_annotation, classes)
+    background_image_patch = ImagePatch(background_image, background_patches)
+
+    assert isinstance(classes, List)
+    assert len(classes) > 0
+    assert isinstance(classes[0], str)
+    assert isinstance(background_image, Image)
+    assert isinstance(background_patches, List)
+    assert len(background_patches) > 0
+    assert isinstance(background_patches[0], Patch)
+    assert isinstance(background_image_patch, ImagePatch)
+
+    # Patch Augmentation
+    result = patchmentation.patch_augmentation(
+        patches, 
+        background_image_patch,
+        max_n_patches=10
+    )
+
+    assert isinstance(result, ImagePatch)
+
+    # Soft-edge Blending
+    result = patchmentation.patch_augmentation(
+        patches, 
+        background_image_patch, 
+        actions=[
+            filter.FilterWidth(10, Comparator.GreaterThan),
+            filter.FilterHeight(10, Comparator.GreaterThan),
+            transform.SoftEdge(3)
+        ],
+        max_n_patches=10
+    )
+
+    assert isinstance(result, ImagePatch)
+
+    # Negative Patching
+    negative_patches = []
+    for _ in range(5):
+        negative_patch = F.get_negative_patch(background_image, 0.5)
+        if negative_patch is not None:
+            negative_patches.append(negative_patch)
+    
+    assert isinstance(negative_patches, List)
+    assert len(negative_patches) > 0
+    assert isinstance(negative_patches[0], Patch)
+
+    result = patchmentation.patch_augmentation(
+        patches + negative_patches, 
+        background_image_patch,
+        max_n_patches=10
+    )
+
+    assert isinstance(result, ImagePatch)
+
+    # Distribution Mask
+    path_distribution_mask = 'dataset/campus_garden1_frame1/distribution_mask/contour2.jpg'
+    distribution_mask = Mask(path_distribution_mask)
+    
+    result = patchmentation.patch_augmentation(
+        patches, 
+        background_image_patch, 
+        patch_distribution=distribution_mask,
+        max_n_patches=10
+    )
+
+    assert isinstance(result, ImagePatch)
