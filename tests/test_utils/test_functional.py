@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 
 from patchmentation.utils import functional as F
 from patchmentation.utils import loader
-from patchmentation.collections import BBox, OverflowBBox
+from patchmentation.collections import BBox, OverflowBBox, Image, ImagePatch
 from tests import helper
 
 import numpy as np
@@ -242,6 +242,36 @@ def test_display_image_array_BGRA():
     image_array = helper.generate_image_array(10, 20, channel=4)
     assert image_array.shape[2] == 4
     F.display_image_array(image_array, block=False)
+
+@pytest.mark.filterwarnings('error')
+def test_display_image():
+    image = helper.generate_Image(10, 20)
+    assert isinstance(image, Image)
+    F.display_image(image, block=False)
+
+@pytest.mark.filterwarnings('error')
+def test_display_image_patch():
+    image_patch = helper.generate_ImagePatch()
+    assert isinstance(image_patch, ImagePatch)
+    F.display_image(image_patch, block=False)
+
+@pytest.mark.filterwarnings('error')
+def test_display_images():
+    image = helper.generate_Image(10, 20)
+    assert isinstance(image, Image)
+    image_patch = helper.generate_ImagePatch()
+    assert isinstance(image_patch, ImagePatch)
+    F.display_images([image, image_patch], block=False)
+
+@pytest.mark.filterwarnings('error')
+def test_display_images_single():
+    image = helper.generate_Image(10, 20)
+    assert isinstance(image, Image)
+    F.display_images([image], block=False)
+
+@pytest.mark.filterwarnings('error')
+def test_display_images_zero():
+    F.display_images([], block=False)
 
 def test_convert_BGR2RGB():
     image_array = np.array([
