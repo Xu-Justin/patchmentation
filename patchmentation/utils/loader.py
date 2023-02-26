@@ -113,7 +113,7 @@ def load_yolo_image_patches(folder_images: str, folder_annotations: str, classes
         image_patches.append(image_patch)
     return image_patches
     
-def load_yolo_patches(image: Image, file_annotation: str, classes: List[str]) -> List[ImagePatch]:
+def load_yolo_patches(image: Image, file_annotation: str, classes: List[str]) -> List[Patch]:
     image_height, image_width, _ = image.image_array.shape
     patches = []
     with open(file_annotation, 'r') as f:

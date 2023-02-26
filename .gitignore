@@ -4,8 +4,15 @@
 .coverage
 htmlcov/*
 
+*.jpg
+*.png
+*.txt
+!dataset/*
+!assets/*
+
 # development tools
 *.ipynb
+!demo.ipynb
 .ipynb_checkpoints/
 temp*
 

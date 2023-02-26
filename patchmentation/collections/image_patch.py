@@ -40,11 +40,11 @@ class ImagePatch:
     
     def image_array(self, classes: List[str] = None, **kwargs) -> np.ndarray:
         rectangle_color = kwargs.get('rectangle_color', (255, 0, 0, 255))
-        rectangle_thickness = kwargs.get('rectangle_thickness', 1)
+        rectangle_thickness = kwargs.get('rectangle_thickness', self.dynamic_scale)
         font = kwargs.get('font', cv2.FONT_HERSHEY_SIMPLEX)
-        font_scale = kwargs.get('font_scale', 0.5)
+        font_scale = kwargs.get('font_scale', 0.25 * self.dynamic_scale)
         font_color = kwargs.get('font_color', rectangle_color)
-        line_thickness = kwargs.get('line_thickness', 1)
+        line_thickness = kwargs.get('line_thickness', self.dynamic_scale)
         line_type = kwargs.get('line_type', cv2.LINE_8)
         
         array = self.image.image_array
@@ -76,3 +76,10 @@ class ImagePatch:
     def channel(self) -> int:
         return self.image.channel
     
+    @property
+    def dynamic_scale(self) -> int:
+        def normalize(x: float) -> float:
+            scale = 0.5
+            power = 0.3
+            return scale * np.power(x, power)
+        return int(np.max([normalize(self.image.width), normalize(self.image.height), 1]))
